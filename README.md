@@ -17,6 +17,7 @@ To use maven easily make sure that the mvn bin is in your terminal PATH.
 
 
 ### Running
+From inside the LocMess-Server run in your terminal (verify there is a pom.xml file there):
 ```
 mvn tomcat7:run
 ```
