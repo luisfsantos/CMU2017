@@ -12,6 +12,7 @@ Right now setting up and running the server is pretty simple!
 ```
 
 A valid Maven (3.3.9 or higher recomended) is necessary: https://maven.apache.org/install.html
+
 To use maven easily make sure that the mvn bin is in your terminal PATH.
 
 
