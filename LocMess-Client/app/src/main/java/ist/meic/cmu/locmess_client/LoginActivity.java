@@ -56,6 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(this, InboxActivity.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
         getApplicationContext().startActivity(intent);
+        finish();
     }
 
     @Override
