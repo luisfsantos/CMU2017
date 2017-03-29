@@ -53,6 +53,9 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
         Toast.makeText(this, "All ok. Now I can start AsyncTask", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, InboxActivity.class);
+        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+        getApplicationContext().startActivity(intent);
     }
 
     @Override
