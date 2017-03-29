@@ -54,7 +54,7 @@ public class InboxActivity extends AppCompatActivity {
     private List<LocMessage> createDummyData(int size) {
         List<LocMessage> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            LocMessage msg = new LocMessage("catarina", "Free pizza",
+            LocMessage msg = new LocMessage("catarina" + i, "Free pizza",
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
                             "tempor incididunt ut labore et dolore magna aliqua.",
                     new Date(),

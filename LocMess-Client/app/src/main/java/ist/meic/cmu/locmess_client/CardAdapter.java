@@ -58,6 +58,10 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         if (!msg.isRead()) {
             holder.mPostAuthor.setTypeface(null, Typeface.BOLD);
             holder.mPostTitle.setTypeface(null, Typeface.BOLD);
+        } else {
+            // need to check both if and else bc of RecyclerView properties
+            holder.mPostAuthor.setTypeface(null, Typeface.NORMAL);
+            holder.mPostTitle.setTypeface(null, Typeface.NORMAL);
         }
     }
 
