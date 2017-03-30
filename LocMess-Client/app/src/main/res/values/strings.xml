@@ -14,4 +14,9 @@
     <string name="password_missing">Please insert password</string>
     <string name="confirm_password_missing">Please confirm password</string>
     <string name="username_missing">Please insert username</string>
+    <string name="title_activity_inbox">Inbox</string>
+    <string name="post_location">Posted at location</string>
+    <string name="post_time">Post time</string>
+    <string name="tab_opened_messages">Opened</string>
+    <string name="tab_available_messages">Available</string>
 </resources>

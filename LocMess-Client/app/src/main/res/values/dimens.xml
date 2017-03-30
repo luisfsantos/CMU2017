@@ -4,4 +4,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="small_margin">8dp</dimen>
     <dimen name="activity_double_margin">32dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="cardview_radius">4dp</dimen>
+    <dimen name="cardview_icon_size">16dp</dimen>
+    <dimen name="margin_2dp">2dp</dimen>
 </resources>
