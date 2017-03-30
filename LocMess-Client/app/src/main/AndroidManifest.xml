@@ -23,7 +23,7 @@
         <activity
             android:name=".InboxActivity"
             android:label="@string/title_activity_inbox"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

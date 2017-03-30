@@ -1,18 +1,24 @@
 package ist.meic.cmu.locmess_client;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import ist.meic.cmu.locmess_client.data.LocMessage;
 
@@ -23,6 +29,7 @@ public class InboxActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +38,8 @@ public class InboxActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DUMMY_DATASET = createDummyData(12);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -42,30 +48,44 @@ public class InboxActivity extends AppCompatActivity {
             }
         });
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.inbox_card_list);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        ViewPager viewPager = (ViewPager)findViewById(R.id.view_pager);
+        PagerAdapter pagerAdapter = new PagerAdapter(getSupportFragmentManager(), InboxActivity.this);
+        viewPager.setAdapter(pagerAdapter);
 
-        mAdapter = new CardAdapter(DUMMY_DATASET, R.layout.available_msg_card);
-        mRecyclerView.setAdapter(mAdapter);
+        TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(viewPager);
 
+//        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+//            TabLayout.Tab tab = tabLayout.getTabAt(i);
+//            tab.setCustomView(pagerAdapter.getTabView(i));
+//        }
     }
 
-    private List<LocMessage> createDummyData(int size) {
-        List<LocMessage> list = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            LocMessage msg = new LocMessage("catarina" + i, "Free pizza",
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
-                            "tempor incididunt ut labore et dolore magna aliqua.",
-                    new Date(),
-                    "Arco do Cego"
-                    );
-            if (i % 2 == 0) {
-                msg.read();
-            }
-            list.add(msg);
+    class PagerAdapter extends FragmentPagerAdapter {
+
+        String[] TAB_TITLES = {getString(R.string.tab_available_messages), getString(R.string.tab_opened_messages)};
+        Context mContext;
+
+        public PagerAdapter(FragmentManager fm,  Context context) {
+            super(fm);
+            mContext = context;
         }
-        return list;
+
+        @Override
+        public Fragment getItem(int position) {
+            return new TabFragment();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return TAB_TITLES[position];
+        }
+
+        @Override
+        public int getCount() {
+            return TAB_TITLES.length;
+        }
+
     }
 
 }

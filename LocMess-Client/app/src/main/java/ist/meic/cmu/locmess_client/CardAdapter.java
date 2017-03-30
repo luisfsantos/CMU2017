@@ -19,11 +19,11 @@ import ist.meic.cmu.locmess_client.data.LocMessage;
 
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
-    private List<LocMessage> mDummyDataset;
+    private List<LocMessage> mDataset;
     private int mCardLayout;
 
-    public CardAdapter(List<LocMessage> dataset, int cardLayout ) {
-        mDummyDataset = dataset;
+    public CardAdapter(List<LocMessage> dataset, int cardLayout) {
+        mDataset = dataset;
         mCardLayout = cardLayout;
     }
 
@@ -32,7 +32,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     public CardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.available_msg_card, parent, false);
+            .inflate(mCardLayout, parent, false);
         // set the view's size, margins, paddings and layout parameters
 
         ViewHolder vh = new ViewHolder(v);
@@ -49,7 +49,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        LocMessage msg = mDummyDataset.get(position);
+        LocMessage msg = mDataset.get(position);
         holder.mPostAuthor.setText(msg.author);
         holder.mPostTitle.setText(msg.title);
         holder.mPostText.setText(msg.text);
@@ -68,7 +68,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDummyDataset.size();
+        return mDataset.size();
     }
 
     // Provide a reference to the views for each data item
