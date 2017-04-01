@@ -21,13 +21,18 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".inbox.InboxActivity"
-            android:launchMode="singleTop"
             android:label="@string/title_activity_inbox"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme" />
         <activity android:name=".inbox.ShowMessageActivity"
             android:label=""
             android:parentActivityName=".inbox.InboxActivity"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppTheme">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".inbox.InboxActivity" />
+        </activity>
     </application>
 
 </manifest>

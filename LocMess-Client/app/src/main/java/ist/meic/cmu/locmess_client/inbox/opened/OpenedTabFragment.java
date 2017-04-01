@@ -2,15 +2,18 @@ package ist.meic.cmu.locmess_client.inbox.opened;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +39,19 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null){
+            LocMessage[] parcelables = (LocMessage[]) savedInstanceState.getParcelableArray("opened_messages");
+            if (parcelables != null) {
+                DUMMY_DATASET = new LinkedList<>(Arrays.asList(parcelables));
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(getClass().getName(), "saving opened messages");
+        outState.putParcelableArray("opened_messages", DUMMY_DATASET.toArray(new LocMessage[DUMMY_DATASET.size()]));
     }
 
     @Nullable
@@ -64,15 +80,6 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
         Intent intent = new Intent(getContext(), ShowMessageActivity.class);
         intent.putExtra("message", message);
         startActivity(intent);
-//        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-//        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
-//        if (prev != null) {
-//            fragmentTransaction.remove(prev);
-//        }
-//        fragmentTransaction.addToBackStack(null);
-//
-//        DialogFragment fragment = ShowMessageDialogFragment.newInstance(message);
-//        fragment.show(fragmentTransaction, "dialog");
     }
 
     public void notifyMessageRead(LocMessage message) {

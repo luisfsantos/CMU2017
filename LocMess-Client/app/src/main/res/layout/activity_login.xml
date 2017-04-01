@@ -11,48 +11,48 @@
     tools:context="ist.meic.cmu.locmess_client.LoginActivity">
 
 
-        <LinearLayout
-            android:id="@+id/login_form"
+    <LinearLayout
+        android:id="@+id/login_form"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="64dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/login_to_locmess"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_marginBottom="64dp"/>
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="64dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/login_to_locmess"
-                style="@style/TextAppearance.AppCompat.Title" 
-                android:layout_marginBottom="64dp"/>
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/login_username"
-                android:hint="@string/username"
-                android:inputType="text"
-                style="@style/AppTheme"
-                android:layout_marginBottom="@dimen/small_margin"/>
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/login_password"
-                android:hint="@string/password"
-                android:inputType="textPassword"
-                android:fontFamily="sans-serif"
-                style="@style/AppTheme"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/login_button"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:onClick="doLogin"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/new_to_locmess"
-                android:onClick="switchToSignUp"/>
-        </LinearLayout>
+            android:id="@+id/login_username"
+            android:hint="@string/username"
+            android:inputType="text"
+            style="@style/AppTheme"
+            android:layout_marginBottom="@dimen/small_margin"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/login_password"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:fontFamily="sans-serif"
+            style="@style/AppTheme"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_button"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:onClick="doLogin"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/new_to_locmess"
+            android:onClick="switchToSignUp"/>
+    </LinearLayout>
 </RelativeLayout>

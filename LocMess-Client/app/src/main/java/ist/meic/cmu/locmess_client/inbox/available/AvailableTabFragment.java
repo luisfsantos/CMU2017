@@ -12,13 +12,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import ist.meic.cmu.locmess_client.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.LocMessage;
-import ist.meic.cmu.locmess_client.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 import ist.meic.cmu.locmess_client.inbox.ShowMessageActivity;
 
@@ -51,6 +52,19 @@ public class AvailableTabFragment extends Fragment implements OnRecyclerCardClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null){
+            LocMessage[] parcelables = (LocMessage[]) savedInstanceState.getParcelableArray("available_messages");
+            if (parcelables != null) {
+                DUMMY_DATASET = new LinkedList<>(Arrays.asList(parcelables));
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArray("available_messages", DUMMY_DATASET.toArray(new LocMessage[DUMMY_DATASET.size()]));
     }
 
 
@@ -72,6 +86,7 @@ public class AvailableTabFragment extends Fragment implements OnRecyclerCardClic
 
         return rootView;
     }
+
 
     private List<LocMessage> createDummyData(int size) {
         List<LocMessage> list = new LinkedList<>();

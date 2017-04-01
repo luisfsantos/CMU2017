@@ -37,7 +37,15 @@ public class InboxActivity extends AppCompatActivity implements AvailableTabFrag
         });
 
         ViewPager viewPager = (ViewPager)findViewById(R.id.view_pager);
-        pagerAdapter = new PagerAdapter(getSupportFragmentManager(), InboxActivity.this);
+        if (savedInstanceState != null) {
+            AvailableTabFragment atf = (AvailableTabFragment)getSupportFragmentManager()
+                    .getFragment(savedInstanceState, "available");
+            OpenedTabFragment otf = (OpenedTabFragment)getSupportFragmentManager()
+                    .getFragment(savedInstanceState, "opened");
+            pagerAdapter = new PagerAdapter(getSupportFragmentManager(), InboxActivity.this, atf, otf);
+        } else {
+            pagerAdapter = new PagerAdapter(getSupportFragmentManager(), InboxActivity.this);
+        }
         viewPager.setAdapter(pagerAdapter);
 
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
@@ -45,6 +53,12 @@ public class InboxActivity extends AppCompatActivity implements AvailableTabFrag
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        getSupportFragmentManager().putFragment(outState, "available", pagerAdapter.mTabAvailable);
+        getSupportFragmentManager().putFragment(outState, "opened", pagerAdapter.mTabOpened);
+    }
 
     @Override
     public void openMessage(LocMessage message) {
@@ -66,14 +80,25 @@ public class InboxActivity extends AppCompatActivity implements AvailableTabFrag
             mContext = context;
         }
 
+        PagerAdapter(FragmentManager fm, Context context, AvailableTabFragment atf, OpenedTabFragment otf) {
+            super(fm);
+            mContext = context;
+            mTabAvailable = atf;
+            mTabOpened = otf;
+        }
+
         @Override
         public Fragment getItem(int position) {
             switch (position){
                 case 0:
-                    mTabAvailable = new AvailableTabFragment();
+                    if (mTabAvailable == null) {
+                        mTabAvailable = new AvailableTabFragment();
+                    }
                     return mTabAvailable;
                 case 1:
-                    mTabOpened = new OpenedTabFragment();
+                    if (mTabOpened == null ) {
+                        mTabOpened = new OpenedTabFragment();
+                    }
                     return mTabOpened;
             }
             return null;

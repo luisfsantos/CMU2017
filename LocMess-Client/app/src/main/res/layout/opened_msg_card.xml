@@ -61,7 +61,9 @@
                     android:layout_height="@dimen/cardview_icon_size"
                     android:id="@+id/time_ic"
                     android:layout_toRightOf="@id/post_location"
+                    android:layout_toEndOf="@id/post_location"
                     android:layout_marginLeft="@dimen/small_margin"
+                    android:layout_marginStart="@dimen/small_margin"
                     android:src="@drawable/ic_time"
                     android:contentDescription="@string/post_time" />
                 <TextView
