@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client;
+package ist.meic.cmu.locmess_client.inbox;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,34 +10,22 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TextView;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
+import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.inbox.available.AvailableTabFragment;
+import ist.meic.cmu.locmess_client.inbox.opened.OpenedTabFragment;
 
-public class InboxActivity extends AppCompatActivity {
+public class InboxActivity extends AppCompatActivity implements AvailableTabFragment.OnMessageOpened {
 
-    private static List<LocMessage> DUMMY_DATASET;
-
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     private FloatingActionButton fab;
+    private PagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inbox);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -49,19 +37,26 @@ public class InboxActivity extends AppCompatActivity {
         });
 
         ViewPager viewPager = (ViewPager)findViewById(R.id.view_pager);
-        PagerAdapter pagerAdapter = new PagerAdapter(getSupportFragmentManager(), InboxActivity.this);
+        pagerAdapter = new PagerAdapter(getSupportFragmentManager(), InboxActivity.this);
         viewPager.setAdapter(pagerAdapter);
 
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
-//        for (int i = 0; i < tabLayout.getTabCount(); i++) {
-//            TabLayout.Tab tab = tabLayout.getTabAt(i);
-//            tab.setCustomView(pagerAdapter.getTabView(i));
-//        }
     }
 
+
+    @Override
+    public void openMessage(LocMessage message) {
+        // put message in OpenedTabFragment's dataset
+        pagerAdapter.mTabOpened.notifyMessageRead(message);
+    }
+
+
     class PagerAdapter extends FragmentPagerAdapter {
+
+        AvailableTabFragment mTabAvailable;
+        OpenedTabFragment mTabOpened;
 
         String[] TAB_TITLES = {getString(R.string.tab_available_messages), getString(R.string.tab_opened_messages)};
         Context mContext;
@@ -73,7 +68,15 @@ public class InboxActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return new TabFragment();
+            switch (position){
+                case 0:
+                    mTabAvailable = new AvailableTabFragment();
+                    return mTabAvailable;
+                case 1:
+                    mTabOpened = new OpenedTabFragment();
+                    return mTabOpened;
+            }
+            return null;
         }
 
         @Override
@@ -85,7 +88,6 @@ public class InboxActivity extends AppCompatActivity {
         public int getCount() {
             return TAB_TITLES.length;
         }
-
     }
 
 }

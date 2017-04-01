@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client;
+package ist.meic.cmu.locmess_client.inbox.available;
 
 import android.graphics.Typeface;
 import android.support.v7.widget.CardView;
@@ -11,28 +11,30 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 
 /**
  * Created by Catarina on 29/03/2017.
  */
 
-public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
+public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdapter.ViewHolder> {
 
-    private List<LocMessage> mDataset;
-    private int mCardLayout;
+    List<LocMessage> mDataset;
+    OnRecyclerCardClicked mCardListener;
 
-    public CardAdapter(List<LocMessage> dataset, int cardLayout) {
+    public AvailableCardAdapter(List<LocMessage> dataset, OnRecyclerCardClicked cardListener) {
         mDataset = dataset;
-        mCardLayout = cardLayout;
+        mCardListener = cardListener;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public CardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public AvailableCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-            .inflate(mCardLayout, parent, false);
+            .inflate(R.layout.available_msg_card, parent, false);
         // set the view's size, margins, paddings and layout parameters
 
         ViewHolder vh = new ViewHolder(v);
@@ -46,7 +48,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         LocMessage msg = mDataset.get(position);
@@ -63,6 +65,14 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
             holder.mPostAuthor.setTypeface(null, Typeface.NORMAL);
             holder.mPostTitle.setTypeface(null, Typeface.NORMAL);
         }
+
+        holder.mCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                view.setTag(holder.getAdapterPosition());
+                mCardListener.onRecyclerCardClicked(view);
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -74,7 +84,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public CardView mCardView;
         public TextView mPostAuthor;
         public TextView mPostTitle;

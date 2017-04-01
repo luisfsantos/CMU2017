@@ -19,4 +19,10 @@
     <string name="post_time">Post time</string>
     <string name="tab_opened_messages">Opened</string>
     <string name="tab_available_messages">Available</string>
+    <string name="ok">Okay</string>
+    <string name="remove_message">Remove message?</string>
+    <string name="remove_ok">Remove</string>
+    <string name="cancel">Cancel</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+    <string name="nothing_to_show">Nothing to show.</string>
 </resources>

@@ -1,0 +1,101 @@
+package ist.meic.cmu.locmess_client.inbox.available;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.LocMessRecyclerView;
+import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
+import ist.meic.cmu.locmess_client.inbox.ShowMessageActivity;
+
+/**
+ * Created by Catarina on 30/03/2017.
+ */
+public class AvailableTabFragment extends Fragment implements OnRecyclerCardClicked {
+    private static List<LocMessage> DUMMY_DATASET;
+
+    AvailableCardAdapter mAdapter;
+    OnMessageOpened mManager;
+
+    public interface OnMessageOpened {
+        void openMessage(LocMessage message);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mManager = (OnMessageOpened) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnMessageOpened");
+        }
+        if (DUMMY_DATASET == null) {
+            DUMMY_DATASET = createDummyData(12);
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
+        View rootView = inflater.inflate(R.layout.recyclerview_layout, container, false);
+        LocMessRecyclerView mRecyclerView = (LocMessRecyclerView) rootView.findViewById(R.id.rv_card_list);
+        TextView mEmptyView = (TextView) rootView.findViewById(R.id.empty_view);
+        mRecyclerView.setEmptyView(mEmptyView);
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new AvailableCardAdapter(DUMMY_DATASET, this);
+        mRecyclerView.setAdapter(mAdapter);
+
+        return rootView;
+    }
+
+    private List<LocMessage> createDummyData(int size) {
+        List<LocMessage> list = new LinkedList<>();
+        for (int i = 0; i < size; i++) {
+            LocMessage msg = new LocMessage("catarina" + i, "Free pizza",
+                    getString(R.string.lorem_ipsum),
+                    new Date(),
+                    "Arco do Cego"
+            );
+            list.add(msg);
+        }
+        return list;
+    }
+
+    @Override
+    public void onRecyclerCardClicked(View view) {
+        int position = (int)view.getTag();
+        LocMessage message = DUMMY_DATASET.get(position);
+        Intent intent = new Intent(getContext(), ShowMessageActivity.class);
+        intent.putExtra("message", message);
+        startActivity(intent);
+
+        message.read();
+        mAdapter.notifyDataSetChanged();
+        mManager.openMessage(message);
+    }
+}
