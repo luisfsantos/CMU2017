@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -27,7 +26,7 @@ public class KeyPairDialogFragment extends DialogFragment {
     EditText mValueEditText;
 
     public interface KeyPairDialogListener {
-        void onAddKeyPairClicked(String key, String value);
+        void addNewKeyPair(String key, String value);
     }
 
     public static KeyPairDialogFragment newInstance() {
@@ -61,7 +60,7 @@ public class KeyPairDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String key = mKeyEditText.getText().toString().trim();
                         String value = mValueEditText.getText().toString().trim();
-                        mListener.onAddKeyPairClicked(key, value);
+                        mListener.addNewKeyPair(key, value);
                     }
                 })
                 .setNegativeButton(R.string.cancel, null);

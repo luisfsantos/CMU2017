@@ -74,13 +74,13 @@ public class ProfileActivity extends AppCompatActivity implements KeyPairDialogF
         finish();
     }
 
-    public void newKeyPairClicked(View view) {
+    public void onNewKeyPairClicked(View view) {
         KeyPairDialogFragment dialogFragment = KeyPairDialogFragment.newInstance();
         dialogFragment.show(getSupportFragmentManager(), "dialog");
     }
 
     @Override
-    public void onAddKeyPairClicked(String key, String value) {
+    public void addNewKeyPair(String key, String value) {
         RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
         mKeyPairs.add(new LocKeyPair(key, value));
         adapter.notifyDataSetChanged();
