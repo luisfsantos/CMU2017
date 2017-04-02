@@ -29,4 +29,8 @@
     <string name="title_activity_profile">Profile</string>
     <string name="your_keys_pairs">Your Key Pairs</string>
     <string name="no_keypairs">You don\'t have any key pairs.</string>
+    <string name="new_keypair">New Key Pair</string>
+    <string name="key">Key</string>
+    <string name="value">Value</string>
+    <string name="add">Add</string>
 </resources>

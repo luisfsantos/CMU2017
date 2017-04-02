@@ -4,13 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,43 +25,46 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 /**
  * Created by Catarina on 02/04/2017.
  */
-
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements KeyPairDialogFragment.KeyPairDialogListener{
 
     FloatingActionButton fab;
     LocMessRecyclerView mRecyclerView;
-    List<LocKeyPair> keyPairs = new LinkedList<>();
+    List<LocKeyPair> mKeyPairs = new LinkedList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
-        fab = (FloatingActionButton)findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        mRecyclerView = (LocMessRecyclerView) findViewById(R.id.rv_key_pairs);
-        TextView mEmptyView = (TextView)findViewById(R.id.empty_view);
-        mRecyclerView.setEmptyView(mEmptyView);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        RecyclerView.Adapter mAdapter = new KeyPairsAdapter(keyPairs);
-        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putParcelableArray("key_pairs", mKeyPairs.toArray(new LocKeyPair[mKeyPairs.size()]));
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null){
+            LocKeyPair[] parcelables = (LocKeyPair[]) savedInstanceState.getParcelableArray("key_pairs");
+            if (parcelables != null) {
+                mKeyPairs = new LinkedList<>(Arrays.asList(parcelables));
+            }
+        }
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mRecyclerView = (LocMessRecyclerView) findViewById(R.id.rv_key_pairs);
+        TextView mEmptyView = (TextView)findViewById(R.id.empty_view);
+        mRecyclerView.setEmptyView(mEmptyView);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        final RecyclerView.Adapter mAdapter = new KeyPairsAdapter(mKeyPairs);
+        mRecyclerView.setAdapter(mAdapter);
+        fab = (FloatingActionButton)findViewById(R.id.fab);
     }
 
     public void onLogoutClicked(View view) {
@@ -69,5 +72,17 @@ public class ProfileActivity extends AppCompatActivity {
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK|FLAG_ACTIVITY_CLEAR_TASK);
         getApplicationContext().startActivity(intent);
         finish();
+    }
+
+    public void newKeyPairClicked(View view) {
+        KeyPairDialogFragment dialogFragment = KeyPairDialogFragment.newInstance();
+        dialogFragment.show(getSupportFragmentManager(), "dialog");
+    }
+
+    @Override
+    public void onAddKeyPairClicked(String key, String value) {
+        RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+        mKeyPairs.add(new LocKeyPair(key, value));
+        adapter.notifyDataSetChanged();
     }
 }
