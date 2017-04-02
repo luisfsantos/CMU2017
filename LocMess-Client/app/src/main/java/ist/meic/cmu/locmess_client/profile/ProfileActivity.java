@@ -25,6 +25,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 /**
  * Created by Catarina on 02/04/2017.
  */
+
 public class ProfileActivity extends AppCompatActivity implements KeyPairDialogFragment.KeyPairDialogListener{
 
     FloatingActionButton fab;

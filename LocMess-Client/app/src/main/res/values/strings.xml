@@ -33,4 +33,6 @@
     <string name="key">Key</string>
     <string name="value">Value</string>
     <string name="add">Add</string>
+    <string name="remove_keypair">Remove key pair?</string>
+    <string name="remove_keypair_dialog_message">You will remove</string>
 </resources>
