@@ -1,12 +1,12 @@
 <resources>
     <string name="app_name">LocMess</string>
     <string name="username">Username</string>
-    <string name="login_to_locmess">Login to LocMess</string>
+    <string name="login_to_locmess">Log in to LocMess</string>
     <string name="password">Password</string>
-    <string name="login_button">login</string>
+    <string name="login_button">Log in</string>
     <string name="new_to_locmess">New to LocMess? Sign up now.</string>
     <string name="signup_to_locmess">Sign up to LocMess</string>
-    <string name="already_registered">Already registered? Login now.</string>
+    <string name="already_registered">Already registered? Log in now.</string>
     <string name="signup_button">Sign up</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="username_too_short">Username must be at least 6 characters long</string>
@@ -25,4 +25,8 @@
     <string name="cancel">Cancel</string>
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
     <string name="nothing_to_show">Nothing to show.</string>
+    <string name="logout">Log out</string>
+    <string name="title_activity_profile">Profile</string>
+    <string name="your_keys_pairs">Your Key Pairs</string>
+    <string name="no_keypairs">You don\'t have any key pairs.</string>
 </resources>

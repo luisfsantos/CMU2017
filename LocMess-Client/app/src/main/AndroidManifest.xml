@@ -33,6 +33,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".inbox.InboxActivity" />
         </activity>
+        <activity android:name=".profile.ProfileActivity"
+            android:label="@string/title_activity_profile"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>
