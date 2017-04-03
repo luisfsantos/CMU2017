@@ -6,8 +6,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:openDrawer="left"
     tools:actionBarNavMode="standard"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical"
     tools:context="ist.meic.cmu.locmess_client.inbox.InboxActivity">
 

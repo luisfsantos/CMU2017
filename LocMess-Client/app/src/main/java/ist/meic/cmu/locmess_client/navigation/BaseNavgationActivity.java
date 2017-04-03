@@ -1,5 +1,6 @@
 package ist.meic.cmu.locmess_client.navigation;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
@@ -16,6 +17,8 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.inbox.InboxActivity;
+import ist.meic.cmu.locmess_client.profile.ProfileActivity;
 
 public class BaseNavgationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -35,10 +38,10 @@ public class BaseNavgationActivity extends AppCompatActivity
         frameLayout = (FrameLayout) findViewById(R.id.content_frame);
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -68,17 +71,19 @@ public class BaseNavgationActivity extends AppCompatActivity
         }
 
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_inbox) {
+            startActivity(new Intent(getApplicationContext(), InboxActivity.class));
+        } else if (id == R.id.nav_posted) {
+            startActivity(new Intent(getApplicationContext(), InboxActivity.class));
+        } else if (id == R.id.nav_new_message) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_locations) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_new_location) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_profile) {
+            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+        } else if (id == R.id.nav_settings) {
 
         }
 

@@ -18,6 +18,7 @@ import ist.meic.cmu.locmess_client.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.LoginActivity;
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.LocKeyPair;
+import ist.meic.cmu.locmess_client.navigation.BaseNavgationActivity;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -26,7 +27,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
  * Created by Catarina on 02/04/2017.
  */
 
-public class ProfileActivity extends AppCompatActivity implements KeyPairDialogFragment.KeyPairDialogListener{
+public class ProfileActivity extends BaseNavgationActivity implements KeyPairDialogFragment.KeyPairDialogListener{
 
     FloatingActionButton fab;
     LocMessRecyclerView mRecyclerView;
@@ -35,7 +36,13 @@ public class ProfileActivity extends AppCompatActivity implements KeyPairDialogF
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        getLayoutInflater().inflate(R.layout.activity_profile, frameLayout);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationView.getMenu().getItem(6).setChecked(true);
     }
 
     @Override
