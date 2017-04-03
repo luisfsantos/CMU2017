@@ -1,5 +1,6 @@
 package ist.meic.cmu.locmess_client.data;
 
+import android.content.Context;
 import android.os.Parcelable;
 
 /**
@@ -8,6 +9,5 @@ import android.os.Parcelable;
 
 public abstract class Coordinates implements Parcelable {
 
-    @Override
-    public abstract String toString();
+    public abstract String toString(Context context);
 }

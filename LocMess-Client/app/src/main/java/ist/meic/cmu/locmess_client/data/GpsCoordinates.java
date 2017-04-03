@@ -1,7 +1,13 @@
 package ist.meic.cmu.locmess_client.data;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
+import ist.meic.cmu.locmess_client.R;
 
 /**
  * Created by Catarina on 03/04/2017.
@@ -38,16 +44,6 @@ public class GpsCoordinates extends Coordinates implements Parcelable {
     };
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Lat: ")
-            .append(latitude)
-            .append(", Long: ")
-            .append(longitude);
-        return sb.toString();
-    }
-
-    @Override
     public int describeContents() {
         return 0;
     }
@@ -57,5 +53,24 @@ public class GpsCoordinates extends Coordinates implements Parcelable {
         parcel.writeDouble(latitude);
         parcel.writeDouble(longitude);
         parcel.writeFloat(radius);
+    }
+
+    @Override
+    public String toString(Context context) {
+        DecimalFormat df = new DecimalFormat("#.###");
+        df.setRoundingMode(RoundingMode.CEILING);
+
+        return context.getString(R.string.latitude_abrev) +
+                ": " +
+                df.format(latitude) +
+                ", " +
+                context.getString(R.string.longitude_abrev) +
+                ": " +
+                df.format(longitude) +
+                ", " +
+                context.getString(R.string.radius) +
+                ": " +
+                df.format(radius) +
+                context.getString(R.string.distance_unit_abrev);
     }
 }

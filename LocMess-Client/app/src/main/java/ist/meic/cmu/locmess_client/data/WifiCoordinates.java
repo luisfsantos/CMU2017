@@ -1,5 +1,6 @@
 package ist.meic.cmu.locmess_client.data;
 
+import android.content.Context;
 import android.os.Parcel;
 
 /**
@@ -40,7 +41,7 @@ public class WifiCoordinates extends Coordinates {
     }
 
     @Override
-    public String toString() {
+    public String toString(Context context) {
         return ssid;
     }
 }

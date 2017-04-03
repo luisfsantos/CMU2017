@@ -26,11 +26,15 @@ public class Location implements Parcelable{
         this.coordinates = coordinates;
     }
 
+    public String getFormattedDate() {
+        return SimpleDateFormat.getDateInstance().format(dateCreated);
+    }
+
     protected Location(Parcel in) {
         name = in.readString();
         author = in.readString();
         try {
-            dateCreated = SimpleDateFormat.getInstance().parse(in.readString());
+            dateCreated = SimpleDateFormat.getDateInstance().parse(in.readString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -41,7 +45,7 @@ public class Location implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeString(author);
-        dest.writeString(SimpleDateFormat.getInstance().format(dateCreated));
+        dest.writeString(getFormattedDate());
         dest.writeParcelable(coordinates, flags);
 
     }
