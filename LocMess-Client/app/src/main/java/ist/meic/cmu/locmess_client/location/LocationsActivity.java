@@ -21,7 +21,7 @@ import ist.meic.cmu.locmess_client.data.GpsCoordinates;
 import ist.meic.cmu.locmess_client.data.Location;
 import ist.meic.cmu.locmess_client.data.WifiCoordinates;
 
-public class LocationsActivity extends AppCompatActivity {
+public class LocationsActivity extends AppCompatActivity implements LocationsAdapter.LocationCardListener{
 
     List<Location> mLocations = new LinkedList<>();
     LocMessRecyclerView mRecyclerView;
@@ -58,7 +58,7 @@ public class LocationsActivity extends AppCompatActivity {
         mRecyclerView.setEmptyView(mEmptyView);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        RecyclerView.Adapter mAdapter = new LocationsAdapter(mLocations);
+        RecyclerView.Adapter mAdapter = new LocationsAdapter(mLocations, this);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -77,5 +77,13 @@ public class LocationsActivity extends AppCompatActivity {
                     "catarina",
                     new Date()));
         }
+    }
+
+    @Override
+    public void postToLocation(Location location) {
+        //TODO: start new message activity - pass location name/id/anything in the intent
+        Snackbar.make(mRecyclerView, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null)
+                .show();
     }
 }

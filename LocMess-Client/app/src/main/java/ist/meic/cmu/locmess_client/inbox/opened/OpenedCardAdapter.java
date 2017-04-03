@@ -96,12 +96,7 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
                         mDataset.remove(position);
                         notifyItemRemoved(position);
                     }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
+                }).setNegativeButton(R.string.cancel, null);
         builder.show();
     }
 

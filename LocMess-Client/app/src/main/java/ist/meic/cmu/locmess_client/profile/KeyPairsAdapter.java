@@ -49,7 +49,7 @@ public class KeyPairsAdapter extends RecyclerView.Adapter<KeyPairsAdapter.ViewHo
 
     private void showRemoveDialog(ViewHolder holder, final int position) {
         StringBuilder dialogMessage = new StringBuilder();
-        dialogMessage.append(holder.mItemView.getContext().getString(R.string.remove_keypair_dialog_message))
+        dialogMessage.append(holder.mItemView.getContext().getString(R.string.remove_dialog_message_start))
                 .append(" \"")
                 .append(holder.mKey.getText())
                 .append(": ")

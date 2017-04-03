@@ -34,10 +34,11 @@
     <string name="value">Value</string>
     <string name="add">Add</string>
     <string name="remove_keypair">Remove key pair?</string>
-    <string name="remove_keypair_dialog_message">You will remove</string>
+    <string name="remove_dialog_message_start">You will remove</string>
     <string name="title_activity_locations">Locations</string>
     <string name="longitude_abrev">Long</string>
     <string name="latitude_abrev">Lat</string>
     <string name="radius">Radius</string>
     <string name="distance_unit_abrev">m</string>
+    <string name="remove_location">Remove location?</string>
 </resources>
