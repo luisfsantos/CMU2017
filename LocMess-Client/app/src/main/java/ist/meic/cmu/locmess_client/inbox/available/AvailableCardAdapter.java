@@ -34,7 +34,7 @@ public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdap
     public AvailableCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.available_msg_card, parent, false);
+            .inflate(R.layout.card_available_msg, parent, false);
         // set the view's size, margins, paddings and layout parameters
 
         ViewHolder vh = new ViewHolder(v);

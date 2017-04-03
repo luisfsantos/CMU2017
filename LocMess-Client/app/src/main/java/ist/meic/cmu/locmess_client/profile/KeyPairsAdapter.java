@@ -28,7 +28,7 @@ public class KeyPairsAdapter extends RecyclerView.Adapter<KeyPairsAdapter.ViewHo
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.key_pair_item, parent, false);
+                .inflate(R.layout.item_key_pair, parent, false);
         ViewHolder vh = new ViewHolder(view);
         return vh;
     }

@@ -16,7 +16,6 @@ import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.LocMessage;
-import ist.meic.cmu.locmess_client.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 
 /**
@@ -39,7 +38,7 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
     public OpenedCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.opened_msg_card, parent, false);
+            .inflate(R.layout.card_opened_msg, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
