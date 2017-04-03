@@ -48,7 +48,7 @@ public class KeyPairDialogFragment extends DialogFragment {
         super.onCreateDialog(savedInstanceState);
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         final View v = LayoutInflater.from(getContext())
-                .inflate(R.layout.add_key_dialog, null);
+                .inflate(R.layout.dialog_add_key, null);
 
         mKeyEditText = (EditText)v.findViewById(R.id.new_key);
         mValueEditText = (EditText)v.findViewById(R.id.new_value);

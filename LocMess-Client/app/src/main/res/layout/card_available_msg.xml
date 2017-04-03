@@ -46,7 +46,7 @@
                     android:layout_width="@dimen/cardview_icon_size"
                     android:layout_height="@dimen/cardview_icon_size"
                     android:id="@+id/location_ic"
-                    android:src="@drawable/ic_nav_location"
+                    android:src="@drawable/ic_location"
                     android:contentDescription="@string/post_location"/>
                 <TextView
                     android:layout_width="wrap_content"

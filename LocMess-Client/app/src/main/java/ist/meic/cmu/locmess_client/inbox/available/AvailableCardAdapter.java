@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 
 /**
@@ -21,10 +21,10 @@ import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 
 public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdapter.ViewHolder> {
 
-    List<LocMessage> mDataset;
+    List<Message> mDataset;
     OnRecyclerCardClicked mCardListener;
 
-    public AvailableCardAdapter(List<LocMessage> dataset, OnRecyclerCardClicked cardListener) {
+    public AvailableCardAdapter(List<Message> dataset, OnRecyclerCardClicked cardListener) {
         mDataset = dataset;
         mCardListener = cardListener;
     }
@@ -34,7 +34,7 @@ public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdap
     public AvailableCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.available_msg_card, parent, false);
+            .inflate(R.layout.card_available_msg, parent, false);
         // set the view's size, margins, paddings and layout parameters
 
         ViewHolder vh = new ViewHolder(v);
@@ -51,7 +51,7 @@ public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdap
     public void onBindViewHolder(final ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        LocMessage msg = mDataset.get(position);
+        Message msg = mDataset.get(position);
         holder.mPostAuthor.setText(msg.author);
         holder.mPostTitle.setText(msg.title);
         holder.mPostText.setText(msg.text);

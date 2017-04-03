@@ -46,7 +46,7 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_nav_location"
+            android:src="@drawable/ic_location"
             android:contentDescription="@string/post_location"/>
         <TextView
             android:layout_width="wrap_content"

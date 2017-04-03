@@ -9,17 +9,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.inbox.available.AvailableTabFragment;
 import ist.meic.cmu.locmess_client.inbox.opened.OpenedTabFragment;
-import ist.meic.cmu.locmess_client.navigation.BaseNavgationActivity;
+import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
-public class InboxActivity extends BaseNavgationActivity implements AvailableTabFragment.OnMessageOpened {
+public class InboxActivity extends BaseNavigationActivity implements AvailableTabFragment.OnMessageOpened {
 
     private FloatingActionButton fab;
     private PagerAdapter pagerAdapter;
@@ -70,7 +68,7 @@ public class InboxActivity extends BaseNavgationActivity implements AvailableTab
     }
 
     @Override
-    public void openMessage(LocMessage message) {
+    public void openMessage(Message message) {
         // put message in OpenedTabFragment's dataset
         pagerAdapter.mTabOpened.notifyMessageRead(message);
     }

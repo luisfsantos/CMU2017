@@ -1,16 +1,13 @@
 package ist.meic.cmu.locmess_client.inbox;
 
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.data.Message;
 
 /**
  * Created by Catarina on 31/03/2017.
@@ -18,12 +15,12 @@ import ist.meic.cmu.locmess_client.data.LocMessage;
 
 public class ShowMessageActivity extends AppCompatActivity {
 
-    LocMessage mMessage;
+    Message mMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.show_msg_activity);
+        setContentView(R.layout.activity_show_msg);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mMessage = getIntent().getParcelableExtra("message");

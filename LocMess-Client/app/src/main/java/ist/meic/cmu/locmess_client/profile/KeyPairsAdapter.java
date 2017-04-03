@@ -12,30 +12,30 @@ import android.widget.TextView;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocKeyPair;
+import ist.meic.cmu.locmess_client.data.KeyPair;
 
 /**
  * Created by Catarina on 02/04/2017.
  */
 
 public class KeyPairsAdapter extends RecyclerView.Adapter<KeyPairsAdapter.ViewHolder> {
-    List<LocKeyPair> mKeyPairs;
+    List<KeyPair> mKeyPairs;
 
-    public KeyPairsAdapter(List<LocKeyPair> keyPairs) {
+    public KeyPairsAdapter(List<KeyPair> keyPairs) {
         mKeyPairs = keyPairs;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.key_pair_item, parent, false);
+                .inflate(R.layout.item_key_pair, parent, false);
         ViewHolder vh = new ViewHolder(view);
         return vh;
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        LocKeyPair keyPair = mKeyPairs.get(position);
+        KeyPair keyPair = mKeyPairs.get(position);
         holder.mKey.setText(keyPair.key);
         holder.mValue.setText(keyPair.value);
         holder.mRemoveBtn.setOnClickListener(new View.OnClickListener() {
@@ -49,7 +49,7 @@ public class KeyPairsAdapter extends RecyclerView.Adapter<KeyPairsAdapter.ViewHo
 
     private void showRemoveDialog(ViewHolder holder, final int position) {
         StringBuilder dialogMessage = new StringBuilder();
-        dialogMessage.append(holder.mItemView.getContext().getString(R.string.remove_keypair_dialog_message))
+        dialogMessage.append(holder.mItemView.getContext().getString(R.string.remove_dialog_message_start))
                 .append(" \"")
                 .append(holder.mKey.getText())
                 .append(": ")

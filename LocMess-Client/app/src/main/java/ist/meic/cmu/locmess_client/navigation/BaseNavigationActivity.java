@@ -2,26 +2,22 @@ package ist.meic.cmu.locmess_client.navigation;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.inbox.InboxActivity;
+import ist.meic.cmu.locmess_client.location.LocationsActivity;
 import ist.meic.cmu.locmess_client.profile.ProfileActivity;
 
-public class BaseNavgationActivity extends AppCompatActivity
+public class BaseNavigationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     DrawerLayout drawerLayout;
@@ -32,7 +28,7 @@ public class BaseNavgationActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_base_navgation);
+        setContentView(R.layout.activity_base_navigation);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -85,16 +81,19 @@ public class BaseNavgationActivity extends AppCompatActivity
 
         if (id == R.id.nav_inbox) {
             startActivity(new Intent(getApplicationContext(), InboxActivity.class));
+            finish();
         } else if (id == R.id.nav_posted) {
             startActivity(new Intent(getApplicationContext(), InboxActivity.class));
         } else if (id == R.id.nav_new_message) {
 
         } else if (id == R.id.nav_locations) {
-
+            startActivity(new Intent(getApplicationContext(), LocationsActivity.class));
+            finish();
         } else if (id == R.id.nav_new_location) {
 
         } else if (id == R.id.nav_profile) {
             startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+            finish();
         } else if (id == R.id.nav_settings) {
 
         }

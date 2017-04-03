@@ -25,6 +25,7 @@
             android:label="@string/title_activity_inbox"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.WithDrawer" />
+
         <activity
             android:name=".inbox.ShowMessageActivity"
             android:label=""
@@ -41,9 +42,13 @@
             android:label="@string/title_activity_profile"
             android:theme="@style/AppTheme.WithDrawer" />
         <activity
-            android:name=".navigation.BaseNavgationActivity"
-            android:label="@string/title_activity_base_navgation"
-            android:theme="@style/AppTheme.WithDrawer"></activity>
+            android:name=".navigation.BaseNavigationActivity"
+            android:label="@string/title_activity_base_navigation"
+            android:theme="@style/AppTheme.WithDrawer"/>
+        <activity
+            android:name=".location.LocationsActivity"
+            android:label="@string/title_activity_locations"
+            android:theme="@style/AppTheme.WithDrawer" />
     </application>
 
 </manifest>

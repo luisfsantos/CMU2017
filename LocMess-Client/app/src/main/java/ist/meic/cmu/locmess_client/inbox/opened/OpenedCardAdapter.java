@@ -15,8 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocMessage;
-import ist.meic.cmu.locmess_client.LocMessRecyclerView;
+import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 
 /**
@@ -25,11 +24,11 @@ import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 
 public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.ViewHolder>{
 
-    List<LocMessage> mDataset;
+    List<Message> mDataset;
     OnRecyclerCardClicked mCardClickedListener;
 
 
-    public OpenedCardAdapter(List<LocMessage> dataset, OnRecyclerCardClicked cardListener) {
+    public OpenedCardAdapter(List<Message> dataset, OnRecyclerCardClicked cardListener) {
         mDataset = dataset;
         mCardClickedListener = cardListener;
     }
@@ -39,14 +38,9 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
     public OpenedCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.opened_msg_card, parent, false);
+            .inflate(R.layout.card_opened_msg, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -55,7 +49,7 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        LocMessage msg = mDataset.get(position);
+        Message msg = mDataset.get(position);
         holder.mPostAuthor.setText(msg.author);
         holder.mPostTitle.setText(msg.title);
         holder.mPostText.setText(msg.text);
@@ -102,12 +96,7 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
                         mDataset.remove(position);
                         notifyItemRemoved(position);
                     }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
+                }).setNegativeButton(R.string.cancel, null);
         builder.show();
     }
 
