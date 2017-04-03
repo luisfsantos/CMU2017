@@ -11,7 +11,7 @@ import java.util.Date;
  * Created by Catarina on 29/03/2017.
  */
 
-public class LocMessage implements Parcelable {
+public class Message implements Parcelable {
     public String author;
     public String title;
     public String text;
@@ -19,7 +19,7 @@ public class LocMessage implements Parcelable {
     public String location;
     private boolean read;
 
-    public LocMessage(String author, String title, String text, Date time, String location) {
+    public Message(String author, String title, String text, Date time, String location) {
         this.author = author;
         this.title = title;
         this.text = text;
@@ -28,7 +28,7 @@ public class LocMessage implements Parcelable {
         this.read = false;
     }
 
-    protected LocMessage(Parcel in) {
+    protected Message(Parcel in) {
         author = in.readString();
         title = in.readString();
         text = in.readString();
@@ -41,15 +41,15 @@ public class LocMessage implements Parcelable {
         read = in.readByte() != 0;
     }
 
-    public static final Creator<LocMessage> CREATOR = new Creator<LocMessage>() {
+    public static final Creator<Message> CREATOR = new Creator<Message>() {
         @Override
-        public LocMessage createFromParcel(Parcel in) {
-            return new LocMessage(in);
+        public Message createFromParcel(Parcel in) {
+            return new Message(in);
         }
 
         @Override
-        public LocMessage[] newArray(int size) {
-            return new LocMessage[size];
+        public Message[] newArray(int size) {
+            return new Message[size];
         }
     };
 

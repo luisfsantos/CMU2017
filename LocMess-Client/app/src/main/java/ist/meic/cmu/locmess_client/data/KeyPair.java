@@ -7,29 +7,29 @@ import android.os.Parcelable;
  * Created by Catarina on 02/04/2017.
  */
 
-public class LocKeyPair implements Parcelable{
+public class KeyPair implements Parcelable{
     public String key;
     public String value;
 
-    public LocKeyPair(String key, String value) {
+    public KeyPair(String key, String value) {
         this.key = key;
         this.value = value;
     }
 
-    protected LocKeyPair(Parcel in) {
+    protected KeyPair(Parcel in) {
         key = in.readString();
         value = in.readString();
     }
 
-    public static final Creator<LocKeyPair> CREATOR = new Creator<LocKeyPair>() {
+    public static final Creator<KeyPair> CREATOR = new Creator<KeyPair>() {
         @Override
-        public LocKeyPair createFromParcel(Parcel in) {
-            return new LocKeyPair(in);
+        public KeyPair createFromParcel(Parcel in) {
+            return new KeyPair(in);
         }
 
         @Override
-        public LocKeyPair[] newArray(int size) {
-            return new LocKeyPair[size];
+        public KeyPair[] newArray(int size) {
+            return new KeyPair[size];
         }
     };
 
