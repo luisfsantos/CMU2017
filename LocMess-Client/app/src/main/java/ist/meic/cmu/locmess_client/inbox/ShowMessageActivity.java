@@ -11,19 +11,20 @@ import java.text.SimpleDateFormat;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.navigation.BaseNavgationActivity;
 
 /**
  * Created by Catarina on 31/03/2017.
  */
 
-public class ShowMessageActivity extends AppCompatActivity {
+public class ShowMessageActivity extends BaseNavgationActivity {
 
     LocMessage mMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.show_msg_activity);
+        getLayoutInflater().inflate(R.layout.show_msg_activity, frameLayout);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mMessage = getIntent().getParcelableExtra("message");
