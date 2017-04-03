@@ -29,7 +29,7 @@
             android:name=".inbox.ShowMessageActivity"
             android:label=""
             android:parentActivityName=".inbox.InboxActivity"
-            android:theme="@style/AppTheme.WithDrawer">
+            android:theme="@style/AppTheme">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
