@@ -16,8 +16,9 @@ import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.LocMessage;
 import ist.meic.cmu.locmess_client.inbox.available.AvailableTabFragment;
 import ist.meic.cmu.locmess_client.inbox.opened.OpenedTabFragment;
+import ist.meic.cmu.locmess_client.navigation.BaseNavgationActivity;
 
-public class InboxActivity extends AppCompatActivity implements AvailableTabFragment.OnMessageOpened {
+public class InboxActivity extends BaseNavgationActivity implements AvailableTabFragment.OnMessageOpened {
 
     private FloatingActionButton fab;
     private PagerAdapter pagerAdapter;
@@ -25,8 +26,7 @@ public class InboxActivity extends AppCompatActivity implements AvailableTabFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_inbox);
-
+        getLayoutInflater().inflate(R.layout.activity_inbox, frameLayout);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +51,12 @@ public class InboxActivity extends AppCompatActivity implements AvailableTabFrag
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationView.getMenu().getItem(0).setChecked(true);
     }
 
     @Override
