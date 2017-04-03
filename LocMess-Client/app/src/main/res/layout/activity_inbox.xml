@@ -1,60 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<android.support.v4.widget.DrawerLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:openDrawer="left"
-    tools:actionBarNavMode="standard"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context="ist.meic.cmu.locmess_client.inbox.InboxActivity">
 
-
-    <android.support.design.widget.CoordinatorLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <RelativeLayout
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <android.support.design.widget.AppBarLayout
-                android:id="@+id/app_bar_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fitsSystemWindows="false"
-                android:theme="@style/AppTheme.AppBarOverlay"
-                app:expanded="false">
-
-                <android.support.design.widget.TabLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/tab_layout"
-                    app:tabMode="fixed"
-                    android:theme="@style/AppTheme.NoActionBar"
-                    android:background="@color/colorPrimary"
-                    app:tabTextColor="@color/secondaryColor"
-                    app:tabSelectedTextColor="@color/light_text"
-                    app:tabIndicatorColor="@color/colorAccent"
-                    android:minHeight="?attr/actionBarSize"/>
-            </android.support.design.widget.AppBarLayout>
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/view_pager"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/app_bar_layout" />
-        </RelativeLayout>
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:fabSize="normal"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@drawable/ic_pen" />
+            android:fitsSystemWindows="false"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:expanded="false">
 
-    </android.support.design.widget.CoordinatorLayout>
-</android.support.v4.widget.DrawerLayout>
+            <android.support.design.widget.TabLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tab_layout"
+                app:tabMode="fixed"
+                android:theme="@style/AppTheme.NoActionBar"
+                android:background="@color/colorPrimary"
+                app:tabTextColor="@color/secondaryColor"
+                app:tabSelectedTextColor="@color/light_text"
+                app:tabIndicatorColor="@color/colorAccent"
+                android:minHeight="?attr/actionBarSize"/>
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/app_bar_layout" />
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabSize="normal"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@drawable/ic_pen" />
+
+</android.support.design.widget.CoordinatorLayout>

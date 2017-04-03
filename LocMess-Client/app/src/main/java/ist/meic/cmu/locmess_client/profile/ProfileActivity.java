@@ -3,7 +3,6 @@ package ist.meic.cmu.locmess_client.profile;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -17,6 +16,7 @@ import ist.meic.cmu.locmess_client.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.LoginActivity;
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.KeyPair;
+import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -25,7 +25,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
  * Created by Catarina on 02/04/2017.
  */
 
-public class ProfileActivity extends AppCompatActivity implements KeyPairDialogFragment.KeyPairDialogListener{
+public class ProfileActivity extends BaseNavigationActivity implements KeyPairDialogFragment.KeyPairDialogListener{
 
     LocMessRecyclerView mRecyclerView;
     List<KeyPair> mKeyPairs = new LinkedList<>();
@@ -33,7 +33,13 @@ public class ProfileActivity extends AppCompatActivity implements KeyPairDialogF
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        getLayoutInflater().inflate(R.layout.activity_profile, frameLayout);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationView.setCheckedItem(R.id.nav_profile);
     }
 
     @Override

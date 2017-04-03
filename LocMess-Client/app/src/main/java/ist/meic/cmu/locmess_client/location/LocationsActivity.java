@@ -20,8 +20,9 @@ import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.GpsCoordinates;
 import ist.meic.cmu.locmess_client.data.Location;
 import ist.meic.cmu.locmess_client.data.WifiCoordinates;
+import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
-public class LocationsActivity extends AppCompatActivity implements LocationsAdapter.LocationCardListener{
+public class LocationsActivity extends BaseNavigationActivity implements LocationsAdapter.LocationCardListener{
 
     List<Location> mLocations = new LinkedList<>();
     LocMessRecyclerView mRecyclerView;
@@ -29,8 +30,14 @@ public class LocationsActivity extends AppCompatActivity implements LocationsAda
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_locations);
+        getLayoutInflater().inflate(R.layout.activity_locations, frameLayout);
         if (savedInstanceState == null) createDummyData(5);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationView.setCheckedItem(R.id.nav_locations);
     }
 
     @Override

@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ist.meic.cmu.locmess_client.location.LocationsActivity">
-
-    <android.support.design.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
     <include layout="@layout/recyclerview_layout"/>
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -20,6 +16,5 @@
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_location_plus"
         android:onClick="onNewLocationClicked"/>
-    </android.support.design.widget.CoordinatorLayout>
+</android.support.design.widget.CoordinatorLayout>
 
-</android.support.v4.widget.DrawerLayout>
