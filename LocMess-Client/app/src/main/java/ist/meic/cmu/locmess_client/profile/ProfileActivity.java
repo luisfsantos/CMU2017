@@ -42,7 +42,7 @@ public class ProfileActivity extends BaseNavgationActivity implements KeyPairDia
     @Override
     protected void onResume() {
         super.onResume();
-        navigationView.getMenu().getItem(6).setChecked(true);
+        navigationView.setCheckedItem(R.id.nav_profile);
     }
 
     @Override

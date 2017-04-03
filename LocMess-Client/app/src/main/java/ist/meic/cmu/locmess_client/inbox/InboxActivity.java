@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import ist.meic.cmu.locmess_client.R;
@@ -27,6 +28,7 @@ public class InboxActivity extends BaseNavgationActivity implements AvailableTab
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_inbox, frameLayout);
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,12 +53,13 @@ public class InboxActivity extends BaseNavgationActivity implements AvailableTab
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        navigationView.getMenu().getItem(0).setChecked(true);
+        navigationView.setCheckedItem(R.id.nav_inbox);
     }
 
     @Override
