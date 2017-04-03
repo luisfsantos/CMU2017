@@ -13,7 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.inbox.available.AvailableTabFragment;
 import ist.meic.cmu.locmess_client.inbox.opened.OpenedTabFragment;
 
@@ -61,7 +61,7 @@ public class InboxActivity extends AppCompatActivity implements AvailableTabFrag
     }
 
     @Override
-    public void openMessage(LocMessage message) {
+    public void openMessage(Message message) {
         // put message in OpenedTabFragment's dataset
         pagerAdapter.mTabOpened.notifyMessageRead(message);
     }

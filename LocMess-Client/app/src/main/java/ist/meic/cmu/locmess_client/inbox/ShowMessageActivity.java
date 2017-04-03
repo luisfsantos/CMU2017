@@ -7,7 +7,7 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.data.Message;
 
 /**
  * Created by Catarina on 31/03/2017.
@@ -15,7 +15,7 @@ import ist.meic.cmu.locmess_client.data.LocMessage;
 
 public class ShowMessageActivity extends AppCompatActivity {
 
-    LocMessage mMessage;
+    Message mMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

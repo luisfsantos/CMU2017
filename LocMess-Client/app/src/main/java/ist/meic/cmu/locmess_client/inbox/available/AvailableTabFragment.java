@@ -19,7 +19,7 @@ import java.util.List;
 
 import ist.meic.cmu.locmess_client.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 import ist.meic.cmu.locmess_client.inbox.ShowMessageActivity;
 
@@ -27,13 +27,13 @@ import ist.meic.cmu.locmess_client.inbox.ShowMessageActivity;
  * Created by Catarina on 30/03/2017.
  */
 public class AvailableTabFragment extends Fragment implements OnRecyclerCardClicked {
-    private static List<LocMessage> DUMMY_DATASET;
+    private static List<Message> DUMMY_DATASET;
 
     AvailableCardAdapter mAdapter;
     OnMessageOpened mManager;
 
     public interface OnMessageOpened {
-        void openMessage(LocMessage message);
+        void openMessage(Message message);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class AvailableTabFragment extends Fragment implements OnRecyclerCardClic
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null){
-            LocMessage[] parcelables = (LocMessage[]) savedInstanceState.getParcelableArray("available_messages");
+            Message[] parcelables = (Message[]) savedInstanceState.getParcelableArray("available_messages");
             if (parcelables != null) {
                 DUMMY_DATASET = new LinkedList<>(Arrays.asList(parcelables));
             }
@@ -64,7 +64,7 @@ public class AvailableTabFragment extends Fragment implements OnRecyclerCardClic
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArray("available_messages", DUMMY_DATASET.toArray(new LocMessage[DUMMY_DATASET.size()]));
+        outState.putParcelableArray("available_messages", DUMMY_DATASET.toArray(new Message[DUMMY_DATASET.size()]));
     }
 
 
@@ -88,10 +88,10 @@ public class AvailableTabFragment extends Fragment implements OnRecyclerCardClic
     }
 
 
-    private List<LocMessage> createDummyData(int size) {
-        List<LocMessage> list = new LinkedList<>();
+    private List<Message> createDummyData(int size) {
+        List<Message> list = new LinkedList<>();
         for (int i = 0; i < size; i++) {
-            LocMessage msg = new LocMessage("catarina" + i, "Free pizza",
+            Message msg = new Message("catarina" + i, "Free pizza",
                     getString(R.string.lorem_ipsum),
                     new Date(),
                     "Arco do Cego"
@@ -104,7 +104,7 @@ public class AvailableTabFragment extends Fragment implements OnRecyclerCardClic
     @Override
     public void onRecyclerCardClicked(View view) {
         int position = (int)view.getTag();
-        LocMessage message = DUMMY_DATASET.get(position);
+        Message message = DUMMY_DATASET.get(position);
         Intent intent = new Intent(getContext(), ShowMessageActivity.class);
         intent.putExtra("message", message);
         startActivity(intent);

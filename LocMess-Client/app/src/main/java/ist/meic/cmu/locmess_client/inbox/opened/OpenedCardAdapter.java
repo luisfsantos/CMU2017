@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 
 /**
@@ -24,11 +24,11 @@ import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 
 public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.ViewHolder>{
 
-    List<LocMessage> mDataset;
+    List<Message> mDataset;
     OnRecyclerCardClicked mCardClickedListener;
 
 
-    public OpenedCardAdapter(List<LocMessage> dataset, OnRecyclerCardClicked cardListener) {
+    public OpenedCardAdapter(List<Message> dataset, OnRecyclerCardClicked cardListener) {
         mDataset = dataset;
         mCardClickedListener = cardListener;
     }
@@ -43,18 +43,13 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
         return vh;
     }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-    }
-
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        LocMessage msg = mDataset.get(position);
+        Message msg = mDataset.get(position);
         holder.mPostAuthor.setText(msg.author);
         holder.mPostTitle.setText(msg.title);
         holder.mPostText.setText(msg.text);

@@ -12,16 +12,16 @@ import android.widget.TextView;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocKeyPair;
+import ist.meic.cmu.locmess_client.data.KeyPair;
 
 /**
  * Created by Catarina on 02/04/2017.
  */
 
 public class KeyPairsAdapter extends RecyclerView.Adapter<KeyPairsAdapter.ViewHolder> {
-    List<LocKeyPair> mKeyPairs;
+    List<KeyPair> mKeyPairs;
 
-    public KeyPairsAdapter(List<LocKeyPair> keyPairs) {
+    public KeyPairsAdapter(List<KeyPair> keyPairs) {
         mKeyPairs = keyPairs;
     }
 
@@ -35,7 +35,7 @@ public class KeyPairsAdapter extends RecyclerView.Adapter<KeyPairsAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        LocKeyPair keyPair = mKeyPairs.get(position);
+        KeyPair keyPair = mKeyPairs.get(position);
         holder.mKey.setText(keyPair.key);
         holder.mValue.setText(keyPair.value);
         holder.mRemoveBtn.setOnClickListener(new View.OnClickListener() {

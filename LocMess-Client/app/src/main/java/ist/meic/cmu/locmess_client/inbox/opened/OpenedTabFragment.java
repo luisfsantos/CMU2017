@@ -2,7 +2,6 @@ package ist.meic.cmu.locmess_client.inbox.opened;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,7 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.LocMessage;
+import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
 import ist.meic.cmu.locmess_client.inbox.ShowMessageActivity;
@@ -28,7 +27,7 @@ import ist.meic.cmu.locmess_client.inbox.ShowMessageActivity;
  */
 
 public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked {
-    private static List<LocMessage> DUMMY_DATASET;
+    private static List<Message> DUMMY_DATASET;
 
     OpenedCardAdapter mAdapter;
 
@@ -40,7 +39,7 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null){
-            LocMessage[] parcelables = (LocMessage[]) savedInstanceState.getParcelableArray("opened_messages");
+            Message[] parcelables = (Message[]) savedInstanceState.getParcelableArray("opened_messages");
             if (parcelables != null) {
                 DUMMY_DATASET = new LinkedList<>(Arrays.asList(parcelables));
             }
@@ -51,7 +50,7 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.d(getClass().getName(), "saving opened messages");
-        outState.putParcelableArray("opened_messages", DUMMY_DATASET.toArray(new LocMessage[DUMMY_DATASET.size()]));
+        outState.putParcelableArray("opened_messages", DUMMY_DATASET.toArray(new Message[DUMMY_DATASET.size()]));
     }
 
     @Nullable
@@ -76,13 +75,13 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
     @Override
     public void onRecyclerCardClicked(View view) {
         int position = (int)view.getTag();
-        LocMessage message = DUMMY_DATASET.get(position);
+        Message message = DUMMY_DATASET.get(position);
         Intent intent = new Intent(getContext(), ShowMessageActivity.class);
         intent.putExtra("message", message);
         startActivity(intent);
     }
 
-    public void notifyMessageRead(LocMessage message) {
+    public void notifyMessageRead(Message message) {
         if (!DUMMY_DATASET.contains(message)) {
             DUMMY_DATASET.add(message);
             mAdapter.notifyDataSetChanged();
