@@ -14,7 +14,7 @@
                         android:title="Posted" />
                     <item
                         android:id="@+id/nav_new_message"
-                        android:icon="@drawable/ic_message_new"
+                        android:icon="@drawable/ic_pen"
                         android:title="New Message" />
             </group>
         </menu>
@@ -24,11 +24,11 @@
             <group android:checkableBehavior="single">
                     <item
                         android:id="@+id/nav_locations"
-                        android:icon="@drawable/ic_nav_location"
+                        android:icon="@drawable/ic_location"
                         android:title="View Locations" />
                     <item
                         android:id="@+id/nav_new_location"
-                        android:icon="@drawable/ic_nav_new_location"
+                        android:icon="@drawable/ic_location_plus"
                         android:title="New Location" />
             </group>
         </menu>
@@ -37,7 +37,7 @@
     <group android:checkableBehavior="single">
             <item
                 android:id="@+id/nav_profile"
-                android:icon="@drawable/ic_menu_profile"
+                android:icon="@drawable/ic_person"
                 android:title="Profile" />
             <item
                 android:id="@+id/nav_settings"

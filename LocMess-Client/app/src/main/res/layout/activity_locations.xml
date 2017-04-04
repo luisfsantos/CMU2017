@@ -15,6 +15,8 @@
         android:layout_margin="@dimen/fab_margin"
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_location_plus"
+        android:tint="@color/icon_tint_light"
+        android:tintMode="src_in"
         android:onClick="onNewLocationClicked"/>
 </android.support.design.widget.CoordinatorLayout>
 

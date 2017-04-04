@@ -45,6 +45,8 @@
         app:fabSize="normal"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_pen" />
+        app:srcCompat="@drawable/ic_pen"
+        android:tint="@color/icon_tint_light"
+        android:tintMode="src_in"/>
 
 </android.support.design.widget.CoordinatorLayout>

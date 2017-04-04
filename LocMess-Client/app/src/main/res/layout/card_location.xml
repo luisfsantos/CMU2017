@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -36,7 +37,9 @@
                     android:layout_width="@dimen/cardview_icon_size"
                     android:layout_height="@dimen/cardview_icon_size"
                     android:id="@+id/coordinates_ic"
-                    android:src="@drawable/ic_location"
+                    app:srcCompat="@drawable/ic_location"
+                    android:tint="@color/icon_tint_dark"
+                    android:tintMode="src_in"
                     android:contentDescription="@string/post_location"
                     android:layout_gravity="center_vertical"/>
                 <TextView
@@ -56,7 +59,9 @@
                     android:layout_width="@dimen/cardview_icon_size"
                     android:layout_height="@dimen/cardview_icon_size"
                     android:id="@+id/author_ic"
-                    android:src="@drawable/ic_person"
+                    app:srcCompat="@drawable/ic_person"
+                    android:tint="@color/icon_tint_dark"
+                    android:tintMode="src_in"
                     android:contentDescription="@string/post_location"
                     android:layout_gravity="center_vertical"/>
                 <TextView
@@ -76,7 +81,9 @@
                     android:layout_width="@dimen/cardview_icon_size"
                     android:layout_height="@dimen/cardview_icon_size"
                     android:id="@+id/time_ic"
-                    android:src="@drawable/ic_time"
+                    app:srcCompat="@drawable/ic_time"
+                    android:tint="@color/icon_tint_dark"
+                    android:tintMode="src_in"
                     android:contentDescription="@string/post_location"
                     android:layout_gravity="center_vertical"/>
                 <TextView
@@ -95,7 +102,9 @@
                     android:id="@+id/new_msg_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_pen_dark"
+                    app:srcCompat="@drawable/ic_pen"
+                    android:tint="@color/icon_tint_dark"
+                    android:tintMode="src_in"
                     android:background="@android:color/transparent"
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin" />
@@ -103,7 +112,9 @@
                     android:id="@+id/remove_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_remove"
+                    app:srcCompat="@drawable/ic_remove"
+                    android:tint="@color/icon_tint_dark"
+                    android:tintMode="src_in"
                     android:layout_toRightOf="@id/new_msg_btn"
                     android:layout_toEndOf="@id/new_msg_btn"
                     android:background="@android:color/transparent"/>

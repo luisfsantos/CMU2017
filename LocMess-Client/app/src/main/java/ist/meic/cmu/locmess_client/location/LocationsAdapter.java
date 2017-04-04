@@ -1,6 +1,9 @@
 package ist.meic.cmu.locmess_client.location;
 
 import android.content.DialogInterface;
+import android.graphics.PorterDuff;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -54,6 +57,10 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
             holder.mCoordinatesIcon.setImageResource(R.drawable.ic_gps);
         } else if (location.coordinates instanceof WifiCoordinates) {
             holder.mCoordinatesIcon.setImageResource(R.drawable.ic_wifi);
+        }
+        holder.mCoordinatesIcon.setColorFilter(ContextCompat.getColor(holder.mCoordinates.getContext(), R.color.icon_tint_dark));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            holder.mCoordinatesIcon.setImageTintMode(PorterDuff.Mode.SRC_IN);
         }
         holder.mCoordinates.setText(location.coordinates.toString(holder.mCoordinates.getContext()));
         holder.mAuthor.setText(location.author);
