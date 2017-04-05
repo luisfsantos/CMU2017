@@ -53,4 +53,9 @@
     <string name="wifi_id">WiFi ID</string>
     <string name="no_networks_detected">No networks detected.</string>
     <string name="networks">Networks</string>
+    <string name="name_missing">Please insert name</string>
+    <string name="longitude_long">Longitude</string>
+    <string name="latitude_long">Latitude</string>
+    <string name="radius_with_unit">Radius (meters)</string>
+    <string name="field_missing">Please fill in</string>
 </resources>

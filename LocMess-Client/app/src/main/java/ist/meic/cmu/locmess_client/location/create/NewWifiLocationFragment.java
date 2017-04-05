@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import ist.meic.cmu.locmess_client.R;
 public class NewWifiLocationFragment extends Fragment {
 
     RadioGroup mRadioGroup;
+    TextView mEmptyView;
     private static List<String> mSSIDS = new ArrayList<>();
 
     static {
@@ -42,6 +44,8 @@ public class NewWifiLocationFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putStringArrayList("ssids", (ArrayList<String>)mSSIDS);
+        int index = mRadioGroup.indexOfChild(mRadioGroup.findViewById(mRadioGroup.getCheckedRadioButtonId()));
+        outState.putInt("checked_ssid", index);
     }
 
     @Override
@@ -60,13 +64,29 @@ public class NewWifiLocationFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View rootView = inflater.inflate(R.layout.fragment_new_wifi_location, container, false);
-
-//        TextView mEmptyView = (TextView) rootView.findViewById(R.id.empty_view);
+        mEmptyView = (TextView) rootView.findViewById(R.id.empty_view);
         mRadioGroup = (RadioGroup)rootView.findViewById(R.id.radio_group_wifi);
+        fillRadioGroup();
+        if (savedInstanceState != null) {
+            int last_checked_index = savedInstanceState.getInt("checked_ssid");
+            int last_checked_id = mRadioGroup.getChildAt(last_checked_index).getId();
+            mRadioGroup.check(last_checked_id);
+        }
+        return rootView;
+    }
+
+    private void fillRadioGroup() {
+        if (mSSIDS.isEmpty()) {
+            mEmptyView.setVisibility(View.VISIBLE);
+            mRadioGroup.setVisibility(View.GONE);
+            return;
+        }
+        mEmptyView.setVisibility(View.GONE);
+        mRadioGroup.setVisibility(View.VISIBLE);
         final int horizontal_margin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
         final int vertical_margin = getResources().getDimensionPixelSize(R.dimen.small_margin);
         RadioGroup.LayoutParams params = new RadioGroup.LayoutParams(getContext(), null);
-        params.setMargins(horizontal_margin, 0, horizontal_margin, vertical_margin);
+        params.setMargins(horizontal_margin, vertical_margin, horizontal_margin, 0);
         boolean first = true;
         for (String ssid : mSSIDS) {
             RadioButton button = new RadioButton(getContext());
@@ -78,6 +98,5 @@ public class NewWifiLocationFragment extends Fragment {
                 first = false;
             }
         }
-        return rootView;
     }
 }
