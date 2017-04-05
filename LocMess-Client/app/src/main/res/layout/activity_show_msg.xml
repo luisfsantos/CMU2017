@@ -1,86 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".inbox.ShowMessageActivity"
-    android:padding="@dimen/activity_horizontal_margin">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:id="@+id/post_title"
-        style="@style/AppTheme.Title" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:id="@+id/post_text"
-        style="@style/TextAppearance.AppCompat.Medium"/>
+    android:scrollbars="vertical"
+    android:fadeScrollbars="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="@dimen/activity_vertical_margin">
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_person"
-            android:tint="@color/icon_tint_dark"
-            android:tintMode="src_in"
-            android:contentDescription="@string/post_time" />
+        android:padding="@dimen/activity_horizontal_margin"
+        android:orientation="vertical">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/post_author"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="@dimen/margin_2dp"
-            android:layout_marginLeft="@dimen/margin_2dp"/>
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:id="@+id/post_title"
+            style="@style/AppTheme.Title" />
 
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:orientation="horizontal">
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_location"
-            android:tint="@color/icon_tint_dark"
-            android:tintMode="src_in"
-            android:contentDescription="@string/post_location"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/post_location"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="@dimen/margin_2dp"
-            android:layout_marginLeft="@dimen/margin_2dp" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="@dimen/activity_vertical_margin">
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_time"
-            android:tint="@color/icon_tint_dark"
-            android:tintMode="src_in"
-            android:contentDescription="@string/post_time" />
-        <TextView
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:id="@+id/post_text"
+            style="@style/TextAppearance.AppCompat.Medium"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/activity_vertical_margin">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                app:srcCompat="@drawable/ic_person"
+                android:tint="@color/icon_tint_dark"
+                android:tintMode="src_in"
+                android:contentDescription="@string/post_time" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/post_author"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/margin_2dp"
+                android:layout_marginLeft="@dimen/margin_2dp"/>
+
+        </LinearLayout>
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/post_time"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="@dimen/margin_2dp"
-            android:layout_marginLeft="@dimen/margin_2dp" />
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                app:srcCompat="@drawable/ic_location"
+                android:tint="@color/icon_tint_dark"
+                android:tintMode="src_in"
+                android:contentDescription="@string/post_location"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/post_location"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/margin_2dp"
+                android:layout_marginLeft="@dimen/margin_2dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/activity_vertical_margin">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                app:srcCompat="@drawable/ic_time"
+                android:tint="@color/icon_tint_dark"
+                android:tintMode="src_in"
+                android:contentDescription="@string/post_time" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/post_time"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/margin_2dp"
+                android:layout_marginLeft="@dimen/margin_2dp" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</android.support.v4.widget.NestedScrollView>
