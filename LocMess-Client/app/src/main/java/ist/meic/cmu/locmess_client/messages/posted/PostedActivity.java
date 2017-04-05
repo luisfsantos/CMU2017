@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.inbox;
+package ist.meic.cmu.locmess_client.messages.posted;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,12 +12,11 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.Message;
-import ist.meic.cmu.locmess_client.inbox.available.AvailableTabFragment;
-import ist.meic.cmu.locmess_client.inbox.opened.OpenedTabFragment;
+import ist.meic.cmu.locmess_client.messages.posted.active.ActiveTabFragment;
+import ist.meic.cmu.locmess_client.messages.posted.archived.ArchivedTabFragment;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
-public class InboxActivity extends BaseNavigationActivity implements AvailableTabFragment.OnMessageOpened {
+public class PostedActivity extends BaseNavigationActivity {
 
     private FloatingActionButton fab;
     private PagerAdapter pagerAdapter;
@@ -25,7 +24,7 @@ public class InboxActivity extends BaseNavigationActivity implements AvailableTa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getLayoutInflater().inflate(R.layout.activity_inbox, frameLayout);
+        getLayoutInflater().inflate(R.layout.activity_posted, frameLayout);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -38,75 +37,66 @@ public class InboxActivity extends BaseNavigationActivity implements AvailableTa
 
         ViewPager viewPager = (ViewPager)findViewById(R.id.view_pager);
         if (savedInstanceState != null) {
-            AvailableTabFragment atf = (AvailableTabFragment)getSupportFragmentManager()
-                    .getFragment(savedInstanceState, "available");
-            OpenedTabFragment otf = (OpenedTabFragment)getSupportFragmentManager()
-                    .getFragment(savedInstanceState, "opened");
-            pagerAdapter = new PagerAdapter(getSupportFragmentManager(), InboxActivity.this, atf, otf);
+            ActiveTabFragment atf = (ActiveTabFragment)getSupportFragmentManager()
+                    .getFragment(savedInstanceState, "active");
+            ArchivedTabFragment artf = (ArchivedTabFragment)getSupportFragmentManager()
+                    .getFragment(savedInstanceState, "archived");
+            pagerAdapter = new PagerAdapter(getSupportFragmentManager(), PostedActivity.this, atf, artf);
         } else {
-            pagerAdapter = new PagerAdapter(getSupportFragmentManager(), InboxActivity.this);
+            pagerAdapter = new PagerAdapter(getSupportFragmentManager(), PostedActivity.this);
         }
         viewPager.setAdapter(pagerAdapter);
 
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
-
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        navigationView.setCheckedItem(R.id.nav_inbox);
+        navigationView.setCheckedItem(R.id.nav_posted);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        getSupportFragmentManager().putFragment(outState, "available", pagerAdapter.mTabAvailable);
-        getSupportFragmentManager().putFragment(outState, "opened", pagerAdapter.mTabOpened);
+        getSupportFragmentManager().putFragment(outState, "active", pagerAdapter.mTabActive);
+        getSupportFragmentManager().putFragment(outState, "archived", pagerAdapter.mTabArchived);
     }
-
-    @Override
-    public void openMessage(Message message) {
-        // put message in OpenedTabFragment's dataset
-        pagerAdapter.mTabOpened.notifyMessageRead(message);
-    }
-
 
     class PagerAdapter extends FragmentPagerAdapter {
 
-        AvailableTabFragment mTabAvailable;
-        OpenedTabFragment mTabOpened;
+        ActiveTabFragment mTabActive;
+        ArchivedTabFragment mTabArchived;
 
-        String[] TAB_TITLES = {getString(R.string.tab_available_messages), getString(R.string.tab_opened_messages)};
+        String[] TAB_TITLES = {getString(R.string.tab_active_messages), getString(R.string.tab_archived_messages)};
         Context mContext;
 
-        public PagerAdapter(FragmentManager fm,  Context context) {
+        public PagerAdapter(FragmentManager fm, Context context) {
             super(fm);
             mContext = context;
         }
 
-        PagerAdapter(FragmentManager fm, Context context, AvailableTabFragment atf, OpenedTabFragment otf) {
+        PagerAdapter(FragmentManager fm, Context context, ActiveTabFragment atf, ArchivedTabFragment artf) {
             super(fm);
             mContext = context;
-            mTabAvailable = atf;
-            mTabOpened = otf;
+            mTabActive = atf;
+            mTabArchived = artf;
         }
 
         @Override
         public Fragment getItem(int position) {
             switch (position){
                 case 0:
-                    if (mTabAvailable == null) {
-                        mTabAvailable = new AvailableTabFragment();
+                    if (mTabActive == null) {
+                        mTabActive = new ActiveTabFragment();
                     }
-                    return mTabAvailable;
+                    return mTabActive;
                 case 1:
-                    if (mTabOpened == null ) {
-                        mTabOpened = new OpenedTabFragment();
+                    if (mTabArchived == null ) {
+                        mTabArchived = new ArchivedTabFragment();
                     }
-                    return mTabOpened;
+                    return mTabArchived;
             }
             return null;
         }

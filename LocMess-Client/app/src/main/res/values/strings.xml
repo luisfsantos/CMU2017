@@ -19,6 +19,8 @@
     <string name="post_time">Post time</string>
     <string name="tab_opened_messages">Opened</string>
     <string name="tab_available_messages">Available</string>
+    <string name="tab_active_messages">Active</string>
+    <string name="tab_archived_messages">Archived</string>
     <string name="ok">Okay</string>
     <string name="remove_message">Remove message?</string>
     <string name="remove_ok">Remove</string>
@@ -58,4 +60,5 @@
     <string name="latitude_long">Latitude</string>
     <string name="radius_with_unit">Radius (meters)</string>
     <string name="field_missing">Please fill in</string>
+    <string name="title_activity_posted">Posted</string>
 </resources>

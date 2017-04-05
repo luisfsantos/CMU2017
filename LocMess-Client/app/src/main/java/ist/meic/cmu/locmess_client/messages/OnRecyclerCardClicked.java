@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.inbox;
+package ist.meic.cmu.locmess_client.messages;
 
 import android.view.View;
 

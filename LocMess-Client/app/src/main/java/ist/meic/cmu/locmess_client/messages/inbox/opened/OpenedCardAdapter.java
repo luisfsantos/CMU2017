@@ -1,11 +1,14 @@
-package ist.meic.cmu.locmess_client.inbox.available;
+package ist.meic.cmu.locmess_client.messages.inbox.opened;
 
+import android.content.DialogInterface;
 import android.graphics.Typeface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -13,37 +16,31 @@ import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.Message;
-import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
+import ist.meic.cmu.locmess_client.messages.OnRecyclerCardClicked;
 
 /**
  * Created by Catarina on 29/03/2017.
  */
 
-public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdapter.ViewHolder> {
+public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.ViewHolder>{
 
     List<Message> mDataset;
-    OnRecyclerCardClicked mCardListener;
+    OnRecyclerCardClicked mCardClickedListener;
 
-    public AvailableCardAdapter(List<Message> dataset, OnRecyclerCardClicked cardListener) {
+
+    public OpenedCardAdapter(List<Message> dataset, OnRecyclerCardClicked cardListener) {
         mDataset = dataset;
-        mCardListener = cardListener;
+        mCardClickedListener = cardListener;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public AvailableCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public OpenedCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.card_available_msg, parent, false);
-        // set the view's size, margins, paddings and layout parameters
-
+            .inflate(R.layout.card_opened_msg, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -51,6 +48,7 @@ public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdap
     public void onBindViewHolder(final ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
+
         Message msg = mDataset.get(position);
         holder.mPostAuthor.setText(msg.author);
         holder.mPostTitle.setText(msg.title);
@@ -66,11 +64,19 @@ public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdap
             holder.mPostTitle.setTypeface(null, Typeface.NORMAL);
         }
 
+        holder.mRemoveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int position = holder.getAdapterPosition();
+                showRemoveDialog(view, position);
+            }
+        });
+
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 view.setTag(holder.getAdapterPosition());
-                mCardListener.onRecyclerCardClicked(view);
+                mCardClickedListener.onRecyclerCardClicked(view);
             }
         });
     }
@@ -79,6 +85,19 @@ public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdap
     @Override
     public int getItemCount() {
         return mDataset.size();
+    }
+
+    private void showRemoveDialog(View view, final int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+        builder.setTitle(R.string.remove_message)
+                .setPositiveButton(R.string.remove_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mDataset.remove(position);
+                        notifyItemRemoved(position);
+                    }
+                }).setNegativeButton(R.string.cancel, null);
+        builder.show();
     }
 
     // Provide a reference to the views for each data item
@@ -91,16 +110,17 @@ public class AvailableCardAdapter extends RecyclerView.Adapter<AvailableCardAdap
         public TextView mPostText;
         public TextView mPostLocation;
         public TextView mPostTime;
+        public ImageButton mRemoveBtn;
 
         public ViewHolder(View itemView) {
-            // each dummy data item is just a string
             super(itemView);
-            mCardView = (CardView)itemView.findViewById(R.id.card_view);
-            mPostAuthor = (TextView)itemView.findViewById(R.id.post_author);
-            mPostTitle = (TextView)itemView.findViewById(R.id.post_title);
-            mPostText = (TextView)itemView.findViewById(R.id.post_text);
-            mPostLocation = (TextView)itemView.findViewById(R.id.post_location);
-            mPostTime = (TextView)itemView.findViewById(R.id.post_time);
+            mCardView = (CardView) itemView.findViewById(R.id.card_view);
+            mPostAuthor = (TextView) itemView.findViewById(R.id.post_author);
+            mPostTitle = (TextView) itemView.findViewById(R.id.post_title);
+            mPostText = (TextView) itemView.findViewById(R.id.post_text);
+            mPostLocation = (TextView) itemView.findViewById(R.id.post_location);
+            mPostTime = (TextView) itemView.findViewById(R.id.post_time);
+            mRemoveBtn = (ImageButton) itemView.findViewById(R.id.remove_btn);
         }
     }
 }

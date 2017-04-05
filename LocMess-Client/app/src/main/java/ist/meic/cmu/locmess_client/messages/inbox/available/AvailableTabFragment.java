@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.inbox.available;
+package ist.meic.cmu.locmess_client.messages.inbox.available;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,8 +20,8 @@ import java.util.List;
 import ist.meic.cmu.locmess_client.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.Message;
-import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
-import ist.meic.cmu.locmess_client.inbox.ShowMessageActivity;
+import ist.meic.cmu.locmess_client.messages.OnRecyclerCardClicked;
+import ist.meic.cmu.locmess_client.messages.ShowMessageActivity;
 
 /**
  * Created by Catarina on 30/03/2017.
