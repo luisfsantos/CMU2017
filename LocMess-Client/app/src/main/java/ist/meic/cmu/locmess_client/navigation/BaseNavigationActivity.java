@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.location.LocationsActivity;
+import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.profile.ProfileActivity;
 
 public class BaseNavigationActivity extends AppCompatActivity
@@ -90,7 +91,7 @@ public class BaseNavigationActivity extends AppCompatActivity
             startActivity(new Intent(getApplicationContext(), LocationsActivity.class));
             finish();
         } else if (id == R.id.nav_new_location) {
-
+            startActivity(new Intent(getApplicationContext(), NewLocationActivity.class));
         } else if (id == R.id.nav_profile) {
             startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
             finish();

@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.Message;
+import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
 /**
  * Created by Catarina on 31/03/2017.

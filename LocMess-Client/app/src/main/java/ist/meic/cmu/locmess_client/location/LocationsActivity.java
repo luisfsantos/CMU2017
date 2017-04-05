@@ -1,8 +1,8 @@
 package ist.meic.cmu.locmess_client.location;
 
+import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +20,7 @@ import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.GpsCoordinates;
 import ist.meic.cmu.locmess_client.data.Location;
 import ist.meic.cmu.locmess_client.data.WifiCoordinates;
+import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
 public class LocationsActivity extends BaseNavigationActivity implements LocationsAdapter.LocationCardListener{
@@ -70,9 +71,7 @@ public class LocationsActivity extends BaseNavigationActivity implements Locatio
     }
 
     public void onNewLocationClicked(View view) {
-        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .show();
+        startActivity(new Intent(this, NewLocationActivity.class));
     }
 
     public void createDummyData(int size) {

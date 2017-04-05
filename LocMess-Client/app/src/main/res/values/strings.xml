@@ -45,4 +45,12 @@
     <string name="radius">Radius</string>
     <string name="distance_unit_abrev">m</string>
     <string name="remove_location">Remove location?</string>
+    <string name="title_activity_new_location">New Location</string>
+    <string name="menu_item_save">Save</string>
+    <string name="name">Name</string>
+    <string name="coordinates">Coordinates</string>
+    <string name="gps">GPS</string>
+    <string name="wifi_id">WiFi ID</string>
+    <string name="no_networks_detected">No networks detected.</string>
+    <string name="networks">Networks</string>
 </resources>
