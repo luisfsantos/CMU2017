@@ -1,14 +1,15 @@
-package ist.meic.cmu.locmess_client.inbox;
+package ist.meic.cmu.locmess_client.messages;
 
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.Message;
-import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
 /**
  * Created by Catarina on 31/03/2017.
@@ -36,6 +37,23 @@ public class ShowMessageActivity extends AppCompatActivity {
         postText.setText(mMessage.text);
         postLocation.setText(mMessage.location);
         postTime.setText(SimpleDateFormat.getInstance().format(mMessage.time));
+    }
+
+    @Override
+    public boolean onNavigateUp() {
+        finish();
+        return super.onNavigateUp();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

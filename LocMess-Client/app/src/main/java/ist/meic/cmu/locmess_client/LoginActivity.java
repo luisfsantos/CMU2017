@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import ist.meic.cmu.locmess_client.inbox.InboxActivity;
+import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 

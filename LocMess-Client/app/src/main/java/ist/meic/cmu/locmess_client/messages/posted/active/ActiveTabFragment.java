@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.inbox.opened;
+package ist.meic.cmu.locmess_client.messages.posted.active;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,22 +16,25 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.LocMessRecyclerView;
-import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
-import ist.meic.cmu.locmess_client.inbox.ShowMessageActivity;
+import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.data.DummyData;
+import ist.meic.cmu.locmess_client.data.Message;
+import ist.meic.cmu.locmess_client.messages.OnRecyclerCardClicked;
+import ist.meic.cmu.locmess_client.messages.ShowMessageActivity;
+import ist.meic.cmu.locmess_client.messages.posted.MyMessageCardAdapter;
 
 /**
- * Created by Catarina on 30/03/2017.
+ * Created by lads on 05/04/2017.
  */
 
-public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked {
+public class ActiveTabFragment extends Fragment implements OnRecyclerCardClicked {
+
     private static List<Message> DUMMY_DATASET;
 
-    OpenedCardAdapter mAdapter;
+    MyMessageCardAdapter mAdapter;
 
-    public OpenedTabFragment() {
+    public ActiveTabFragment() {
         DUMMY_DATASET = new LinkedList<>();
     }
 
@@ -39,18 +42,20 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null){
-            Message[] parcelables = (Message[]) savedInstanceState.getParcelableArray("opened_messages");
+            Message[] parcelables = (Message[]) savedInstanceState.getParcelableArray("posted_messages");
             if (parcelables != null) {
                 DUMMY_DATASET = new LinkedList<>(Arrays.asList(parcelables));
             }
+        } else {
+            DUMMY_DATASET = DummyData.createDummyMessages(4, getContext());
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(getClass().getName(), "saving opened messages");
-        outState.putParcelableArray("opened_messages", DUMMY_DATASET.toArray(new Message[DUMMY_DATASET.size()]));
+        Log.d(getClass().getName(), "saving posted messages");
+        outState.putParcelableArray("posted_messages", DUMMY_DATASET.toArray(new Message[DUMMY_DATASET.size()]));
     }
 
     @Nullable
@@ -66,7 +71,7 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new OpenedCardAdapter(DUMMY_DATASET, this);
+        mAdapter = new MyMessageCardAdapter(DUMMY_DATASET, this);
         mRecyclerView.setAdapter(mAdapter);
 
         return rootView;
@@ -81,10 +86,4 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
         startActivity(intent);
     }
 
-    public void notifyMessageRead(Message message) {
-        if (!DUMMY_DATASET.contains(message)) {
-            DUMMY_DATASET.add(message);
-            mAdapter.notifyDataSetChanged();
-        }
-    }
 }

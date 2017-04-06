@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.inbox.opened;
+package ist.meic.cmu.locmess_client.messages.posted;
 
 import android.content.DialogInterface;
 import android.graphics.Typeface;
@@ -16,31 +16,36 @@ import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.Message;
-import ist.meic.cmu.locmess_client.inbox.OnRecyclerCardClicked;
+import ist.meic.cmu.locmess_client.messages.OnRecyclerCardClicked;
 
 /**
- * Created by Catarina on 29/03/2017.
+ * Created by lads on 05/04/2017.
  */
 
-public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.ViewHolder>{
-
+public class MyMessageCardAdapter extends RecyclerView.Adapter<MyMessageCardAdapter.ViewHolder>  {
     List<Message> mDataset;
-    OnRecyclerCardClicked mCardClickedListener;
+    OnRecyclerCardClicked mCardListener;
 
-
-    public OpenedCardAdapter(List<Message> dataset, OnRecyclerCardClicked cardListener) {
+    public MyMessageCardAdapter(List<Message> dataset, OnRecyclerCardClicked cardListener) {
         mDataset = dataset;
-        mCardClickedListener = cardListener;
+        mCardListener = cardListener;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public OpenedCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MyMessageCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.card_opened_msg, parent, false);
+                .inflate(R.layout.card_my_messages, parent, false);
+        // set the view's size, margins, paddings and layout parameters
+
         ViewHolder vh = new ViewHolder(v);
         return vh;
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -48,21 +53,12 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
     public void onBindViewHolder(final ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-
         Message msg = mDataset.get(position);
-        holder.mPostAuthor.setText(msg.author);
         holder.mPostTitle.setText(msg.title);
         holder.mPostText.setText(msg.text);
         holder.mPostLocation.setText(msg.location);
         holder.mPostTime.setText(SimpleDateFormat.getInstance().format(msg.time));
-        if (!msg.isRead()) {
-            holder.mPostAuthor.setTypeface(null, Typeface.BOLD);
-            holder.mPostTitle.setTypeface(null, Typeface.BOLD);
-        } else {
-            // need to check both if and else bc of RecyclerView properties
-            holder.mPostAuthor.setTypeface(null, Typeface.NORMAL);
-            holder.mPostTitle.setTypeface(null, Typeface.NORMAL);
-        }
+        holder.mPostTitle.setTypeface(null, Typeface.BOLD);
 
         holder.mRemoveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +72,7 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
             @Override
             public void onClick(View view) {
                 view.setTag(holder.getAdapterPosition());
-                mCardClickedListener.onRecyclerCardClicked(view);
+                mCardListener.onRecyclerCardClicked(view);
             }
         });
     }
@@ -105,7 +101,6 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
     // you provide access to all the views for a data item in a view holder
     public class ViewHolder extends RecyclerView.ViewHolder {
         public CardView mCardView;
-        public TextView mPostAuthor;
         public TextView mPostTitle;
         public TextView mPostText;
         public TextView mPostLocation;
@@ -113,14 +108,14 @@ public class OpenedCardAdapter extends RecyclerView.Adapter<OpenedCardAdapter.Vi
         public ImageButton mRemoveBtn;
 
         public ViewHolder(View itemView) {
+            // each dummy data item is just a string
             super(itemView);
-            mCardView = (CardView) itemView.findViewById(R.id.card_view);
-            mPostAuthor = (TextView) itemView.findViewById(R.id.post_author);
-            mPostTitle = (TextView) itemView.findViewById(R.id.post_title);
-            mPostText = (TextView) itemView.findViewById(R.id.post_text);
-            mPostLocation = (TextView) itemView.findViewById(R.id.post_location);
-            mPostTime = (TextView) itemView.findViewById(R.id.post_time);
-            mRemoveBtn = (ImageButton) itemView.findViewById(R.id.remove_btn);
+            mCardView = (CardView)itemView.findViewById(R.id.card_view);
+            mPostTitle = (TextView)itemView.findViewById(R.id.post_title);
+            mPostText = (TextView)itemView.findViewById(R.id.post_text);
+            mPostLocation = (TextView)itemView.findViewById(R.id.post_location);
+            mPostTime = (TextView)itemView.findViewById(R.id.post_time);
+            mRemoveBtn = (ImageButton)itemView.findViewById(R.id.remove_btn);
         }
     }
 }

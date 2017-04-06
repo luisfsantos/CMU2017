@@ -21,20 +21,14 @@
             android:name=".SignUpActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".inbox.InboxActivity"
+            android:name=".messages.inbox.InboxActivity"
             android:label="@string/title_activity_inbox"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.WithDrawer" />
         <activity
-            android:name=".inbox.ShowMessageActivity"
+            android:name=".messages.ShowMessageActivity"
             android:label=""
-            android:parentActivityName=".inbox.InboxActivity"
             android:theme="@style/AppTheme">
-
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".inbox.InboxActivity" />
         </activity>
         <activity
             android:name=".profile.ProfileActivity"
@@ -48,7 +42,8 @@
             android:name=".location.LocationsActivity"
             android:label="@string/title_activity_locations"
             android:theme="@style/AppTheme.WithDrawer" />
-        <activity android:name=".location.create.NewLocationActivity"
+        <activity
+            android:name=".location.create.NewLocationActivity"
             android:label="@string/title_activity_new_location"
             android:parentActivityName=".location.LocationsActivity"
             android:theme="@style/AppTheme">
@@ -58,6 +53,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".location.LocationsActivity" />
         </activity>
+        <activity
+            android:name=".messages.posted.PostedActivity"
+            android:label="@string/title_activity_posted"
+            android:theme="@style/AppTheme.WithDrawer"></activity>
     </application>
 
 </manifest>
