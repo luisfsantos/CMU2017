@@ -60,7 +60,6 @@
         android:layout_margin="10dp"
         android:text="@string/from_date_prompt"
         android:textAppearance="?android:attr/textAppearanceLarge" />
-
     <Spinner
         android:id="@+id/spinnerFromDate"
         android:layout_width="match_parent"
@@ -101,6 +100,7 @@
 
 
  <!--   <EditText
+    <EditText
         android:id="@+id/pickFromDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
