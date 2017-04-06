@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,7 +32,7 @@ public class NewLocationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_location);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Drawable close = ContextCompat.getDrawable(this, R.drawable.ic_close);
+        Drawable close = AppCompatResources.getDrawable(this, R.drawable.ic_close);
         close.setColorFilter(ContextCompat.getColor(this, R.color.light_text), PorterDuff.Mode.SRC_IN);
         getSupportActionBar().setHomeAsUpIndicator(close);
 

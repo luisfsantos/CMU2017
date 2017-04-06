@@ -16,7 +16,10 @@ import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.location.LocationsActivity;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
+<<<<<<< HEAD
 import ist.meic.cmu.locmess_client.messages.posted.PostedActivity;
+=======
+>>>>>>> ddb205b176a6dae5de415291f4651beb121aaa8a
 import ist.meic.cmu.locmess_client.message.MessageActivity;
 import ist.meic.cmu.locmess_client.profile.ProfileActivity;
 

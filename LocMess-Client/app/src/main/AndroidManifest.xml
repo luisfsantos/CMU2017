@@ -56,12 +56,12 @@
         <activity
             android:name=".messages.posted.PostedActivity"
             android:label="@string/title_activity_posted"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme"/>
 
         <activity
             android:name=".message.MessageActivity"
             android:label="New Message"
-            android:theme="@style/AppTheme.WithDrawer" />
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

@@ -14,7 +14,8 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Spinner
-        android:id="@+id/spinner"
+
+        android:id="@+id/spinnerLocation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
@@ -60,21 +61,43 @@
         android:layout_margin="10dp"
         android:text="@string/from_date_prompt"
         android:textAppearance="?android:attr/textAppearanceLarge" />
-    <EditText
-        android:id="@+id/pickFromDate"
+
+    <Spinner
+        android:id="@+id/spinnerFromDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:prompt="@string/chose_date_prompt"
+        android:visibility="visible" />
+    <Spinner
+        android:id="@+id/spinnerFromTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:prompt="@string/chose_date_prompt"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/textViewTo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:layout_marginBottom="@dimen/small_margin"
-        android:onClick="onClickFrom"
-        android:clickable="true"
-        android:text=""
-        android:focusable="false"
+        android:text="@string/to_date_prompt"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <DatePicker
-        android:id="@+id/fromDatePiker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <Spinner
+        android:id="@+id/spinnerToDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:prompt="@string/chose_location_prompt"
+        android:visibility="visible" />
+    <Spinner
+        android:id="@+id/spinnerToTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:prompt="@string/chose_location_prompt"
+        android:visibility="visible" />
 
 </LinearLayout>

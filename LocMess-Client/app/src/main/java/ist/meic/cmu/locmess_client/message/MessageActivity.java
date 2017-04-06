@@ -1,28 +1,33 @@
 package ist.meic.cmu.locmess_client.message;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import ist.meic.cmu.locmess_client.*;
-import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
-
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.content.res.AppCompatResources;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MessageActivity extends BaseNavigationActivity {
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import ist.meic.cmu.locmess_client.R;
+
+
+public class MessageActivity extends AppCompatActivity  {
     //TODO: create object message
     EditText mTitle;
     EditText mMessageContent;
@@ -37,12 +42,21 @@ public class MessageActivity extends BaseNavigationActivity {
     private String selectedLocation = null;
     private List<String> list;
 
+
+    private static final String TAG = "NewMessageActivity";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         this.list=new ArrayList<String>();
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_new_message);
-        getLayoutInflater().inflate(R.layout.activity_new_message, frameLayout);
+        setContentView(R.layout.activity_new_message);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Drawable close = AppCompatResources.getDrawable(this, R.drawable.ic_close);
+        close.setColorFilter(ContextCompat.getColor(this, R.color.light_text), PorterDuff.Mode.SRC_IN);
+        getSupportActionBar().setHomeAsUpIndicator(close);
+       // getLayoutInflater().inflate(R.layout.activity_new_message, frameLayout);
         //Dynamically generate a spinner data
         if(savedInstanceState==null) list= generateDummyData();
         createSpinnerDropDown(this.list);
@@ -55,9 +69,29 @@ public class MessageActivity extends BaseNavigationActivity {
             Toast.makeText(this, "Title " + mTitle.toString(), Toast.LENGTH_LONG).show();
         }
 
-        setCurrentDateOnView();
-        addListenerOnButton();
+//        setCurrentDateOnView();
+//        addListenerOnButton();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.new_location_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.save:
+               // createLocation();
+                Log.d(TAG, "Save clicked");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
 private void addListenerEditText() {
     R.id.pickFromDate.setOnClickListener(new View.OnClickListener() {
 
@@ -81,28 +115,6 @@ private void addListenerEditText() {
         }
     });
 }
-    // display current date
-    public void setCurrentDateOnView() {
-
-        tvDisplayDate = (TextView) findViewById(R.id.pickFromDate);
-        fromDatePiker = (DatePicker) findViewById(R.id.fromDatePiker);
-
-        final Calendar c = Calendar.getInstance();
-        year = c.get(Calendar.YEAR);
-        month = c.get(Calendar.MONTH);
-        day = c.get(Calendar.DAY_OF_MONTH);
-
-        // set current date into textview
-        tvDisplayDate.setText(new StringBuilder()
-                // Month is 0 based, just add 1
-                .append(month + 1).append("-").append(day).append("-")
-                .append(year).append(" "));
-
-        // set current date into datepicker
-        fromDatePiker.init(year, month, day, null);
-
-    }
-
 
 
  /*   @Override
@@ -119,7 +131,8 @@ private void addListenerEditText() {
     private void createSpinnerDropDown(List<String> list) {
 
         //get reference to the spinner from the XML layout
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+
+        Spinner spinner = (Spinner) findViewById(R.id.spinnerLocation);
         spinner.setPrompt("Chose a Location");
         //create an ArrayAdaptar from the String Array
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
@@ -129,6 +142,23 @@ private void addListenerEditText() {
         spinner.setAdapter(dataAdapter);
         //attach the listener to the spinner
         spinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
+//        spinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
+        spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+
+                //check which spinner triggered the listener
+                if (parent.getId()==(R.id.spinnerLocation)) {
+                    selectedLocation = selectedItem;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     private List<String> generateDummyData(){
