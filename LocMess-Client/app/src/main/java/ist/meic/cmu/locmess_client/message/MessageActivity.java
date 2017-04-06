@@ -1,11 +1,13 @@
 package ist.meic.cmu.locmess_client.message;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.*;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -13,15 +15,23 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MessageActivity extends BaseNavigationActivity {
     //TODO: create object message
     EditText mTitle;
     EditText mMessageContent;
-
+    private TextView tvDisplayDate;
+    private DatePicker fromDatePiker;
+  //  private Button btnChangeDate;
+    private int year;
+    private int month;
+    private int day;
 
     private static final String TITLE_TAG = "TITLE";
     private String selectedLocation = null;
@@ -38,15 +48,62 @@ public class MessageActivity extends BaseNavigationActivity {
         createSpinnerDropDown(this.list);
 
         mTitle = (EditText) findViewById(R.id.messageTitle);
-        Intent intent = getIntent();
+       Intent intent = getIntent();
         String username = intent.getStringExtra(TITLE_TAG);
         if (username != null) {
             mTitle.setText(username);
             Toast.makeText(this, "Title " + mTitle.toString(), Toast.LENGTH_LONG).show();
         }
 
+        setCurrentDateOnView();
+        addListenerOnButton();
+    }
+private void addListenerEditText() {
+    R.id.pickFromDate.setOnClickListener(new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            // TODO Auto-generated method stub
+            //To show current date in the datepicker
+            Calendar mcurrentDate = Calendar.getInstance();
+            year = mcurrentDate.get(Calendar.YEAR);
+            month = mcurrentDate.get(Calendar.MONTH);
+            day = mcurrentDate.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog mDatePicker = new DatePickerDialog(MessageActivity.this, new DatePickerDialog.OnDateSetListener() {
+                public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                    // TODO Auto-generated method stub
+                    /*      Your code   to get date and time    */
+                }
+            }, year, month, day);
+            mDatePicker.setTitle("Select date");
+            mDatePicker.show();
+        }
+    });
+}
+    // display current date
+    public void setCurrentDateOnView() {
+
+        tvDisplayDate = (TextView) findViewById(R.id.pickFromDate);
+        fromDatePiker = (DatePicker) findViewById(R.id.fromDatePiker);
+
+        final Calendar c = Calendar.getInstance();
+        year = c.get(Calendar.YEAR);
+        month = c.get(Calendar.MONTH);
+        day = c.get(Calendar.DAY_OF_MONTH);
+
+        // set current date into textview
+        tvDisplayDate.setText(new StringBuilder()
+                // Month is 0 based, just add 1
+                .append(month + 1).append("-").append(day).append("-")
+                .append(year).append(" "));
+
+        // set current date into datepicker
+        fromDatePiker.init(year, month, day, null);
 
     }
+
+
 
  /*   @Override
     public boolean onOptionsItemSelected(MenuItem item){
