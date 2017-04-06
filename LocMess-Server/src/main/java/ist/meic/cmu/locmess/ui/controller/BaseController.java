@@ -5,6 +5,7 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import ist.meic.cmu.locmess.database.Settings;
 import ist.meic.cmu.locmess.domain.users.User;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -49,17 +50,21 @@ public class BaseController {
     public String createUser (@PathVariable String name, @PathVariable String password, ModelMap model){
         try {
             ConnectionSource connectionSource =
-                    new JdbcConnectionSource("jdbc:h2:mem:account");
+                    new JdbcConnectionSource(Settings.DB_URI);
 
             Dao<User, String> userDAO = DaoManager.createDao(connectionSource, User.class);
-            TableUtils.createTable(connectionSource, User.class);
+            TableUtils.createTableIfNotExists(connectionSource, User.class);
+            if (userDAO.idExists(name)) {
+                model.addAttribute("message", "User: " + name + " exists");
+            }
+
             userDAO.create(new User(name, name, password));
             connectionSource.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        model.addAttribute("message", "Yay we created user" + name);
+        model.addAttribute("message", "Yay we created user: " + name);
         model.addAttribute("counter", ++counter);
         return VIEW_INDEX;
     }
