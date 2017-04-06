@@ -58,6 +58,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".location.LocationsActivity" />
         </activity>
+        <activity
+            android:name=".message.MessageActivity"
+            android:label="New Message"
+            android:theme="@style/AppTheme.WithDrawer" />
     </application>
 
 </manifest>

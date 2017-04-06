@@ -58,4 +58,12 @@
     <string name="latitude_long">Latitude</string>
     <string name="radius_with_unit">Radius (meters)</string>
     <string name="field_missing">Please fill in</string>
+    <string name="location_prompt">Locations</string>
+
+    <!-- delete array-->
+    <string name="chose_location_prompt">Location</string>
+    <string name="title_prompt">Title</string>
+    <string name="message_prompt">Message</string>
+    <string name="from_date_prompt">From</string>
+
 </resources>
