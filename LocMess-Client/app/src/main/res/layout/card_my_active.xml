@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardCornerRadius="@dimen/cardview_radius"
+        card_view:contentPadding="@dimen/activity_horizontal_margin"
+        android:elevation="@dimen/cardview_default_elevation"
+        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginLeft="@dimen/small_margin"
+        android:layout_marginEnd="@dimen/small_margin"
+        android:layout_marginRight="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_margin">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_2dp"
+                android:id="@+id/post_title" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/small_margin"
+                android:id="@+id/post_text"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin">
+                <ImageView
+                    android:layout_width="@dimen/cardview_icon_size"
+                    android:layout_height="@dimen/cardview_icon_size"
+                    android:id="@+id/location_ic"
+                    app:srcCompat="@drawable/ic_location"
+                    android:tint="@color/icon_tint_dark"
+                    android:tintMode="src_in"
+                    android:contentDescription="@string/post_location"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/post_location"
+                    android:layout_toEndOf="@id/location_ic"
+                    android:layout_toRightOf="@id/location_ic"
+                    android:layout_marginStart="@dimen/margin_2dp"
+                    android:layout_marginLeft="@dimen/margin_2dp" />
+                <ImageView
+                    android:layout_width="@dimen/cardview_icon_size"
+                    android:layout_height="@dimen/cardview_icon_size"
+                    android:id="@+id/time_ic"
+                    android:layout_toRightOf="@id/post_location"
+                    android:layout_toEndOf="@id/post_location"
+                    android:layout_marginLeft="@dimen/small_margin"
+                    android:layout_marginStart="@dimen/small_margin"
+                    app:srcCompat="@drawable/ic_time"
+                    android:tint="@color/icon_tint_dark"
+                    android:tintMode="src_in"
+                    android:contentDescription="@string/post_time" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/post_time"
+                    android:layout_toEndOf="@id/time_ic"
+                    android:layout_toRightOf="@id/time_ic"
+                    android:layout_marginStart="@dimen/margin_2dp"
+                    android:layout_marginLeft="@dimen/margin_2dp" />
+
+                <ImageButton
+                    android:id="@+id/remove_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_remove"
+                    android:tint="@color/icon_tint_dark"
+                    android:tintMode="src_in"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:background="@android:color/transparent"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</LinearLayout>

@@ -22,6 +22,7 @@ import ist.meic.cmu.locmess_client.data.DummyData;
 import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.messages.OnRecyclerCardClicked;
 import ist.meic.cmu.locmess_client.messages.ShowMessageActivity;
+import ist.meic.cmu.locmess_client.messages.posted.MyMessageCardAdapter;
 
 /**
  * Created by lads on 05/04/2017.
@@ -31,7 +32,7 @@ public class ActiveTabFragment extends Fragment implements OnRecyclerCardClicked
 
     private static List<Message> DUMMY_DATASET;
 
-    ActiveCardAdapter mAdapter;
+    MyMessageCardAdapter mAdapter;
 
     public ActiveTabFragment() {
         DUMMY_DATASET = new LinkedList<>();
@@ -70,7 +71,7 @@ public class ActiveTabFragment extends Fragment implements OnRecyclerCardClicked
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new ActiveCardAdapter(DUMMY_DATASET, this);
+        mAdapter = new MyMessageCardAdapter(DUMMY_DATASET, this);
         mRecyclerView.setAdapter(mAdapter);
 
         return rootView;
