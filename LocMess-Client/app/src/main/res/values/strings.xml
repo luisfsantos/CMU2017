@@ -65,5 +65,6 @@
     <string name="title_prompt">Title</string>
     <string name="message_prompt">Message</string>
     <string name="from_date_prompt">From</string>
+    <string name="to_date_prompt">To</string>
 
 </resources>

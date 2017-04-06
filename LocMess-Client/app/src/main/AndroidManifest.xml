@@ -61,7 +61,7 @@
         <activity
             android:name=".message.MessageActivity"
             android:label="New Message"
-            android:theme="@style/AppTheme.WithDrawer" />
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>
