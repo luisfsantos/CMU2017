@@ -17,6 +17,7 @@ import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.location.LocationsActivity;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.messages.posted.PostedActivity;
+import ist.meic.cmu.locmess_client.message.MessageActivity;
 import ist.meic.cmu.locmess_client.profile.ProfileActivity;
 
 public class BaseNavigationActivity extends AppCompatActivity
@@ -87,7 +88,7 @@ public class BaseNavigationActivity extends AppCompatActivity
         } else if (id == R.id.nav_posted) {
             startActivity(new Intent(getApplicationContext(), PostedActivity.class));
         } else if (id == R.id.nav_new_message) {
-
+            startActivity(new Intent(getApplicationContext(), MessageActivity.class));
         } else if (id == R.id.nav_locations) {
             startActivity(new Intent(getApplicationContext(), LocationsActivity.class));
             finish();
