@@ -36,7 +36,7 @@ public class MyMessageCardAdapter extends RecyclerView.Adapter<MyMessageCardAdap
     public MyMessageCardAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_my_active, parent, false);
+                .inflate(R.layout.card_my_messages, parent, false);
         // set the view's size, margins, paddings and layout parameters
 
         ViewHolder vh = new ViewHolder(v);
