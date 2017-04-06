@@ -45,4 +45,12 @@
     <string name="radius">Radius</string>
     <string name="distance_unit_abrev">m</string>
     <string name="remove_location">Remove location?</string>
+    <string name="location_prompt">Locations</string>
+
+    <!-- delete array-->
+    <string name="chose_location_prompt">Location</string>
+    <string name="title_prompt">Title</string>
+    <string name="message_prompt">Message</string>
+    <string name="from_date_prompt">From</string>
+
 </resources>

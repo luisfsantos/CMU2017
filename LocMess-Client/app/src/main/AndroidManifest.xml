@@ -49,6 +49,11 @@
             android:name=".location.LocationsActivity"
             android:label="@string/title_activity_locations"
             android:theme="@style/AppTheme.WithDrawer" />
+
+        <activity
+            android:name=".message.MessageActivity"
+            android:label="New Message"
+            android:theme="@style/AppTheme.WithDrawer" />
     </application>
 
 </manifest>
