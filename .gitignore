@@ -47,6 +47,9 @@ hs_err_pid*
 ## File-based project format:
 *.iws
 
+##H2 databasefiles:
+*.mv.db
+
 ## Plugin-specific files:
 
 # IntelliJ
