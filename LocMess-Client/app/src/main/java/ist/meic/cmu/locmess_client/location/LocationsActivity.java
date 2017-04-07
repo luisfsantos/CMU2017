@@ -1,9 +1,8 @@
 package ist.meic.cmu.locmess_client.location;
 
 import android.content.Intent;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,6 +20,7 @@ import ist.meic.cmu.locmess_client.data.GpsCoordinates;
 import ist.meic.cmu.locmess_client.data.Location;
 import ist.meic.cmu.locmess_client.data.WifiCoordinates;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
+import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
 public class LocationsActivity extends BaseNavigationActivity implements LocationsAdapter.LocationCardListener{
@@ -87,9 +87,9 @@ public class LocationsActivity extends BaseNavigationActivity implements Locatio
 
     @Override
     public void postToLocation(Location location) {
-        //TODO: start new message activity - pass location name/id/anything in the intent
-        Snackbar.make(mRecyclerView, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .show();
+        //FIXME pass location name/id/anything in the intent
+        Intent intent = new Intent(this, NewMessageActivity.class);
+        intent.putExtra(NewMessageActivity.INTENT_LOCATION, location.name);
+        startActivity(intent);
     }
 }

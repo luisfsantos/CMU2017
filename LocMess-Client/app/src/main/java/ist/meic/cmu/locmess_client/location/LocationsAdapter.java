@@ -19,7 +19,6 @@ import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.GpsCoordinates;
 import ist.meic.cmu.locmess_client.data.Location;
 import ist.meic.cmu.locmess_client.data.WifiCoordinates;
-import ist.meic.cmu.locmess_client.profile.KeyPairsAdapter;
 
 /**
  * Created by Catarina on 03/04/2017.

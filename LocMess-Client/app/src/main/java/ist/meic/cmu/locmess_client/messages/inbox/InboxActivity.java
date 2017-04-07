@@ -1,9 +1,9 @@
 package ist.meic.cmu.locmess_client.messages.inbox;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +13,7 @@ import android.view.View;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.Message;
+import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.messages.inbox.available.AvailableTabFragment;
 import ist.meic.cmu.locmess_client.messages.inbox.opened.OpenedTabFragment;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
@@ -31,8 +32,8 @@ public class InboxActivity extends BaseNavigationActivity implements AvailableTa
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(InboxActivity.this, NewMessageActivity.class);
+                startActivity(intent);
             }
         });
 

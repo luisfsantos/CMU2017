@@ -1,6 +1,7 @@
 package ist.meic.cmu.locmess_client.messages.posted;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,6 +13,7 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.messages.posted.active.ActiveTabFragment;
 import ist.meic.cmu.locmess_client.messages.posted.archived.ArchivedTabFragment;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
@@ -30,8 +32,8 @@ public class PostedActivity extends BaseNavigationActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(PostedActivity.this, NewMessageActivity.class);
+                startActivity(intent);
             }
         });
 

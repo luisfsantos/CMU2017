@@ -60,18 +60,18 @@
     <string name="latitude_long">Latitude</string>
     <string name="radius_with_unit">Radius (meters)</string>
     <string name="field_missing">Please fill in</string>
-
     <string name="title_activity_posted">Posted</string>
+
+
     <string name="location_prompt">Locations</string>
-
-
-
-
     <string name="chose_location_prompt">Location</string>
     <string name="title_prompt">Title</string>
     <string name="message_prompt">Message</string>
     <string name="from_date_prompt">From</string>
-
+    <string name="menu_item_post">Post</string>
     <string name="to_date_prompt">To</string>
+    <string name="choose_location_prompt">Choose a location</string>
+    <string name="title_missing">Please insert title</string>
+    <string name="msg_body_missing">Please insert message body</string>
 
 </resources>

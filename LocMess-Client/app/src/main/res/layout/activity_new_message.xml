@@ -1,103 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="1">
+    tools:context=".messages.create.NewMessageActivity">
 
-    <TextView
-        android:id="@+id/textViewLocation"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/chose_location_prompt"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_height="match_parent"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:orientation="vertical">
 
-    <Spinner
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/chose_location_prompt"
+            style="@style/AppTheme.Title" />
+        <Spinner
+            android:id="@+id/spinner_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/chose_location_prompt"
+            android:layout_marginTop="@dimen/small_margin" />
 
-        android:id="@+id/spinnerLocation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:prompt="@string/chose_location_prompt"
-        android:visibility="visible" />
-    <TextView
-        android:id="@+id/textViewTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/title_prompt"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_prompt"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            style="@style/AppTheme.Title" />
 
-    <EditText
-        android:id="@+id/messageTitle"
-        style="@style/AppTheme"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/small_margin"
-        android:hint="@string/title_prompt"
-        android:inputType="text" />
-    <TextView
-        android:id="@+id/textViewMessage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/message_prompt"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        <EditText
+            android:id="@+id/message_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/AppTheme"
+            android:inputType="textCapSentences"
+            android:maxLines="1"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:text="@string/message_prompt"
+            style="@style/AppTheme.Title" />
 
-    <EditText
-        android:id="@+id/Message_content"
-        style="@style/AppTheme"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/small_margin"
-        android:hint="@string/message_prompt"
-        android:inputType="text|textMultiLine" />
+        <EditText
+            android:id="@+id/message_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/small_margin"
+            style="@style/AppTheme"
+            android:inputType="text|textMultiLine|textCapSentences" />
 
-    <TextView
-        android:id="@+id/textViewFrom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/from_date_prompt"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/from_date_prompt"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            style="@style/AppTheme.Title" />
 
-    <Spinner
-        android:id="@+id/spinnerFromDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:prompt="@string/chose_date_prompt"
-        android:visibility="visible" />
-    <Spinner
-        android:id="@+id/spinnerFromTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:prompt="@string/chose_date_prompt"
-        android:visibility="visible" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="3"
+            android:layout_marginTop="@dimen/small_margin">
 
-    <TextView
-        android:id="@+id/textViewTo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/to_date_prompt"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+            <TextView
+                android:id="@+id/spinner_from_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                style="@android:style/Widget.DeviceDefault.Light.Spinner"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+            <TextView
+                android:id="@+id/spinner_from_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                style="@android:style/Widget.DeviceDefault.Light.Spinner" />
+        </LinearLayout>
 
-    <Spinner
-        android:id="@+id/spinnerToDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:prompt="@string/chose_location_prompt"
-        android:visibility="visible" />
-    <Spinner
-        android:id="@+id/spinnerToTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:prompt="@string/chose_location_prompt"
-        android:visibility="visible" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/to_date_prompt"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            style="@style/AppTheme.Title" />
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="3"
+            android:layout_marginTop="@dimen/small_margin">
+            <TextView
+                android:id="@+id/spinner_to_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                style="@android:style/Widget.DeviceDefault.Light.Spinner"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+            <TextView
+                android:id="@+id/spinner_to_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                style="@android:style/Widget.DeviceDefault.Light.Spinner"/>
+        </LinearLayout>
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>
