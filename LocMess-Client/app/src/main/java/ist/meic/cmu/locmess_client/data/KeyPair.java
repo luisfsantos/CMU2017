@@ -43,4 +43,9 @@ public class KeyPair implements Parcelable{
         parcel.writeString(key);
         parcel.writeString(value);
     }
+
+    @Override
+    public String toString() {
+        return key + ":" + value;
+    }
 }

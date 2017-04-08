@@ -73,5 +73,9 @@
     <string name="choose_location_prompt">Choose a location</string>
     <string name="title_missing">Please insert title</string>
     <string name="msg_body_missing">Please insert message body</string>
+    <string name="filters_prompt">Filters</string>
+    <string name="thumb_blacklist_hint">B</string>
+    <string name="thumb_whitelist_hint">W</string>
+    <string name="new_filter">New filter</string>
 
 </resources>

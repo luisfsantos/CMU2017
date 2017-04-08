@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -71,15 +70,17 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                style="@android:style/Widget.DeviceDefault.Light.Spinner"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                style="@style/AppTheme"/>
             <TextView
                 android:id="@+id/spinner_from_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                style="@android:style/Widget.DeviceDefault.Light.Spinner" />
+                android:textAlignment="viewEnd"
+                android:layout_gravity="end"
+                style="@style/AppTheme" />
         </LinearLayout>
 
         <TextView
@@ -99,15 +100,41 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                style="@android:style/Widget.DeviceDefault.Light.Spinner"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                style="@style/AppTheme"/>
             <TextView
                 android:id="@+id/spinner_to_time"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                style="@android:style/Widget.DeviceDefault.Light.Spinner"/>
+                android:textAlignment="viewEnd"
+                android:layout_gravity="end"
+                style="@style/AppTheme"/>
         </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filters_prompt"
+            android:layout_marginTop="@dimen/activity_double_margin"
+            style="@style/AppTheme.Title"
+            android:layout_marginBottom="@dimen/small_margin"/>
+
+        <LinearLayout
+            android:id="@+id/filters_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+        <Button
+            android:id="@+id/new_filter_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:tint="@color/icon_tint_dark"
+            android:drawableRight="@drawable/ic_add_circle_outline"
+            android:drawableEnd="@drawable/ic_add_circle_outline"
+            android:text="@string/new_filter"
+            android:layout_gravity="end"
+            android:onClick="onAddNewFilterClicked"/>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

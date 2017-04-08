@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -13,25 +15,32 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.data.KeyPair;
 
 public class NewMessageActivity extends AppCompatActivity {
 
     private static final String TAG = "NewMessageActivity";
     public static final String INTENT_LOCATION = "location";
+    public static final boolean BACKLIST_CHECKED = true;
+
     EditText mTitle;
     EditText mMessageContent;
     TextView mFromDate;
@@ -44,11 +53,21 @@ public class NewMessageActivity extends AppCompatActivity {
     private Calendar chosenToDate = Calendar.getInstance();
 
     private List<String> mLocationsList = new ArrayList<>();
+    private ViewGroup mFiltersGroup;
+    List<String> mKeysList;
+
+    //HACK
+    private List<FilterInfo> mFilterInfo = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_message);
+        //FIXME: this is dummy data
+        mKeysList = new ArrayList<>();
+        mKeysList.add("Favourite food");
+        mKeysList.add("Sport");
+        mKeysList.add("Job");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Drawable close = AppCompatResources.getDrawable(this, R.drawable.ic_close);
@@ -62,6 +81,7 @@ public class NewMessageActivity extends AppCompatActivity {
         mFromTime = (TextView)findViewById(R.id.spinner_from_time);
         mToTime = (TextView)findViewById(R.id.spinner_to_time);
         mLocation = (Spinner)findViewById(R.id.spinner_location);
+        mFiltersGroup = (LinearLayout) findViewById(R.id.filters_group);
     }
 
     @Override
@@ -71,6 +91,10 @@ public class NewMessageActivity extends AppCompatActivity {
         outState.putString("selected_location", mLocation.getSelectedItem().toString());
         outState.putSerializable("from", chosenFromDate);
         outState.putSerializable("to", chosenToDate);
+
+        //HACK
+        saveFiltersState();
+        outState.putParcelableArrayList("filters", (ArrayList<FilterInfo>)mFilterInfo);
     }
 
     @Override
@@ -81,6 +105,10 @@ public class NewMessageActivity extends AppCompatActivity {
         chosenToDate = (Calendar)savedInstanceState.getSerializable("to");
         updateFromView();
         updateToView();
+
+        //HACK
+        mFilterInfo = savedInstanceState.getParcelableArrayList("filters");
+        inflateSavedFilters();
     }
 
     @Override
@@ -99,8 +127,7 @@ public class NewMessageActivity extends AppCompatActivity {
                 int index = mLocationsList.indexOf(intent_location);
                 mLocation.setSelection(index);
             }
-        }
-        if (savedInstanceState != null) {
+        } else {
             populateLocationSpinner(mLocationsList);
             String location = savedInstanceState.getString("selected_location");
             int index = mLocationsList.indexOf(location);
@@ -164,23 +191,94 @@ public class NewMessageActivity extends AppCompatActivity {
             mMessageContent.setError(getString(R.string.msg_body_missing));
             return;
         }
-        //chosenFromDate & chosenToDate
         Log.i(TAG, "Location: " + location);
         Log.i(TAG, "Title: " + title);
         Log.i(TAG, "Content: " + content);
         Log.i(TAG, String.format("From: %s %s", formatDate(chosenFromDate), formatTime(chosenFromDate)));
         Log.i(TAG, String.format("To: %s %s: ", formatDate(chosenToDate), formatTime(chosenToDate)));
+
+        saveFiltersState();
+        List<KeyPair> blacklist = new ArrayList<>();
+        List<KeyPair> whitelist = new ArrayList<>();
+        for (int i = 0; i < mFilterInfo.size(); i++){
+            FilterInfo info = mFilterInfo.get(i);
+            String value = info.editTextInput.trim();
+            if (value.isEmpty()) continue;
+            String key = mKeysList.get(info.spinnerSelectedItem);
+            if (info.switchChecked == BACKLIST_CHECKED) {
+                blacklist.add(new KeyPair(key, value));
+            } else {
+                whitelist.add(new KeyPair(key, value));
+            }
+        }
+        Log.d(TAG, "Blacklist: " + Arrays.toString(blacklist.toArray(new KeyPair[blacklist.size()])));
+        Log.d(TAG, "Whitelist: " + Arrays.toString(whitelist.toArray(new KeyPair[whitelist.size()])));
         //TODO actually post message
         finish();
     }
 
-
-    //add stuff into spinner dynamically
     private void populateLocationSpinner(List<String> list) {
         mLocation.setPrompt(getString(R.string.choose_location_prompt));
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mLocation.setAdapter(dataAdapter);
+    }
+
+    private ViewGroup inflateNewFilter() {
+        ViewGroup viewGroup = (ViewGroup)getLayoutInflater().inflate(R.layout.item_filter, mFiltersGroup, false);
+        mFiltersGroup.addView(viewGroup);
+        Spinner spinner = (Spinner)viewGroup.getChildAt(1);
+        ArrayAdapter<String> keysAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, mKeysList);
+        keysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(keysAdapter);
+        return viewGroup;
+    }
+
+    /* HACK
+    *  Needed because Android doesn't handle restore state of views inflated
+    *  programmatically unless they're given a unique (and constant) ID every time
+    *  the activity is created. IDs given to views in 'item_filter.xml' layout wouldn't
+    *  work since we're inflating the same layout multiple times, and thus the IDs of the
+    *  layout's children will be repeated. Instead of making sure all views' IDs are
+    *  unique and constant, it's easier to save and restore the filters' state by hand.
+    * */
+    private void saveFiltersState() {
+        mFilterInfo.clear();
+        for (int i = 0; i < mFiltersGroup.getChildCount(); i++) {
+            FilterInfo info = new FilterInfo();
+            ViewGroup filter = (ViewGroup) mFiltersGroup.getChildAt(i);
+            Switch aSwitch = (Switch)filter.getChildAt(0);
+            info.switchChecked = aSwitch.isChecked();
+            Spinner spinner = (Spinner)filter.getChildAt(1);
+            info.spinnerSelectedItem = spinner.getSelectedItemPosition();
+            EditText editText = (EditText)filter.getChildAt(2);
+            info.editTextInput = editText.getText().toString();
+            mFilterInfo.add(info);
+        }
+    }
+    /* HACK
+    *  hack continues (see saveFiltersState)
+    * */
+    private void inflateSavedFilters() {
+        for (int i = 0; i < mFilterInfo.size(); i++) {
+            FilterInfo info = mFilterInfo.get(i);
+            ViewGroup filter = inflateNewFilter();
+            Switch aSwitch = (Switch)filter.getChildAt(0);
+            aSwitch.setChecked(info.switchChecked);
+            Spinner spinner = (Spinner)filter.getChildAt(1);
+            spinner.setSelection(info.spinnerSelectedItem);
+            EditText editText = (EditText)filter.getChildAt(2);
+            editText.setText(info.editTextInput);
+        }
+    }
+
+    public void onAddNewFilterClicked(View view) {
+        inflateNewFilter();
+    }
+
+    public void onRemoveFilterClicked(View view) {
+        View filter = (View)view.getParent();
+        mFiltersGroup.removeView(filter);
     }
 
     private List<String> generateDummyData(int size){
@@ -197,7 +295,6 @@ public class NewMessageActivity extends AppCompatActivity {
     private String formatTime(Calendar calendar) {
         return SimpleDateFormat.getTimeInstance(DateFormat.SHORT).format(calendar.getTime());
     }
-
     private String formatDate(Calendar calendar) {
         return SimpleDateFormat.getDateInstance().format(calendar.getTime());
     }
@@ -206,11 +303,11 @@ public class NewMessageActivity extends AppCompatActivity {
         mFromDate.setText(formatDate(chosenFromDate));
         mFromTime.setText(formatTime(chosenFromDate));
     }
+
     private void updateToView() {
         mToDate.setText(formatDate(chosenToDate));
         mToTime.setText(formatTime(chosenToDate));
     }
-
 
     class OnDateClickListener implements View.OnClickListener {
 
@@ -333,5 +430,43 @@ public class NewMessageActivity extends AppCompatActivity {
             Log.d(TAG, String.format("From: %s %s", formatDate(chosenFromDate), formatTime(chosenFromDate)));
             Log.d(TAG, String.format("To: %s %s", formatDate(chosenToDate), formatTime(chosenToDate)));
         }
+    }
+}
+
+class FilterInfo implements Parcelable {
+    boolean switchChecked;
+    int spinnerSelectedItem;
+    String editTextInput;
+
+    FilterInfo() {}
+
+    protected FilterInfo(Parcel in) {
+        switchChecked = in.readByte() != 0;
+        spinnerSelectedItem = in.readInt();
+        editTextInput = in.readString();
+    }
+
+    public static final Creator<FilterInfo> CREATOR = new Creator<FilterInfo>() {
+        @Override
+        public FilterInfo createFromParcel(Parcel in) {
+            return new FilterInfo(in);
+        }
+
+        @Override
+        public FilterInfo[] newArray(int size) {
+            return new FilterInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeByte((byte) (switchChecked ? 1 : 0));
+        parcel.writeInt(spinnerSelectedItem);
+        parcel.writeString(editTextInput);
     }
 }
