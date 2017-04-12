@@ -1,11 +1,15 @@
 package ist.meic.cmu.locmess_client.location.create;
 
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
@@ -17,7 +21,12 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import java.util.Date;
+
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
+import ist.meic.cmu.locmess_client.sql.LocMessDBSQLiteHelper;
+import ist.meic.cmu.locmess_client.utils.DateUtils;
 
 public class NewLocationActivity extends AppCompatActivity {
 
@@ -25,6 +34,7 @@ public class NewLocationActivity extends AppCompatActivity {
     NewWifiLocationFragment mWifiFragment;
     NewGpsLocationFragment mGpsFragment;
     private RadioGroup mCoordinatesChoice;
+    private LocMessDBSQLiteHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +47,7 @@ public class NewLocationActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(close);
 
         mCoordinatesChoice = (RadioGroup)findViewById(R.id.coordinates_choice);
+        mDbHelper = new LocMessDBSQLiteHelper(this);
     }
 
     @Override
@@ -81,12 +92,21 @@ public class NewLocationActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save:
-                createLocation();
                 Log.d(TAG, "Save clicked");
+                createLocation();
+                return true;
+            case R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mDbHelper.close();
+        super.onDestroy();
     }
 
     private void createLocation() {
@@ -113,18 +133,58 @@ public class NewLocationActivity extends AppCompatActivity {
                     mGpsFragment.mRadius.setError(getResources().getString(R.string.field_missing));
                     return;
                 }
+                createGpsLocation(name, latitude, longitude, radius);
                 break;
 
             case R.id.radio_wifi:
-                if (mWifiFragment.mRadioGroup.getVisibility() == View.VISIBLE) {
-                    final int checked_id = mWifiFragment.mRadioGroup.getCheckedRadioButtonId();
-                    RadioButton button = (RadioButton) mWifiFragment.mRadioGroup.findViewById(checked_id);
-                    Log.d(TAG, button.getText().toString());
-                }
+                final int checked_id = mWifiFragment.mRadioGroup.getCheckedRadioButtonId();
+                RadioButton button = (RadioButton) mWifiFragment.mRadioGroup.findViewById(checked_id);
+                String ssid = button.getText().toString();
+                Log.d(TAG, ssid);
+
+                createWifiLocation(name, ssid);
                 break;
         }
-        //TODO actually post location to server+db
+        setResult(RESULT_OK);
         finish();
+    }
+
+    private void createGpsLocation(String name, String latitude, String longitude, String radius) {
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        StringBuilder coordinates = new StringBuilder();
+        coordinates.append(latitude)
+                .append("#")
+                .append(longitude)
+                .append("#")
+                .append(radius);
+        //FIXME replace with username
+        String author = "username";
+        String date = DateUtils.formatDate(new Date());
+
+        ContentValues values = new ContentValues();
+        values.put(LocMessDBContract.Location.COLUMN_NAME, name);
+        values.put(LocMessDBContract.Location.COLUMN_AUTHOR, author);
+        values.put(LocMessDBContract.Location.COLUMN_DATE_CREATED, date);
+        values.put(LocMessDBContract.Location.COLUMN_COORDINATES, coordinates.toString());
+        long newRowId = database.insert(LocMessDBContract.Location.TABLE_NAME, null, values);
+        Log.d(TAG, "New row id is " + newRowId);
+        //TODO post location to server
+    }
+
+    private void createWifiLocation(String name, String ssid) {
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        //FIXME replace with username
+        String author = "username";
+        String date = DateUtils.formatDate(new Date());
+
+        ContentValues values = new ContentValues();
+        values.put(LocMessDBContract.Location.COLUMN_NAME, name);
+        values.put(LocMessDBContract.Location.COLUMN_AUTHOR, author);
+        values.put(LocMessDBContract.Location.COLUMN_DATE_CREATED, date);
+        values.put(LocMessDBContract.Location.COLUMN_COORDINATES, ssid);
+        long newRowId = database.insert(LocMessDBContract.Location.TABLE_NAME, null, values);
+        Log.d(TAG, "New row id is " + newRowId);
+        //TODO post location to server
     }
 
     public void onRadioButtonClicked(View view) {
@@ -142,9 +202,6 @@ public class NewLocationActivity extends AppCompatActivity {
 
     private void showHideFragments(final Fragment toShow, final Fragment toHide){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//        ft.setCustomAnimations(android.R.anim.fade_in,
-//                android.R.anim.fade_out);
-
         ft.show(toShow);
         ft.hide(toHide);
         ft.commit();

@@ -21,4 +21,20 @@ public class LocMessDBContract {
                 COLUMN_KEY + " TEXT, " +
                 COLUMN_VALUE + " TEXT " + ")";
     }
+
+    public static class Location implements BaseColumns {
+        public static final String TABLE_NAME = "location";
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_AUTHOR = "author";
+        public static final String COLUMN_DATE_CREATED = "date_created";
+        public static final String COLUMN_COORDINATES = "coordinates";
+
+        public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_NAME + " TEXT, " +
+                COLUMN_AUTHOR + " TEXT, " +
+                COLUMN_DATE_CREATED + " TEXT, " +
+                COLUMN_COORDINATES + " TEXT " + ")";
+    }
 }
