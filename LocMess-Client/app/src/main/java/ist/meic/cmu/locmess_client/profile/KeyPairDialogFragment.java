@@ -20,12 +20,12 @@ import ist.meic.cmu.locmess_client.R;
 
 public class KeyPairDialogFragment extends DialogFragment {
 
-    KeyPairDialogListener mListener;
+    InsertKeyPairListener mListener;
     AlertDialog mDialog;
     EditText mKeyEditText;
     EditText mValueEditText;
 
-    public interface KeyPairDialogListener {
+    public interface InsertKeyPairListener {
         void addNewKeyPair(String key, String value);
     }
 
@@ -37,9 +37,9 @@ public class KeyPairDialogFragment extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (KeyPairDialogListener) context;
+            mListener = (InsertKeyPairListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement KeyPairDialogListener");
+            throw new ClassCastException(context.toString() + " must implement InsertKeyPairListener");
         }
     }
 
