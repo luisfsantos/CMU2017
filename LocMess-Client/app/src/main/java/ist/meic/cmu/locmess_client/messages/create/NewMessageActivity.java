@@ -39,7 +39,7 @@ public class NewMessageActivity extends AppCompatActivity {
 
     private static final String TAG = "NewMessageActivity";
     public static final String INTENT_LOCATION = "location";
-    public static final boolean BACKLIST_CHECKED = true;
+    public static final boolean BLACKLIST_CHECKED = true;
 
     EditText mTitle;
     EditText mMessageContent;
@@ -119,6 +119,7 @@ public class NewMessageActivity extends AppCompatActivity {
             mLocationsList = generateDummyData(5);
             initDateTimeSpinners();
 
+            //FIXME what's being passed in the intent is now the id and not the name
             Intent intent = getIntent();
             String intent_location = intent.getStringExtra(INTENT_LOCATION);
             Log.d(TAG, "intent_location: "+intent_location);
@@ -205,7 +206,7 @@ public class NewMessageActivity extends AppCompatActivity {
             String value = info.editTextInput.trim();
             if (value.isEmpty()) continue;
             String key = mKeysList.get(info.spinnerSelectedItem);
-            if (info.switchChecked == BACKLIST_CHECKED) {
+            if (info.switchChecked == BLACKLIST_CHECKED) {
                 blacklist.add(new KeyPair(key, value));
             } else {
                 whitelist.add(new KeyPair(key, value));

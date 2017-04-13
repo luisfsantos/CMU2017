@@ -58,6 +58,7 @@ public class ProfileActivity extends BaseNavigationActivity
     }
 
     private Cursor readKeyPairsFromDB() {
+        Log.i(TAG, "Reading all key pairs from database");
         String[] queryCols = new String[] {"_id", LocMessDBContract.KeyPair.COLUMN_KEY, LocMessDBContract.KeyPair.COLUMN_VALUE};
 
         SQLiteDatabase database = mDbHelper.getReadableDatabase();

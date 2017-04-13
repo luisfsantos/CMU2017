@@ -6,12 +6,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import ist.meic.cmu.locmess_client.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.Location;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
@@ -20,6 +20,7 @@ import ist.meic.cmu.locmess_client.sql.LocMessDBSQLiteHelper;
 
 public class LocationsActivity extends BaseNavigationActivity implements LocationsAdapter.LocationCardListener{
 
+    private static final String TAG = "LocationsActivity";
     static final int NEW_LOCATION_REQUEST = 1;
     LocMessRecyclerView mRecyclerView;
     LocMessDBSQLiteHelper mDbHelper;
@@ -60,6 +61,7 @@ public class LocationsActivity extends BaseNavigationActivity implements Locatio
     }
 
     private Cursor readLocationsFromDB() {
+        Log.i(TAG, "Reading all locations from database");
         String[] queryCols = new String[] {"_id",
                 LocMessDBContract.Location.COLUMN_NAME,
                 LocMessDBContract.Location.COLUMN_AUTHOR,
@@ -80,15 +82,23 @@ public class LocationsActivity extends BaseNavigationActivity implements Locatio
     }
 
     @Override
-    public void postToLocation(Location location) {
-        //FIXME pass location name/id/anything in the intent
+    public void postToLocation(int id) {
         Intent intent = new Intent(this, NewMessageActivity.class);
-        intent.putExtra(NewMessageActivity.INTENT_LOCATION, location.name);
+        intent.putExtra(NewMessageActivity.INTENT_LOCATION, id);
         startActivity(intent);
     }
 
     @Override
-    public void removeLocation(Location location) {
+    public void removeLocation(int id) {
+        Log.d(TAG, "id=" + id);
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        String selection = "_id LIKE ? ";
+        String[] selectionArgs = { String.valueOf(id) };
+        long numRowsDeleted = database.delete(LocMessDBContract.Location.TABLE_NAME, selection, selectionArgs);
+        Log.d(TAG, "Deleted " + numRowsDeleted + " row(s)");
 
+        LocationsAdapter adapter = (LocationsAdapter)mRecyclerView.getAdapter();
+        adapter.changeCursor(readLocationsFromDB());
+        //TODO notify server
     }
 }
