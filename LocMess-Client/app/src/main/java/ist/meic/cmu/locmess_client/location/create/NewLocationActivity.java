@@ -1,10 +1,9 @@
 package ist.meic.cmu.locmess_client.location.create;
 
 import android.content.ContentValues;
-import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,7 +24,6 @@ import java.util.Date;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
-import ist.meic.cmu.locmess_client.sql.LocMessDBSQLiteHelper;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
 
 public class NewLocationActivity extends AppCompatActivity {
@@ -34,7 +32,6 @@ public class NewLocationActivity extends AppCompatActivity {
     NewWifiLocationFragment mWifiFragment;
     NewGpsLocationFragment mGpsFragment;
     private RadioGroup mCoordinatesChoice;
-    private LocMessDBSQLiteHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +44,6 @@ public class NewLocationActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(close);
 
         mCoordinatesChoice = (RadioGroup)findViewById(R.id.coordinates_choice);
-        mDbHelper = new LocMessDBSQLiteHelper(this);
     }
 
     @Override
@@ -103,12 +99,6 @@ public class NewLocationActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        mDbHelper.close();
-        super.onDestroy();
-    }
-
     private void createLocation() {
         EditText location = (EditText)findViewById(R.id.new_location_name);
         String name = location.getText().toString().trim();
@@ -150,7 +140,6 @@ public class NewLocationActivity extends AppCompatActivity {
     }
 
     private void createGpsLocation(String name, String latitude, String longitude, String radius) {
-        SQLiteDatabase database = mDbHelper.getWritableDatabase();
         StringBuilder coordinates = new StringBuilder();
         coordinates.append(latitude)
                 .append("#")
@@ -166,13 +155,12 @@ public class NewLocationActivity extends AppCompatActivity {
         values.put(LocMessDBContract.Location.COLUMN_AUTHOR, author);
         values.put(LocMessDBContract.Location.COLUMN_DATE_CREATED, date);
         values.put(LocMessDBContract.Location.COLUMN_COORDINATES, coordinates.toString());
-        long newRowId = database.insert(LocMessDBContract.Location.TABLE_NAME, null, values);
-        Log.d(TAG, "New row id is " + newRowId);
+        Uri uri = getContentResolver().insert(LocMessDBContract.Location.CONTENT_URI, values);
+        Log.d(TAG, "New row URI is " + uri);
         //TODO post location to server
     }
 
     private void createWifiLocation(String name, String ssid) {
-        SQLiteDatabase database = mDbHelper.getWritableDatabase();
         //FIXME replace with username
         String author = "username";
         String date = DateUtils.formatDate(new Date());
@@ -182,8 +170,8 @@ public class NewLocationActivity extends AppCompatActivity {
         values.put(LocMessDBContract.Location.COLUMN_AUTHOR, author);
         values.put(LocMessDBContract.Location.COLUMN_DATE_CREATED, date);
         values.put(LocMessDBContract.Location.COLUMN_COORDINATES, ssid);
-        long newRowId = database.insert(LocMessDBContract.Location.TABLE_NAME, null, values);
-        Log.d(TAG, "New row id is " + newRowId);
+        Uri uri = getContentResolver().insert(LocMessDBContract.Location.CONTENT_URI, values);
+        Log.d(TAG, "New row URI is " + uri);
         //TODO post location to server
     }
 
