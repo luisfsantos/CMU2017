@@ -43,13 +43,11 @@ public class ProfileActivity extends BaseNavigationActivity
     private static final int KEYPAIRS_LOADER_ID = R.id.keypairs_loader_id;
     LocMessRecyclerView mRecyclerView;
     SimpleCursorRecyclerAdapter mAdapter;
-    LocMessDBSQLiteHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_profile, frameLayout);
-        mDbHelper = new LocMessDBSQLiteHelper(this);
 
         mRecyclerView = (LocMessRecyclerView) findViewById(R.id.rv_key_pairs);
         TextView mEmptyView = (TextView)findViewById(R.id.empty_view);
@@ -73,12 +71,6 @@ public class ProfileActivity extends BaseNavigationActivity
     protected void onResume() {
         super.onResume();
         navigationView.setCheckedItem(R.id.nav_profile);
-    }
-
-    @Override
-    protected void onDestroy() {
-        mDbHelper.close();
-        super.onDestroy();
     }
 
     public void onLogoutClicked(View view) {

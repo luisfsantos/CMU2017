@@ -3,4 +3,5 @@
     <item name="tag_name" type="id"/>
     <item name="tag_id" type="id"/>
     <item name="keypairs_loader_id" type="id"/>
+    <item name="locations_loader_id" type="id"/>
 </resources>
