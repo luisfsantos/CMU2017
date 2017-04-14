@@ -8,6 +8,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        
+        <provider
+            android:name=".LocMessProvider"
+            android:exported="false"
+            android:authorities="ist.meic.cmu.locmess_client.LocMessProvider" />
+
         <activity
             android:name=".LoginActivity"
             android:theme="@style/AppTheme.NoActionBar">
