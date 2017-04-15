@@ -91,7 +91,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
 
     public void postToLocation(int id) {
         Intent intent = new Intent(this, NewMessageActivity.class);
-        intent.putExtra(NewMessageActivity.INTENT_LOCATION, id);
+        intent.putExtra(NewMessageActivity.INTENT_LOCATION_ID, id);
         startActivity(intent);
     }
 

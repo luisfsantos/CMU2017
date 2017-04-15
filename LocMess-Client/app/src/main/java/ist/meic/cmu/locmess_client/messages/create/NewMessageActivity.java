@@ -2,7 +2,7 @@ package ist.meic.cmu.locmess_client.messages.create;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
-import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -11,6 +11,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.Log;
@@ -40,7 +41,7 @@ import ist.meic.cmu.locmess_client.utils.DateUtils;
 public class NewMessageActivity extends AppCompatActivity {
 
     private static final String TAG = "NewMessageActivity";
-    public static final String INTENT_LOCATION = "location";
+    public static final String INTENT_LOCATION_ID = "location";
     public static final boolean BLACKLIST_CHECKED = true;
 
     EditText mTitle;
@@ -54,7 +55,6 @@ public class NewMessageActivity extends AppCompatActivity {
     private Calendar chosenFromDate = Calendar.getInstance();
     private Calendar chosenToDate = Calendar.getInstance();
 
-    private List<String> mLocationsList = new ArrayList<>();
     private ViewGroup mFiltersGroup;
     List<String> mKeysList;
 
@@ -89,8 +89,7 @@ public class NewMessageActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putStringArrayList("locations", (ArrayList<String>)mLocationsList);
-        outState.putString("selected_location", mLocation.getSelectedItem().toString());
+        outState.putInt("selected_location", mLocation.getSelectedItemPosition());
         outState.putSerializable("from", chosenFromDate);
         outState.putSerializable("to", chosenToDate);
 
@@ -102,7 +101,6 @@ public class NewMessageActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mLocationsList = savedInstanceState.getStringArrayList("locations");
         chosenFromDate = (Calendar)savedInstanceState.getSerializable("from");
         chosenToDate = (Calendar)savedInstanceState.getSerializable("to");
         updateFromView();
@@ -117,25 +115,27 @@ public class NewMessageActivity extends AppCompatActivity {
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
+        Cursor cursor = populateLocationSpinner();
         if (savedInstanceState == null) {
-            mLocationsList = generateDummyData(5);
             initDateTimeSpinners();
-
-            //FIXME what's being passed in the intent is now the id and not the name
-            Intent intent = getIntent();
-            String intent_location = intent.getStringExtra(INTENT_LOCATION);
-            Log.d(TAG, "intent_location: "+intent_location);
-            populateLocationSpinner(mLocationsList);
-            if (intent_location != null) {
-                int index = mLocationsList.indexOf(intent_location);
+            int location_id = getIntent().getIntExtra(INTENT_LOCATION_ID, -1);
+            if (location_id > 0) {
+                Log.d(TAG, "location_id: " + location_id);
+                int index = 0;
+                for (int i = 0; i < cursor.getCount(); i++) {
+                    cursor.moveToPosition(i);
+                    if (cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID)) == location_id) {
+                        index = i;
+                        break;
+                    }
+                }
                 mLocation.setSelection(index);
             }
         } else {
-            populateLocationSpinner(mLocationsList);
-            String location = savedInstanceState.getString("selected_location");
-            int index = mLocationsList.indexOf(location);
+            int index = savedInstanceState.getInt("selected_location");
             mLocation.setSelection(index);
         }
+
         OnDateClickListener dateListener = new OnDateClickListener();
         OnTimeClickListener timeListener = new OnTimeClickListener();
         mFromDate.setOnClickListener(dateListener);
@@ -162,6 +162,34 @@ public class NewMessageActivity extends AppCompatActivity {
 
         mFromTime.setText(nowTime);
         mToTime.setText(nowTimePlusOneHour);
+    }
+
+    private Cursor populateLocationSpinner() {
+        Log.d(TAG, "Querying database for locations");
+        String[] projection = {
+                LocMessDBContract.Location._ID,
+                LocMessDBContract.Location.COLUMN_NAME
+        };
+        Cursor cursor = getContentResolver().query(
+                LocMessDBContract.Location.CONTENT_URI,
+                projection,
+                null,           // the selection clause
+                null,           // the selection args
+                LocMessDBContract.Location.COLUMN_NAME + " ASC" // the sort order
+        );
+        String[] fromColumns = {LocMessDBContract.Location.COLUMN_NAME};
+        int[] toViews = {android.R.id.text1};
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                cursor,
+                fromColumns,
+                toViews,
+                0
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mLocation.setAdapter(adapter);
+        return cursor;
     }
 
     @Override
@@ -230,13 +258,6 @@ public class NewMessageActivity extends AppCompatActivity {
         finish();
     }
 
-    private void populateLocationSpinner(List<String> list) {
-        mLocation.setPrompt(getString(R.string.choose_location_prompt));
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mLocation.setAdapter(dataAdapter);
-    }
-
     private ViewGroup inflateNewFilter() {
         ViewGroup viewGroup = (ViewGroup)getLayoutInflater().inflate(R.layout.item_filter, mFiltersGroup, false);
         mFiltersGroup.addView(viewGroup);
@@ -293,18 +314,6 @@ public class NewMessageActivity extends AppCompatActivity {
         View filter = (View)view.getParent();
         mFiltersGroup.removeView(filter);
     }
-
-    private List<String> generateDummyData(int size){
-        List<String> list= new ArrayList<>();
-        for (int i=0; i < size; i++){
-            list.add(String.format("location %d",i));
-            if (i == (size-1)) {
-                list.add("Arco do Cego");
-            }
-        }
-        return list;
-    }
-
 
     private void updateFromView() {
         mFromDate.setText(DateUtils.formatDate(chosenFromDate));
