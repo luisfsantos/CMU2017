@@ -1,9 +1,11 @@
 package ist.meic.cmu.locmess_client.messages.create;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -25,8 +27,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -34,6 +34,8 @@ import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.KeyPair;
+import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
+import ist.meic.cmu.locmess_client.utils.DateUtils;
 
 public class NewMessageActivity extends AppCompatActivity {
 
@@ -147,16 +149,16 @@ public class NewMessageActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.SECOND, 0);
         chosenFromDate.setTime(calendar.getTime());
-        String date = formatDate(calendar);
+        String date = DateUtils.formatDate(calendar);
 
         mFromDate.setText(date);
         mToDate.setText(date);
 
         // time
-        String nowTime = formatTime(calendar);
+        String nowTime = DateUtils.formatTime(calendar);
         calendar.add(Calendar.MINUTE, 1);
         chosenToDate.setTime(calendar.getTime());
-        String nowTimePlusOneHour = formatTime(calendar);
+        String nowTimePlusOneHour = DateUtils.formatTime(calendar);
 
         mFromTime.setText(nowTime);
         mToTime.setText(nowTimePlusOneHour);
@@ -192,11 +194,6 @@ public class NewMessageActivity extends AppCompatActivity {
             mMessageContent.setError(getString(R.string.msg_body_missing));
             return;
         }
-        Log.i(TAG, "Location: " + location);
-        Log.i(TAG, "Title: " + title);
-        Log.i(TAG, "Content: " + content);
-        Log.i(TAG, String.format("From: %s %s", formatDate(chosenFromDate), formatTime(chosenFromDate)));
-        Log.i(TAG, String.format("To: %s %s: ", formatDate(chosenToDate), formatTime(chosenToDate)));
 
         saveFiltersState();
         List<KeyPair> blacklist = new ArrayList<>();
@@ -212,9 +209,24 @@ public class NewMessageActivity extends AppCompatActivity {
                 whitelist.add(new KeyPair(key, value));
             }
         }
+        Log.i(TAG, "Location: " + location);
+        Log.i(TAG, "Title: " + title);
+        Log.i(TAG, "Content: " + content);
+        Log.i(TAG, String.format("From: %s %s", DateUtils.formatDate(chosenFromDate), DateUtils.formatTime(chosenFromDate)));
+        Log.i(TAG, String.format("To: %s %s: ", DateUtils.formatDate(chosenToDate), DateUtils.formatTime(chosenToDate)));
         Log.d(TAG, "Blacklist: " + Arrays.toString(blacklist.toArray(new KeyPair[blacklist.size()])));
         Log.d(TAG, "Whitelist: " + Arrays.toString(whitelist.toArray(new KeyPair[whitelist.size()])));
-        //TODO actually post message
+
+        ContentValues values = new ContentValues();
+        values.put(LocMessDBContract.PostedMessages.COLUMN_TITLE, title);
+        values.put(LocMessDBContract.PostedMessages.COLUMN_CONTENT, content);
+        values.put(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM, DateUtils.formatDateTimeLocaleToDb(chosenFromDate));
+        values.put(LocMessDBContract.PostedMessages.COLUMN_DATE_TO, DateUtils.formatDateTimeLocaleToDb(chosenToDate));
+        values.put(LocMessDBContract.PostedMessages.COLUMN_LOCATION, location);
+        //FIXME possibly store blacklist & whitelist as well
+        Uri uri = getContentResolver().insert(LocMessDBContract.PostedMessages.CONTENT_URI, values);
+        Log.d(TAG, "New posted message uri is " + uri);
+        //TODO post message to server
         finish();
     }
 
@@ -293,21 +305,15 @@ public class NewMessageActivity extends AppCompatActivity {
         return list;
     }
 
-    private String formatTime(Calendar calendar) {
-        return SimpleDateFormat.getTimeInstance(DateFormat.SHORT).format(calendar.getTime());
-    }
-    private String formatDate(Calendar calendar) {
-        return SimpleDateFormat.getDateInstance().format(calendar.getTime());
-    }
 
     private void updateFromView() {
-        mFromDate.setText(formatDate(chosenFromDate));
-        mFromTime.setText(formatTime(chosenFromDate));
+        mFromDate.setText(DateUtils.formatDate(chosenFromDate));
+        mFromTime.setText(DateUtils.formatTime(chosenFromDate));
     }
 
     private void updateToView() {
-        mToDate.setText(formatDate(chosenToDate));
-        mToTime.setText(formatTime(chosenToDate));
+        mToDate.setText(DateUtils.formatDate(chosenToDate));
+        mToTime.setText(DateUtils.formatTime(chosenToDate));
     }
 
     class OnDateClickListener implements View.OnClickListener {
@@ -364,8 +370,8 @@ public class NewMessageActivity extends AppCompatActivity {
                     }
                     break;
             }
-            Log.d(TAG, String.format("From: %s %s", formatDate(chosenFromDate), formatTime(chosenFromDate)));
-            Log.d(TAG, String.format("To: %s %s", formatDate(chosenToDate), formatTime(chosenToDate)));
+            Log.d(TAG, String.format("From: %s %s", DateUtils.formatDate(chosenFromDate), DateUtils.formatTime(chosenFromDate)));
+            Log.d(TAG, String.format("To: %s %s", DateUtils.formatDate(chosenToDate), DateUtils.formatTime(chosenToDate)));
         }
     }
 
@@ -428,8 +434,8 @@ public class NewMessageActivity extends AppCompatActivity {
                     updateToView();
                     break;
             }
-            Log.d(TAG, String.format("From: %s %s", formatDate(chosenFromDate), formatTime(chosenFromDate)));
-            Log.d(TAG, String.format("To: %s %s", formatDate(chosenToDate), formatTime(chosenToDate)));
+            Log.d(TAG, String.format("From: %s %s", DateUtils.formatDate(chosenFromDate), DateUtils.formatTime(chosenFromDate)));
+            Log.d(TAG, String.format("To: %s %s", DateUtils.formatDate(chosenToDate), DateUtils.formatTime(chosenToDate)));
         }
     }
 }

@@ -148,7 +148,7 @@ public class NewLocationActivity extends AppCompatActivity {
                 .append(radius);
         //FIXME replace with username
         String author = "username";
-        String date = DateUtils.formatDate(new Date());
+        String date = DateUtils.formatDateTimeLocaleToDb(new Date());
 
         ContentValues values = new ContentValues();
         values.put(LocMessDBContract.Location.COLUMN_NAME, name);
@@ -163,7 +163,7 @@ public class NewLocationActivity extends AppCompatActivity {
     private void createWifiLocation(String name, String ssid) {
         //FIXME replace with username
         String author = "username";
-        String date = DateUtils.formatDate(new Date());
+        String date = DateUtils.formatDateTimeLocaleToDb(new Date());
 
         ContentValues values = new ContentValues();
         values.put(LocMessDBContract.Location.COLUMN_NAME, name);
