@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ist.meic.cmu.locmess_client.LocMessRecyclerView
+    <ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView
         android:id="@+id/rv_card_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

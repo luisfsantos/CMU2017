@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import ist.meic.cmu.locmess_client.LocMessRecyclerView;
+import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.messages.OnRecyclerCardClicked;

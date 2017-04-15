@@ -52,7 +52,7 @@
             style="@style/AppTheme.Title"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"/>
-        <ist.meic.cmu.locmess_client.LocMessRecyclerView
+        <ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView
             android:id="@+id/rv_key_pairs"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

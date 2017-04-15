@@ -22,9 +22,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import ist.meic.cmu.locmess_client.LocMessRecyclerView;
+import ist.meic.cmu.locmess_client.utils.DateUtils;
+import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.SimpleCursorRecyclerAdapter;
+import ist.meic.cmu.locmess_client.utils.recycler.SimpleCursorRecyclerAdapter;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
@@ -38,7 +39,6 @@ public class LocationsActivity extends BaseNavigationActivity implements
     static final int NEW_LOCATION_REQUEST = 1;
     private static final int LOCATIONS_LOADER_ID = R.id.locations_loader_id;
 
-    LocMessRecyclerView mRecyclerView;
     SimpleCursorRecyclerAdapter mAdapter;
 
     @Override
@@ -46,7 +46,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_locations, frameLayout);
 
-        mRecyclerView = (LocMessRecyclerView)findViewById(R.id.rv_card_list);
+        LocMessRecyclerView mRecyclerView = (LocMessRecyclerView)findViewById(R.id.rv_card_list);
         TextView mEmptyView = (TextView)findViewById(R.id.empty_view);
         mRecyclerView.setEmptyView(mEmptyView);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
@@ -107,7 +107,11 @@ public class LocationsActivity extends BaseNavigationActivity implements
         Cursor cursor = mAdapter.getCursor();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID));
         final String name = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_NAME));
+        final String dbDate = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_DATE_CREATED));
         bindCoordinates(itemView, cursor);
+
+        TextView dateCreated = (TextView)itemView.findViewById(R.id.location_create_date);
+        dateCreated.setText(DateUtils.formatDateDbToLocale(dbDate));
 
         ImageButton newMessageBtn = (ImageButton)itemView.findViewById(R.id.new_msg_btn);
         newMessageBtn.setOnClickListener(new View.OnClickListener() {
@@ -169,14 +173,13 @@ public class LocationsActivity extends BaseNavigationActivity implements
                 LocMessDBContract.Location.COLUMN_DATE_CREATED,
                 LocMessDBContract.Location.COLUMN_COORDINATES
         };
-        CursorLoader cursorLoader = new CursorLoader(LocationsActivity.this,
+        return new CursorLoader(LocationsActivity.this,
                 LocMessDBContract.Location.CONTENT_URI,
                 queryCols,          // the projection fields
                 null,               // the selection criteria
                 null,               // the selection args
                 null                // the sort order
         );
-        return cursorLoader;
     }
 
     @Override

@@ -51,8 +51,6 @@ public class InboxActivity extends BaseNavigationActivity implements AvailableTa
 
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
-
-
     }
 
     @Override
@@ -122,5 +120,4 @@ public class InboxActivity extends BaseNavigationActivity implements AvailableTa
             return TAB_TITLES.length;
         }
     }
-
 }

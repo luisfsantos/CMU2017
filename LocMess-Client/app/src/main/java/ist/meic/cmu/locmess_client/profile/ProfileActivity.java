@@ -18,10 +18,10 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import ist.meic.cmu.locmess_client.LocMessRecyclerView;
+import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.LoginActivity;
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.SimpleCursorRecyclerAdapter;
+import ist.meic.cmu.locmess_client.utils.recycler.SimpleCursorRecyclerAdapter;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 
@@ -38,7 +38,6 @@ public class ProfileActivity extends BaseNavigationActivity
 
     private static final String TAG = "ProfileActivity";
     private static final int KEYPAIRS_LOADER_ID = R.id.keypairs_loader_id;
-    LocMessRecyclerView mRecyclerView;
     SimpleCursorRecyclerAdapter mAdapter;
 
     @Override
@@ -46,7 +45,7 @@ public class ProfileActivity extends BaseNavigationActivity
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_profile, frameLayout);
 
-        mRecyclerView = (LocMessRecyclerView) findViewById(R.id.rv_key_pairs);
+        LocMessRecyclerView mRecyclerView = (LocMessRecyclerView) findViewById(R.id.rv_key_pairs);
         TextView mEmptyView = (TextView)findViewById(R.id.empty_view);
         mRecyclerView.setEmptyView(mEmptyView);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
@@ -84,7 +83,6 @@ public class ProfileActivity extends BaseNavigationActivity
 
     @Override
     public void addNewKeyPair(String key, String value) {
-
         ContentValues values = new ContentValues();
         values.put(LocMessDBContract.KeyPair.COLUMN_KEY, key);
         values.put(LocMessDBContract.KeyPair.COLUMN_VALUE, value);
@@ -116,7 +114,6 @@ public class ProfileActivity extends BaseNavigationActivity
     }
 
     private void showRemoveDialog(final String key, final String value, final int id) {
-
         String dialogMessage = getString(R.string.remove_dialog_message_start) +
                 " \"" + key + ": " + value + "\"";
 
@@ -137,15 +134,13 @@ public class ProfileActivity extends BaseNavigationActivity
         String[] queryCols = new String[] { LocMessDBContract.KeyPair._ID,
                 LocMessDBContract.KeyPair.COLUMN_KEY,
                 LocMessDBContract.KeyPair.COLUMN_VALUE};
-        CursorLoader cursorLoader = new CursorLoader(ProfileActivity.this,
+        return new CursorLoader(ProfileActivity.this,
                 LocMessDBContract.KeyPair.CONTENT_URI,
                 queryCols,          // the projection fields
                 null,               // the selection criteria
                 null,               // the selection args
                 null                // the sort order
         );
-
-        return cursorLoader;
     }
 
     @Override

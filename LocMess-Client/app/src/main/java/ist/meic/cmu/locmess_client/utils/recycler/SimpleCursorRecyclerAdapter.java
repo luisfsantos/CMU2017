@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client;
+package ist.meic.cmu.locmess_client.utils.recycler;
 
 /*
  * The MIT License (MIT)

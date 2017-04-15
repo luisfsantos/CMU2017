@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client;
+package ist.meic.cmu.locmess_client.utils.recycler;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

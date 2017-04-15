@@ -18,7 +18,7 @@ import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.Message;
-import ist.meic.cmu.locmess_client.LocMessRecyclerView;
+import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.messages.OnRecyclerCardClicked;
 import ist.meic.cmu.locmess_client.messages.ShowMessageActivity;
 
@@ -49,7 +49,6 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(getClass().getName(), "saving opened messages");
         outState.putParcelableArray("opened_messages", DUMMY_DATASET.toArray(new Message[DUMMY_DATASET.size()]));
     }
 
