@@ -27,6 +27,8 @@ public class LocMessProvider extends ContentProvider {
     static final int KEYPAIRS_ID = 2;
     static final int LOCATIONS = 3;
     static final int LOCATIONS_ID = 4;
+    static final int POSTED_MESSAGES = 5;
+    static final int POSTED_MESSAGES_ID = 6;
 
     private static final UriMatcher sUriMatcher;
     static {
@@ -35,24 +37,8 @@ public class LocMessProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, LocMessDBContract.KeyPair.KEYPAIRS_ID_PATH, KEYPAIRS_ID);
         sUriMatcher.addURI(AUTHORITY, LocMessDBContract.Location.LOCATIONS_PATH, LOCATIONS);
         sUriMatcher.addURI(AUTHORITY, LocMessDBContract.Location.LOCATIONS_ID_PATH, LOCATIONS_ID);
-    }
-
-    private static HashMap sKeypairsProjectionMap;
-    private static HashMap sLocationsProjectionMap;
-
-    {
-        sKeypairsProjectionMap = new HashMap();
-        for(int i=0; i < LocMessDBContract.KeyPair.DEFAULT_PROJECTION.length; i++) {
-            sKeypairsProjectionMap.put(
-                    LocMessDBContract.KeyPair.DEFAULT_PROJECTION[i],
-                    LocMessDBContract.KeyPair.DEFAULT_PROJECTION[i]);
-        }
-        sLocationsProjectionMap = new HashMap();
-        for(int i=0; i < LocMessDBContract.Location.DEFAULT_PROJECTION.length; i++) {
-            sLocationsProjectionMap.put(
-                    LocMessDBContract.Location.DEFAULT_PROJECTION[i],
-                    LocMessDBContract.Location.DEFAULT_PROJECTION[i]);
-        }
+        sUriMatcher.addURI(AUTHORITY, LocMessDBContract.PostedMessages.POSTED_MESSAGES_PATH, POSTED_MESSAGES);
+        sUriMatcher.addURI(AUTHORITY, LocMessDBContract.PostedMessages.POSTED_MESSAGES_ID_PATH, POSTED_MESSAGES_ID);
     }
 
     @Override
@@ -68,25 +54,31 @@ public class LocMessProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)){
             case KEYPAIRS:
                 qb.setTables(LocMessDBContract.KeyPair.TABLE_NAME);
-                qb.setProjectionMap(sKeypairsProjectionMap);
                 break;
             case KEYPAIRS_ID:
                 qb.setTables(LocMessDBContract.KeyPair.TABLE_NAME);
-                qb.setProjectionMap(sKeypairsProjectionMap);
                 qb.appendWhere(LocMessDBContract.KeyPair._ID +
                         " = " + uri.getPathSegments().get(1)
                 );
                 break;
             case LOCATIONS:
                 qb.setTables(LocMessDBContract.Location.TABLE_NAME);
-                qb.setProjectionMap(sLocationsProjectionMap);
                 break;
             case LOCATIONS_ID:
                 qb.setTables(LocMessDBContract.Location.TABLE_NAME);
-                qb.setProjectionMap(sLocationsProjectionMap);
                 qb.appendWhere(LocMessDBContract.Location._ID +
                         " = " + uri.getPathSegments().get(1)
                 );
+                break;
+            case POSTED_MESSAGES:
+                qb.setTables(LocMessDBContract.PostedMessages.TABLE_NAME);
+                break;
+            case POSTED_MESSAGES_ID:
+                qb.setTables(LocMessDBContract.PostedMessages.TABLE_NAME);
+                qb.appendWhere(LocMessDBContract.PostedMessages._ID +
+                        " = " + uri.getPathSegments().get(1)
+                );
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -104,17 +96,22 @@ public class LocMessProvider extends ContentProvider {
                 rowId = database.insert(LocMessDBContract.KeyPair.TABLE_NAME, null, contentValues);
                 if (rowId > 0) {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.KeyPair.CONTENT_URI, rowId);
-                    getContext().getContentResolver().notifyChange(rowUri, null);
                 }
                 break;
             case LOCATIONS:
                 rowId = database.insert(LocMessDBContract.Location.TABLE_NAME, null, contentValues);
                 if (rowId > 0) {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.Location.CONTENT_URI, rowId);
-                    getContext().getContentResolver().notifyChange(rowUri, null);
+                }
+                break;
+            case POSTED_MESSAGES:
+                rowId = database.insert(LocMessDBContract.PostedMessages.TABLE_NAME, null, contentValues);
+                if (rowId > 0) {
+                    rowUri = ContentUris.withAppendedId(LocMessDBContract.PostedMessages.CONTENT_URI, rowId);
                 }
                 break;
         }
+        getContext().getContentResolver().notifyChange(rowUri, null);
         return rowUri;
     }
 
@@ -143,6 +140,16 @@ public class LocMessProvider extends ContentProvider {
                 }
                 count = database.delete(LocMessDBContract.Location.TABLE_NAME, finalSelection, selectionArgs);
                 break;
+            case POSTED_MESSAGES:
+                count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, selection, selectionArgs);
+                break;
+            case POSTED_MESSAGES_ID:
+                finalSelection = LocMessDBContract.PostedMessages._ID + " = " + uri.getPathSegments().get(1);
+                if (selection != null) {
+                    finalSelection += " AND " + selection;
+                }
+                count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, finalSelection,selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -166,6 +173,10 @@ public class LocMessProvider extends ContentProvider {
                 return LocMessDBContract.Location.LOCATIONS_TYPE;
             case LOCATIONS_ID:
                 return LocMessDBContract.Location.LOCATIONS_ID_TYPE;
+            case POSTED_MESSAGES:
+                return LocMessDBContract.PostedMessages.POSTED_MESSAGES_TYPE;
+            case POSTED_MESSAGES_ID:
+                return LocMessDBContract.PostedMessages.POSTED_MESSAGES_ID_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
