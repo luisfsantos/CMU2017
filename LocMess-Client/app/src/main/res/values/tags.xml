@@ -2,4 +2,6 @@
 <resources>
     <item name="keypairs_loader_id" type="id"/>
     <item name="locations_loader_id" type="id"/>
+    <item name="active_messages_loader_id" type="id"/>
+    <item name="archived_messages_loader_id" type="id"/>
 </resources>

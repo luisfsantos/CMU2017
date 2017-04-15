@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,11 +13,25 @@ import android.view.View;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
-import ist.meic.cmu.locmess_client.messages.posted.active.ActiveTabFragment;
-import ist.meic.cmu.locmess_client.messages.posted.archived.ArchivedTabFragment;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
+import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 
 public class PostedActivity extends BaseNavigationActivity {
+
+    private static final String KEY_ACTIVE_FRAG = "active";
+    private static final String KEY_ARCHIVED_FRAG = "archived";
+
+    private static final int ACTIVE_MESSAGES_LOADER_ID = R.id.active_messages_loader_id;
+    private static final int ARCHIVED_MESSAGES_LOADER_ID = R.id.archived_messages_loader_id;
+
+    private static final String ACTIVE_MESSAGES_SELECTION_QUERY =
+            "date('now') BETWEEN " +
+            LocMessDBContract.PostedMessages.COLUMN_DATE_FROM +
+            " AND " + LocMessDBContract.PostedMessages.COLUMN_DATE_TO;
+    private static final String ARCHIVED_MESSAGES_SELECTION_QUERY =
+            "date('now') NOT BETWEEN " +
+            LocMessDBContract.PostedMessages.COLUMN_DATE_FROM +
+            " AND " + LocMessDBContract.PostedMessages.COLUMN_DATE_TO;
 
     private FloatingActionButton fab;
     private PagerAdapter pagerAdapter;
@@ -39,10 +52,10 @@ public class PostedActivity extends BaseNavigationActivity {
 
         ViewPager viewPager = (ViewPager)findViewById(R.id.view_pager);
         if (savedInstanceState != null) {
-            ActiveTabFragment atf = (ActiveTabFragment)getSupportFragmentManager()
-                    .getFragment(savedInstanceState, "active");
-            ArchivedTabFragment artf = (ArchivedTabFragment)getSupportFragmentManager()
-                    .getFragment(savedInstanceState, "archived");
+            PostedTabFragment atf = (PostedTabFragment)getSupportFragmentManager()
+                    .getFragment(savedInstanceState, KEY_ACTIVE_FRAG);
+            PostedTabFragment artf = (PostedTabFragment) getSupportFragmentManager()
+                    .getFragment(savedInstanceState, KEY_ARCHIVED_FRAG);
             pagerAdapter = new PagerAdapter(getSupportFragmentManager(), PostedActivity.this, atf, artf);
         } else {
             pagerAdapter = new PagerAdapter(getSupportFragmentManager(), PostedActivity.this);
@@ -62,14 +75,14 @@ public class PostedActivity extends BaseNavigationActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        getSupportFragmentManager().putFragment(outState, "active", pagerAdapter.mTabActive);
-        getSupportFragmentManager().putFragment(outState, "archived", pagerAdapter.mTabArchived);
+        getSupportFragmentManager().putFragment(outState, KEY_ACTIVE_FRAG, pagerAdapter.mTabActive);
+        getSupportFragmentManager().putFragment(outState, KEY_ARCHIVED_FRAG, pagerAdapter.mTabArchived);
     }
 
     class PagerAdapter extends FragmentPagerAdapter {
 
-        ActiveTabFragment mTabActive;
-        ArchivedTabFragment mTabArchived;
+        PostedTabFragment mTabActive;
+        PostedTabFragment mTabArchived;
 
         String[] TAB_TITLES = {getString(R.string.tab_active_messages), getString(R.string.tab_archived_messages)};
         Context mContext;
@@ -79,7 +92,7 @@ public class PostedActivity extends BaseNavigationActivity {
             mContext = context;
         }
 
-        PagerAdapter(FragmentManager fm, Context context, ActiveTabFragment atf, ArchivedTabFragment artf) {
+        PagerAdapter(FragmentManager fm, Context context, PostedTabFragment atf, PostedTabFragment artf) {
             super(fm);
             mContext = context;
             mTabActive = atf;
@@ -91,12 +104,12 @@ public class PostedActivity extends BaseNavigationActivity {
             switch (position){
                 case 0:
                     if (mTabActive == null) {
-                        mTabActive = new ActiveTabFragment();
+                        mTabActive = PostedTabFragment.newInstance(ACTIVE_MESSAGES_LOADER_ID, ACTIVE_MESSAGES_SELECTION_QUERY);
                     }
                     return mTabActive;
                 case 1:
                     if (mTabArchived == null ) {
-                        mTabArchived = new ArchivedTabFragment();
+                        mTabArchived = PostedTabFragment.newInstance(ARCHIVED_MESSAGES_LOADER_ID, ARCHIVED_MESSAGES_SELECTION_QUERY);
                     }
                     return mTabArchived;
             }
