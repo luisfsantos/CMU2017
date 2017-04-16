@@ -29,6 +29,8 @@ public class LocMessProvider extends ContentProvider {
     static final int LOCATIONS_ID = 4;
     static final int POSTED_MESSAGES = 5;
     static final int POSTED_MESSAGES_ID = 6;
+    static final int OPENED_MESSAGES = 7;
+    static final int OPENED_MESSAGES_ID = 8;
 
     private static final UriMatcher sUriMatcher;
     static {
@@ -39,6 +41,8 @@ public class LocMessProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, LocMessDBContract.Location.LOCATIONS_ID_PATH, LOCATIONS_ID);
         sUriMatcher.addURI(AUTHORITY, LocMessDBContract.PostedMessages.POSTED_MESSAGES_PATH, POSTED_MESSAGES);
         sUriMatcher.addURI(AUTHORITY, LocMessDBContract.PostedMessages.POSTED_MESSAGES_ID_PATH, POSTED_MESSAGES_ID);
+        sUriMatcher.addURI(AUTHORITY, LocMessDBContract.OpenedMessages.OPENED_MESSAGES_PATH, OPENED_MESSAGES);
+        sUriMatcher.addURI(AUTHORITY, LocMessDBContract.OpenedMessages.OPENED_MESSAGES_ID_PATH, OPENED_MESSAGES_ID);
     }
 
     @Override
@@ -57,8 +61,8 @@ public class LocMessProvider extends ContentProvider {
                 break;
             case KEYPAIRS_ID:
                 qb.setTables(LocMessDBContract.KeyPair.TABLE_NAME);
-                qb.appendWhere(LocMessDBContract.KeyPair._ID +
-                        " = " + uri.getPathSegments().get(1)
+                qb.appendWhere(LocMessDBContract.KeyPair._ID + " = " +
+                        uri.getPathSegments().get(LocMessDBContract.KeyPair.ID_PATH_SEGMENT_INDEX)
                 );
                 break;
             case LOCATIONS:
@@ -66,8 +70,8 @@ public class LocMessProvider extends ContentProvider {
                 break;
             case LOCATIONS_ID:
                 qb.setTables(LocMessDBContract.Location.TABLE_NAME);
-                qb.appendWhere(LocMessDBContract.Location._ID +
-                        " = " + uri.getPathSegments().get(1)
+                qb.appendWhere(LocMessDBContract.Location._ID + " = " +
+                        uri.getPathSegments().get(LocMessDBContract.Location.ID_PATH_SEGMENT_INDEX)
                 );
                 break;
             case POSTED_MESSAGES:
@@ -75,8 +79,17 @@ public class LocMessProvider extends ContentProvider {
                 break;
             case POSTED_MESSAGES_ID:
                 qb.setTables(LocMessDBContract.PostedMessages.TABLE_NAME);
-                qb.appendWhere(LocMessDBContract.PostedMessages._ID +
-                        " = " + uri.getPathSegments().get(1)
+                qb.appendWhere(LocMessDBContract.PostedMessages._ID + " = " +
+                        uri.getPathSegments().get(LocMessDBContract.PostedMessages.ID_PATH_SEGMENT_INDEX)
+                );
+                break;
+            case OPENED_MESSAGES:
+                qb.setTables(LocMessDBContract.OpenedMessages.TABLE_NAME);
+                break;
+            case OPENED_MESSAGES_ID:
+                qb.setTables(LocMessDBContract.OpenedMessages.TABLE_NAME);
+                qb.appendWhere(LocMessDBContract.OpenedMessages._ID + " = " +
+                        uri.getPathSegments().get(LocMessDBContract.OpenedMessages.ID_PATH_SEGMENT_INDEX)
                 );
                 break;
             default:
@@ -110,6 +123,12 @@ public class LocMessProvider extends ContentProvider {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.PostedMessages.CONTENT_URI, rowId);
                 }
                 break;
+            case OPENED_MESSAGES:
+                rowId = database.insert(LocMessDBContract.OpenedMessages.TABLE_NAME, null, contentValues);
+                if (rowId > 0) {
+                    rowUri = ContentUris.withAppendedId(LocMessDBContract.OpenedMessages.CONTENT_URI, rowId);
+                }
+                break;
         }
         getContext().getContentResolver().notifyChange(rowUri, null);
         return rowUri;
@@ -124,7 +143,8 @@ public class LocMessProvider extends ContentProvider {
                 count = database.delete(LocMessDBContract.KeyPair.TABLE_NAME, selection, selectionArgs);
                 break;
             case KEYPAIRS_ID:
-                finalSelection = LocMessDBContract.KeyPair._ID + " = " + uri.getPathSegments().get(1);
+                finalSelection = LocMessDBContract.KeyPair._ID + " = " +
+                        uri.getPathSegments().get(LocMessDBContract.KeyPair.ID_PATH_SEGMENT_INDEX);
                 if (selection != null) {
                     finalSelection += " AND " + selection;
                 }
@@ -134,7 +154,8 @@ public class LocMessProvider extends ContentProvider {
                 count = database.delete(LocMessDBContract.Location.TABLE_NAME, selection, selectionArgs);
                 break;
             case LOCATIONS_ID:
-                finalSelection = LocMessDBContract.Location._ID + " = " + uri.getPathSegments().get(1);
+                finalSelection = LocMessDBContract.Location._ID + " = " +
+                        uri.getPathSegments().get(LocMessDBContract.Location.ID_PATH_SEGMENT_INDEX);
                 if (selection != null) {
                     finalSelection += " AND " + selection;
                 }
@@ -144,11 +165,23 @@ public class LocMessProvider extends ContentProvider {
                 count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, selection, selectionArgs);
                 break;
             case POSTED_MESSAGES_ID:
-                finalSelection = LocMessDBContract.PostedMessages._ID + " = " + uri.getPathSegments().get(1);
+                finalSelection = LocMessDBContract.PostedMessages._ID + " = " +
+                        uri.getPathSegments().get(LocMessDBContract.PostedMessages.ID_PATH_SEGMENT_INDEX);
                 if (selection != null) {
                     finalSelection += " AND " + selection;
                 }
-                count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, finalSelection,selectionArgs);
+                count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, finalSelection, selectionArgs);
+                break;
+            case OPENED_MESSAGES:
+                count = database.delete(LocMessDBContract.OpenedMessages.TABLE_NAME, selection, selectionArgs);
+                break;
+            case OPENED_MESSAGES_ID:
+                finalSelection = LocMessDBContract.OpenedMessages._ID + " = " +
+                        uri.getPathSegments().get(LocMessDBContract.OpenedMessages.ID_PATH_SEGMENT_INDEX);
+                if (selection != null) {
+                    finalSelection += " AND " + selection;
+                }
+                count = database.delete(LocMessDBContract.OpenedMessages.TABLE_NAME, finalSelection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -177,6 +210,10 @@ public class LocMessProvider extends ContentProvider {
                 return LocMessDBContract.PostedMessages.POSTED_MESSAGES_TYPE;
             case POSTED_MESSAGES_ID:
                 return LocMessDBContract.PostedMessages.POSTED_MESSAGES_ID_TYPE;
+            case OPENED_MESSAGES:
+                return LocMessDBContract.OpenedMessages.OPENED_MESSAGES_TYPE;
+            case OPENED_MESSAGES_ID:
+                return LocMessDBContract.OpenedMessages.OPENED_MESSAGES_ID_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }

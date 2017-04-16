@@ -20,6 +20,7 @@ public class LocMessDBContract {
         public static final String KEYPAIRS_TYPE = "vnd.android.cursor.dir/vnd.locmess.provider.keypairs";
         public static final String KEYPAIRS_ID_TYPE = "vnd.android.cursor.item/vnd.locmess.provider.keypairs";
         public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+KEYPAIRS_PATH);
+        public static final int ID_PATH_SEGMENT_INDEX = 1;
 
         public static final String TABLE_NAME = "keypair";
         public static final String COLUMN_KEY = "key";
@@ -44,6 +45,7 @@ public class LocMessDBContract {
         public static final String LOCATIONS_TYPE = "vnd.android.cursor.dir/vnd.locmess.provider.locations";
         public static final String LOCATIONS_ID_TYPE = "vnd.android.cursor.item/vnd.locmess.provider.locations";
         public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+LOCATIONS_PATH);
+        public static final int ID_PATH_SEGMENT_INDEX = 1;
 
         public static final String TABLE_NAME = "location";
         public static final String COLUMN_NAME = "name";
@@ -69,13 +71,14 @@ public class LocMessDBContract {
     }
 
     public static class PostedMessages implements BaseColumns {
-        public static final String POSTED_MESSAGES_PATH = "posted_messages";
-        public static final String POSTED_MESSAGES_ID_PATH = "posted_messages/#";
-        public static final String POSTED_MESSAGES_TYPE = "vnd.android.cursor.dir/vnd.locmess.provider.posted_messages";
-        public static final String POSTED_MESSAGES_ID_TYPE = "vnd.android.cursor.item/vnd.locmess.provider.posted_messages";
+        public static final String POSTED_MESSAGES_PATH = "messages/posted";
+        public static final String POSTED_MESSAGES_ID_PATH = "messages/posted/#";
+        public static final String POSTED_MESSAGES_TYPE = "vnd.android.cursor.dir/vnd.locmess.provider.messages.posted";
+        public static final String POSTED_MESSAGES_ID_TYPE = "vnd.android.cursor.item/vnd.locmess.provider.messages.posted";
         public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+POSTED_MESSAGES_PATH);
+        public static final int ID_PATH_SEGMENT_INDEX = 2;
 
-        public static final String TABLE_NAME = "posted_messages";
+        public static final String TABLE_NAME = "posted";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_CONTENT = "content";
         public static final String COLUMN_LOCATION = "location";
@@ -99,6 +102,40 @@ public class LocMessDBContract {
                 LocMessDBContract.PostedMessages.COLUMN_LOCATION,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_FROM,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_TO
+        };
+    }
+
+    public static class OpenedMessages implements BaseColumns {
+        public static final String OPENED_MESSAGES_PATH = "messages/opened";
+        public static final String OPENED_MESSAGES_ID_PATH = "messages/opened/#";
+        public static final String OPENED_MESSAGES_TYPE = "vnd.android.cursor.dir/vnd.locmess.provider.messages.opened";
+        public static final String OPENED_MESSAGES_ID_TYPE = "vnd.android.cursor.item/vnd.locmess.provider.messages.opened";
+        public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+OPENED_MESSAGES_PATH);
+        public static final int ID_PATH_SEGMENT_INDEX = 2;
+
+        public static final String TABLE_NAME = "opened";
+        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_CONTENT = "content";
+        public static final String COLUMN_LOCATION = "location";
+        public static final String COLUMN_AUTHOR = "author";
+        public static final String COLUMN_DATE_POSTED = "date_posted";
+
+        public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_TITLE + " TEXT, " +
+                COLUMN_CONTENT + " TEXT, " +
+                COLUMN_LOCATION + " TEXT, " +
+                COLUMN_AUTHOR + " TEXT, " +
+                COLUMN_DATE_POSTED + " TEXT " + ")";
+
+        public static final String[] DEFAULT_PROJECTION = new String[] {
+                LocMessDBContract.OpenedMessages._ID,
+                LocMessDBContract.OpenedMessages.COLUMN_TITLE,
+                LocMessDBContract.OpenedMessages.COLUMN_CONTENT,
+                LocMessDBContract.OpenedMessages.COLUMN_LOCATION,
+                LocMessDBContract.OpenedMessages.COLUMN_AUTHOR,
+                LocMessDBContract.OpenedMessages.COLUMN_DATE_POSTED
         };
     }
 
