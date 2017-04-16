@@ -60,6 +60,7 @@ public class NewMessageActivity extends AppCompatActivity {
 
     //HACK
     private List<FilterInfo> mFilterInfo = new ArrayList<>();
+    private Cursor mLocationCursor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,16 +116,16 @@ public class NewMessageActivity extends AppCompatActivity {
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        Cursor cursor = populateLocationSpinner();
+        mLocationCursor = populateLocationSpinner();
         if (savedInstanceState == null) {
             initDateTimeSpinners();
             int location_id = getIntent().getIntExtra(INTENT_LOCATION_ID, -1);
             if (location_id > 0) {
                 Log.d(TAG, "location_id: " + location_id);
                 int index = 0;
-                for (int i = 0; i < cursor.getCount(); i++) {
-                    cursor.moveToPosition(i);
-                    if (cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID)) == location_id) {
+                for (int i = 0; i < mLocationCursor.getCount(); i++) {
+                    mLocationCursor.moveToPosition(i);
+                    if (mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID)) == location_id) {
                         index = i;
                         break;
                     }
@@ -210,8 +211,15 @@ public class NewMessageActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        mLocationCursor.close();
+        super.onDestroy();
+    }
+
     private void postMessage() {
-        String location = mLocation.getSelectedItem().toString();
+        mLocationCursor.moveToPosition(mLocation.getSelectedItemPosition());
+        String location = mLocationCursor.getString(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_NAME));
         String title = mTitle.getText().toString().trim();
         String content = mMessageContent.getText().toString().trim();
         if (title.isEmpty()) {
@@ -240,8 +248,8 @@ public class NewMessageActivity extends AppCompatActivity {
         Log.i(TAG, "Location: " + location);
         Log.i(TAG, "Title: " + title);
         Log.i(TAG, "Content: " + content);
-        Log.i(TAG, String.format("From: %s %s", DateUtils.formatDate(chosenFromDate), DateUtils.formatTime(chosenFromDate)));
-        Log.i(TAG, String.format("To: %s %s: ", DateUtils.formatDate(chosenToDate), DateUtils.formatTime(chosenToDate)));
+        Log.i(TAG, "From: " + DateUtils.formatDateTimeLocaleToDb(chosenFromDate));
+        Log.i(TAG, "To: " + DateUtils.formatDateTimeLocaleToDb(chosenToDate));
         Log.d(TAG, "Blacklist: " + Arrays.toString(blacklist.toArray(new KeyPair[blacklist.size()])));
         Log.d(TAG, "Whitelist: " + Arrays.toString(whitelist.toArray(new KeyPair[whitelist.size()])));
 

@@ -19,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Date;
+
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
@@ -162,6 +164,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "Loading posted messages. Loader ID: " + MESSAGES_LOADER_ID);
         String[] queryCols = new String[] {
                 LocMessDBContract.PostedMessages._ID,
                 LocMessDBContract.PostedMessages.COLUMN_TITLE,
@@ -170,11 +173,12 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
                 LocMessDBContract.PostedMessages.COLUMN_DATE_FROM,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_TO
         };
+        String[] selectionArgs = { DateUtils.formatDateTimeLocaleToDb(new Date()) };
         return new CursorLoader(getContext(),
                 LocMessDBContract.PostedMessages.CONTENT_URI,
                 queryCols,                  // the projection fields
                 loaderQuerySelection,       // the selection criteria
-                null,                       // the selection args
+                selectionArgs,              // the selection args
                 null                        // the sort order
         );
     }

@@ -11,10 +11,13 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
+import java.util.Date;
+
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
+import ist.meic.cmu.locmess_client.utils.DateUtils;
 
 public class PostedActivity extends BaseNavigationActivity {
 
@@ -25,11 +28,11 @@ public class PostedActivity extends BaseNavigationActivity {
     private static final int ARCHIVED_MESSAGES_LOADER_ID = R.id.archived_messages_loader_id;
 
     private static final String ACTIVE_MESSAGES_SELECTION_QUERY =
-            "date('now') BETWEEN " +
+            "? BETWEEN " +
             LocMessDBContract.PostedMessages.COLUMN_DATE_FROM +
             " AND " + LocMessDBContract.PostedMessages.COLUMN_DATE_TO;
     private static final String ARCHIVED_MESSAGES_SELECTION_QUERY =
-            "date('now') NOT BETWEEN " +
+            "? NOT BETWEEN " +
             LocMessDBContract.PostedMessages.COLUMN_DATE_FROM +
             " AND " + LocMessDBContract.PostedMessages.COLUMN_DATE_TO;
 
