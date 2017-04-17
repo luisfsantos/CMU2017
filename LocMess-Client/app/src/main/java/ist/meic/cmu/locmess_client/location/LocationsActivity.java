@@ -22,15 +22,15 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import ist.meic.cmu.locmess_client.utils.DateUtils;
-import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.utils.recycler.SimpleCursorRecyclerAdapter;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
+import ist.meic.cmu.locmess_client.utils.DateUtils;
+import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
+import ist.meic.cmu.locmess_client.utils.recycler.SimpleCursorRecyclerAdapter;
 
 public class LocationsActivity extends BaseNavigationActivity implements
         LoaderManager.LoaderCallbacks<Cursor>, SimpleCursorRecyclerAdapter.CursorRecyclerAdapterCallback{
@@ -184,11 +184,11 @@ public class LocationsActivity extends BaseNavigationActivity implements
 
     @Override
     public void onLoadFinished(Loader loader, Cursor cursor) {
-        mAdapter.swapCursor(cursor);
+        mAdapter.changeCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader loader) {
-        mAdapter.swapCursor(null);
+        mAdapter.changeCursor(null);
     }
 }

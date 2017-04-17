@@ -1,4 +1,5 @@
 package ist.meic.cmu.locmess_client.messages.create;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
@@ -205,6 +206,9 @@ public class NewMessageActivity extends AppCompatActivity {
             case R.id.post:
                 Log.i(TAG, "Posting message");
                 postMessage();
+                return true;
+            case android.R.id.home:
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

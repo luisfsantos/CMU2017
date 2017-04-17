@@ -18,12 +18,12 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.LoginActivity;
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.utils.recycler.SimpleCursorRecyclerAdapter;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
+import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
+import ist.meic.cmu.locmess_client.utils.recycler.SimpleCursorRecyclerAdapter;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -145,11 +145,11 @@ public class ProfileActivity extends BaseNavigationActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mAdapter.swapCursor(cursor);
+        mAdapter.changeCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
+        mAdapter.changeCursor(null);
     }
 }

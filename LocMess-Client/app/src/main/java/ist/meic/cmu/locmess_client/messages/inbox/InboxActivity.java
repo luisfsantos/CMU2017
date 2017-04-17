@@ -12,13 +12,12 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.messages.inbox.available.AvailableTabFragment;
 import ist.meic.cmu.locmess_client.messages.inbox.opened.OpenedTabFragment;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
-public class InboxActivity extends BaseNavigationActivity implements AvailableTabFragment.OnMessageOpened {
+public class InboxActivity extends BaseNavigationActivity {
 
     private FloatingActionButton fab;
     private PagerAdapter pagerAdapter;
@@ -65,13 +64,6 @@ public class InboxActivity extends BaseNavigationActivity implements AvailableTa
         getSupportFragmentManager().putFragment(outState, "available", pagerAdapter.mTabAvailable);
         getSupportFragmentManager().putFragment(outState, "opened", pagerAdapter.mTabOpened);
     }
-
-    @Override
-    public void openMessage(Message message) {
-        // put message in OpenedTabFragment's dataset
-        pagerAdapter.mTabOpened.notifyMessageRead(message);
-    }
-
 
     class PagerAdapter extends FragmentPagerAdapter {
 

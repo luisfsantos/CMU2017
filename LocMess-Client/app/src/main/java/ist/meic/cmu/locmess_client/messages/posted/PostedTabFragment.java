@@ -185,12 +185,12 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mAdapter.swapCursor(cursor);
+        mAdapter.changeCursor(cursor);
         mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
+        mAdapter.changeCursor(null);
     }
 }

@@ -10,8 +10,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import java.util.HashMap;
-
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.sql.LocMessDBSQLiteHelper;
 

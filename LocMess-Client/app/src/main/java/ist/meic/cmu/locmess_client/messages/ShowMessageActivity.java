@@ -39,12 +39,6 @@ public class ShowMessageActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onNavigateUp() {
-        finish();
-        return super.onNavigateUp();
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button

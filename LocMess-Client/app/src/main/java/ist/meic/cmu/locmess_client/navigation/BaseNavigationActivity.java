@@ -2,8 +2,8 @@ package ist.meic.cmu.locmess_client.navigation;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,11 +13,10 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.location.LocationsActivity;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
-
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
+import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.messages.posted.PostedActivity;
 import ist.meic.cmu.locmess_client.profile.ProfileActivity;
 
