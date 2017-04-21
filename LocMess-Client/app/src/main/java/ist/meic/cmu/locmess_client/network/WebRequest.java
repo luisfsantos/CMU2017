@@ -32,6 +32,7 @@ public class WebRequest {
             if (mRequest.getRequestMethod() == RequestData.GET) {
                 connection.setRequestMethod("GET");
             } else if (mRequest.getRequestMethod() == RequestData.POST) {
+                connection.setRequestMethod("POST");
                 connection.setDoOutput(true);
 //                OutputStream out = connection.getOutputStream();
                 //TODO write request data to json object, then to output stream
