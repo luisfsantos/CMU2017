@@ -1,18 +1,27 @@
 package ist.meic.cmu.locmess.api.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import ist.meic.cmu.locmess.api.json.Error;
+import ist.meic.cmu.locmess.api.json.JsonObjectAPI;
+import ist.meic.cmu.locmess.api.json.wappers.UserWrapper;
 import ist.meic.cmu.locmess.database.Settings;
 import ist.meic.cmu.locmess.domain.users.User;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 /**
  * Created by lads on 06-04-2017.
@@ -20,26 +29,71 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping(value = "/user")
 public class UserController {
+        private final static Logger logger = Logger.getLogger(UserController.class.getName());
+        Gson gson = new Gson();
 
-        @RequestMapping(value = "/create", method = RequestMethod.GET)
-        public User create(@RequestParam(value="username", defaultValue="World") String username, @RequestParam(value="password", defaultValue="password") String password) {
-            User user = new User();
+        @RequestMapping(value = "/create", method = RequestMethod.POST)
+        public ResponseEntity<JsonObjectAPI> create(@RequestBody JsonObjectAPI userInfo) {
+            JsonObjectAPI response = new JsonObjectAPI();
+            UserWrapper newUser = gson.fromJson(userInfo.getData(), UserWrapper.class);
+            logger.info("There is a user " + newUser.getName() + " being created");
             try {
                 ConnectionSource connectionSource =
                         new JdbcConnectionSource(Settings.DB_URI);
 
                 Dao<User, String> userDAO = DaoManager.createDao(connectionSource, User.class);
                 TableUtils.createTableIfNotExists(connectionSource, User.class);
-                if (userDAO.idExists(username)) {
-                    return user;
+                if (userDAO.idExists(newUser.getUsername())) {
+                    response.addError(new Error(1, "the username is taken"));
+                    return new ResponseEntity<>(response, HttpStatus.CONFLICT);
                 }
-                user = new User(username, username, password);
-                userDAO.create(user);
+                userDAO.create(newUser.createUser());
                 connectionSource.close();
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            return user;
+
+            JsonObject data = new JsonObject();
+            data.addProperty("code", 0);
+            data.addProperty("status", "User " + newUser.getName() + "created");
+            response.setData(data);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
+
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public ResponseEntity<JsonObjectAPI> login(@RequestBody JsonObjectAPI userInfo) {
+        JsonObjectAPI response = new JsonObjectAPI();
+        UserWrapper userWrapper = gson.fromJson(userInfo.getData(), UserWrapper.class);
+        logger.info(userWrapper.getName() + "is trying to login");
+        try {
+            ConnectionSource connectionSource =
+                    new JdbcConnectionSource(Settings.DB_URI);
+
+            Dao<User, String> userDAO = DaoManager.createDao(connectionSource, User.class);
+            TableUtils.createTableIfNotExists(connectionSource, User.class);
+            if (userDAO.idExists(userWrapper.getUsername())) {
+                User user = userDAO.queryForId(userWrapper.getUsername());
+                logger.info("found the user " +userWrapper.getUsername());
+                if (user.validate(userWrapper.getPassword())){
+
+                    JsonObject data = new JsonObject();
+                    data.addProperty("code", 0);
+                    data.addProperty("status", userWrapper.getUsername() + " is now logged in successfully.");
+                    data.addProperty("jwt", "xxx.yyy.zzz");
+                    response.setData(data);
+
+                    return new ResponseEntity<>(response, HttpStatus.OK);
+                }
+            }
+            connectionSource.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        response.addError(new Error(1, "the username or password is incorrect"));
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
 }
