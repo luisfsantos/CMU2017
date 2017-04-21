@@ -79,5 +79,6 @@
     <string name="new_filter">New filter</string>
     <string name="post_time_range">Post time range</string>
     <string name="unpost_message_info">The message will also be unposted, and no other users will receive it in the future.</string>
+    <string name="no_network_connection">No network connection</string>
 
 </resources>
