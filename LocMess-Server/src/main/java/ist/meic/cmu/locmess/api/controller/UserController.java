@@ -1,7 +1,6 @@
 package ist.meic.cmu.locmess.api.controller;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.google.gson.Gson;
@@ -13,10 +12,9 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 import ist.meic.cmu.locmess.api.json.Error;
 import ist.meic.cmu.locmess.api.json.JsonObjectAPI;
-import ist.meic.cmu.locmess.api.json.wappers.UserWrapper;
+import ist.meic.cmu.locmess.api.json.wrappers.UserWrapper;
 import ist.meic.cmu.locmess.database.Settings;
 import ist.meic.cmu.locmess.domain.users.User;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +40,7 @@ public class UserController {
             JsonObjectAPI response = new JsonObjectAPI();
             UserWrapper newUser = gson.fromJson(userInfo.getData(), UserWrapper.class);
             logger.info("Data: " + userInfo.getData().toString());
-            logger.info("There is a user " + newUser.getName() + " being created");
+            logger.info("There is a user " + newUser.getUsername() + " being created");
             try {
                 ConnectionSource connectionSource =
                         new JdbcConnectionSource(Settings.DB_URI);
@@ -62,7 +60,7 @@ public class UserController {
 
             JsonObject data = new JsonObject();
             data.addProperty("code", 0);
-            data.addProperty("status", "User " + newUser.getName() + "created");
+            data.addProperty("status", "User " + newUser.getUsername() + "created");
             response.setData(data);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -72,7 +70,7 @@ public class UserController {
     public ResponseEntity<JsonObjectAPI> login(@RequestBody JsonObjectAPI userInfo) {
         JsonObjectAPI response = new JsonObjectAPI();
         UserWrapper userWrapper = gson.fromJson(userInfo.getData(), UserWrapper.class);
-        logger.info(userWrapper.getName() + "is trying to login");
+        logger.info(userWrapper.getUsername() + "is trying to login");
         try {
             ConnectionSource connectionSource =
                     new JdbcConnectionSource(Settings.DB_URI);
@@ -85,16 +83,18 @@ public class UserController {
                 if (user.validate(userWrapper.getPassword())){
 
                     JsonObject data = new JsonObject();
-                    data.addProperty("code", 0);
-                    data.addProperty("status", userWrapper.getUsername() + " is now logged in successfully.");
                     Algorithm algorithm = Algorithm.HMAC256("secret");
                     String token = JWT.create()
                             .withSubject(userWrapper.getUsername())
                             .withIssuer("auth0")
                             .sign(algorithm);
-                    data.addProperty("jwt", token);
 
+
+                    data.addProperty("jwt", token);
+                    data.addProperty("code", 0);
+                    data.addProperty("status", userWrapper.getUsername() + " is now logged in successfully.");
                     response.setData(data);
+
 
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
