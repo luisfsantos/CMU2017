@@ -20,7 +20,6 @@ import java.io.IOException;
  * Created by lads on 21-04-2017.
  */
 public class JwtAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
-    AuthenticationFailureHandler failureHandler;
 
     @Autowired
     public JwtAuthenticationProcessingFilter(RequestMatcher rMatcher) {
@@ -40,13 +39,6 @@ public class JwtAuthenticationProcessingFilter extends AbstractAuthenticationPro
         context.setAuthentication(authResult);
         SecurityContextHolder.setContext(context);
         chain.doFilter(request, response);
-    }
-
-    @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException failed) throws IOException, ServletException {
-        SecurityContextHolder.clearContext();
-        failureHandler.onAuthenticationFailure(request, response, failed);
     }
 
     private String exctractJwtToken(String header) {
