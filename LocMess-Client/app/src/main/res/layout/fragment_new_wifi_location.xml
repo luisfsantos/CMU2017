@@ -28,8 +28,7 @@
             android:tintMode="src_in"
             android:padding="@dimen/margin_2dp"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:onClick="refreshNetworks"/>
+            android:layout_alignParentRight="true"/>
     </RelativeLayout>
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -41,10 +40,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingBottom="@dimen/small_margin">
-            <RadioGroup
-                android:id="@+id/radio_group_wifi"
+            <LinearLayout
+                android:id="@+id/checkbox_group_wifi"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
             <TextView
                 android:id="@+id/empty_view"
                 android:layout_width="wrap_content"

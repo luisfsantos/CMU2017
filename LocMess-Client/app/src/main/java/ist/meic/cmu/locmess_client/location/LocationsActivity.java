@@ -154,14 +154,15 @@ public class LocationsActivity extends BaseNavigationActivity implements
         Drawable d = null;
         if (coordinates instanceof CoordinatesUtils.WifiCoordinates) {
             d = VectorDrawableCompat.create(getResources(), R.drawable.ic_wifi, null);
+
         } else if (coordinates instanceof CoordinatesUtils.GpsCoordinates) {
-            ((TextView)view.findViewById(R.id.location_coordinates))
-                    .setText(coordinates.toString());
             d = VectorDrawableCompat.create(getResources(), R.drawable.ic_gps, null);
         }
         d = DrawableCompat.wrap(d);
         DrawableCompat.setTint(d, ContextCompat.getColor(this, R.color.icon_tint_dark));
         coordinatesIcon.setImageDrawable(d);
+        ((TextView)view.findViewById(R.id.location_coordinates))
+                .setText(coordinates.toString());
     }
 
     @Override

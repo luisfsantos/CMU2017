@@ -1,9 +1,12 @@
 package ist.meic.cmu.locmess_client.utils;
 
 import android.content.Context;
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 
 import ist.meic.cmu.locmess_client.R;
 
@@ -15,24 +18,37 @@ public class CoordinatesUtils {
     String mCoordinates;
     Context context;
 
+    private static final String SEPARATOR = "#";
+    private static final String DELIMITER = ", ";
+    private static final String GPS_TAG = "GPS";
+    private static final String WIFI_TAG = "WIFI";
+
     public CoordinatesUtils(Context context, String coordinates) {
         mCoordinates = coordinates;
         this.context = context;
     }
 
     public Coordinates parse() {
-        String[] coordinates = mCoordinates.split("#");
-        if (coordinates.length == 1) {
-            return new WifiCoordinates(coordinates[0]);
-        } else if (coordinates.length == 3) {
+        String[] coordinates = mCoordinates.split(SEPARATOR);
+        if (WIFI_TAG.equals(coordinates[0])) {
+            return new WifiCoordinates(Arrays.copyOfRange(coordinates, 1, coordinates.length));
+        } else if (GPS_TAG.equals(coordinates[0])) {
             return new GpsCoordinates(
-                    Double.parseDouble(coordinates[0]),
                     Double.parseDouble(coordinates[1]),
-                    Double.parseDouble(coordinates[2])
+                    Double.parseDouble(coordinates[2]),
+                    Double.parseDouble(coordinates[3])
             );
         } else {
-            throw new RuntimeException("Incorrectly formatted coordinates string");
+            throw new RuntimeException("Incorrectly formatted coordinates string: "+mCoordinates);
         }
+    }
+
+    public static String formatGpsToDb(String latitude, String longitude, String radius) {
+        return GPS_TAG + SEPARATOR + latitude + SEPARATOR + longitude + SEPARATOR + radius;
+    }
+
+    public static String formatWifiToDb(String... ssids) {
+        return WIFI_TAG + SEPARATOR + TextUtils.join(SEPARATOR, ssids);
     }
 
     public abstract class Coordinates {
@@ -72,17 +88,17 @@ public class CoordinatesUtils {
         }
     }
     public class WifiCoordinates extends Coordinates {
-        public String ssid;
+        public String[] ssids;
 
         private WifiCoordinates() {}
 
-        private WifiCoordinates(String ssid) {
-            this.ssid = ssid;
+        private WifiCoordinates(String... ssids) {
+            this.ssids = ssids;
         }
 
         @Override
         public String toString() {
-            return ssid;
+            return TextUtils.join(DELIMITER, ssids);
         }
     }
 }

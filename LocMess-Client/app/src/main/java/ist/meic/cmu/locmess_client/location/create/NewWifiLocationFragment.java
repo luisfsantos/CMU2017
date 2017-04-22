@@ -3,14 +3,17 @@ package ist.meic.cmu.locmess_client.location.create;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
@@ -21,7 +24,10 @@ import ist.meic.cmu.locmess_client.R;
 
 public class NewWifiLocationFragment extends Fragment {
 
-    RadioGroup mRadioGroup;
+    private static final String TAG = "NewWifiLocationFragment";
+
+    LinearLayout mCheckBoxContainer;
+    List<String> mSsidsChecked = new ArrayList<>();
     TextView mEmptyView;
     private static List<String> mSSIDS = new ArrayList<>();
 
@@ -43,19 +49,22 @@ public class NewWifiLocationFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putStringArrayList("ssids", (ArrayList<String>)mSSIDS);
-        int index = mRadioGroup.indexOfChild(mRadioGroup.findViewById(mRadioGroup.getCheckedRadioButtonId()));
-        outState.putInt("checked_ssid", index);
+        if (!mSSIDS.isEmpty()) {
+            outState.putStringArrayList("ssids", (ArrayList<String>) mSSIDS);
+        }
+        if (!mSsidsChecked.isEmpty()) {
+            outState.putStringArrayList("ssids_checked", (ArrayList<String>) mSsidsChecked);
+        }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null){
-            ArrayList<String> saved = savedInstanceState.getStringArrayList("ssids");
-            if (saved != null) {
-                mSSIDS = saved;
-            }
+            ArrayList<String> saved_ssids = savedInstanceState.getStringArrayList("ssids");
+            if (saved_ssids != null) mSSIDS = saved_ssids;
+            ArrayList<String> checked_ssids = savedInstanceState.getStringArrayList("ssids_checked");
+            if (checked_ssids != null) mSsidsChecked = checked_ssids;
         }
     }
 
@@ -65,38 +74,59 @@ public class NewWifiLocationFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_new_wifi_location, container, false);
         mEmptyView = (TextView) rootView.findViewById(R.id.empty_view);
-        mRadioGroup = (RadioGroup)rootView.findViewById(R.id.radio_group_wifi);
-        fillRadioGroup();
-        if (savedInstanceState != null) {
-            int last_checked_index = savedInstanceState.getInt("checked_ssid");
-            int last_checked_id = mRadioGroup.getChildAt(last_checked_index).getId();
-            mRadioGroup.check(last_checked_id);
-        }
+        mCheckBoxContainer = (LinearLayout)rootView.findViewById(R.id.checkbox_group_wifi);
+        inflateCheckBoxes();
+        rootView.findViewById(R.id.refresh).setOnClickListener(new OnRefreshClicked());
         return rootView;
     }
 
-    private void fillRadioGroup() {
+    private void inflateCheckBoxes() {
         if (mSSIDS.isEmpty()) {
             mEmptyView.setVisibility(View.VISIBLE);
-            mRadioGroup.setVisibility(View.GONE);
+            mCheckBoxContainer.setVisibility(View.GONE);
             return;
         }
         mEmptyView.setVisibility(View.GONE);
-        mRadioGroup.setVisibility(View.VISIBLE);
+        mCheckBoxContainer.setVisibility(View.VISIBLE);
         final int horizontal_margin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
         final int vertical_margin = getResources().getDimensionPixelSize(R.dimen.small_margin);
-        RadioGroup.LayoutParams params = new RadioGroup.LayoutParams(getContext(), null);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(horizontal_margin, vertical_margin, horizontal_margin, 0);
-        boolean first = true;
         for (String ssid : mSSIDS) {
-            RadioButton button = new RadioButton(getContext());
-            button.setText(ssid);
-            button.setLayoutParams(params);
-            mRadioGroup.addView(button);
-            if (first) {
-                mRadioGroup.check(button.getId());
-                first = false;
+            CheckBox checkBox = new CheckBox(getContext());
+            checkBox.setText(ssid);
+            checkBox.setMaxLines(1);
+            checkBox.setEllipsize(TextUtils.TruncateAt.END);
+            checkBox.setOnClickListener(new OnCheckBoxClicked());
+            if (mSsidsChecked.contains(ssid)) {
+                checkBox.setChecked(true);
             }
+            mCheckBoxContainer.addView(checkBox, params);
+        }
+    }
+
+    private class OnCheckBoxClicked implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if (((CheckBox) view).isChecked()) {
+                mSsidsChecked.add(((CheckBox) view).getText().toString());
+            } else {
+                mSsidsChecked.remove(((CheckBox) view).getText().toString());
+            }
+            Log.d(TAG, Arrays.toString(mSsidsChecked.toArray(new String[mSsidsChecked.size()])));
+        }
+    }
+
+    private class OnRefreshClicked implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            //TODO
+            Log.d(TAG, "refresh clicked");
+//        mSsidsChecked.clear();
+//        mCheckBoxContainer.removeAllViews();
+//        do something to mSSIDS
+//        inflateCheckBoxes();
         }
     }
 }

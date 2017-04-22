@@ -17,13 +17,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
+import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
 
 public class NewLocationActivity extends AppCompatActivity {
@@ -127,12 +129,12 @@ public class NewLocationActivity extends AppCompatActivity {
                 break;
 
             case R.id.radio_wifi:
-                final int checked_id = mWifiFragment.mRadioGroup.getCheckedRadioButtonId();
-                RadioButton button = (RadioButton) mWifiFragment.mRadioGroup.findViewById(checked_id);
-                String ssid = button.getText().toString();
-                Log.d(TAG, ssid);
-
-                createWifiLocation(name, ssid);
+                List<String> ssidsList = mWifiFragment.mSsidsChecked;
+                if (!ssidsList.isEmpty()) {
+                    String[] ssids = ssidsList.toArray(new String[ssidsList.size()]);
+                    Log.d(TAG, Arrays.toString(ssids));
+                    createWifiLocation(name, ssids);
+                }
                 break;
         }
         setResult(RESULT_OK);
@@ -140,12 +142,7 @@ public class NewLocationActivity extends AppCompatActivity {
     }
 
     private void createGpsLocation(String name, String latitude, String longitude, String radius) {
-        StringBuilder coordinates = new StringBuilder();
-        coordinates.append(latitude)
-                .append("#")
-                .append(longitude)
-                .append("#")
-                .append(radius);
+        String coordinates = CoordinatesUtils.formatGpsToDb(latitude, longitude, radius);
         //FIXME replace with username
         String author = "username";
         String date = DateUtils.formatDateTimeLocaleToDb(new Date());
@@ -154,22 +151,23 @@ public class NewLocationActivity extends AppCompatActivity {
         values.put(LocMessDBContract.Location.COLUMN_NAME, name);
         values.put(LocMessDBContract.Location.COLUMN_AUTHOR, author);
         values.put(LocMessDBContract.Location.COLUMN_DATE_CREATED, date);
-        values.put(LocMessDBContract.Location.COLUMN_COORDINATES, coordinates.toString());
+        values.put(LocMessDBContract.Location.COLUMN_COORDINATES, coordinates);
         Uri uri = getContentResolver().insert(LocMessDBContract.Location.CONTENT_URI, values);
         Log.d(TAG, "New row URI is " + uri);
         //TODO post location to server
     }
 
-    private void createWifiLocation(String name, String ssid) {
+    private void createWifiLocation(String name, String[] ssids) {
         //FIXME replace with username
         String author = "username";
         String date = DateUtils.formatDateTimeLocaleToDb(new Date());
+        String ssidString = CoordinatesUtils.formatWifiToDb(ssids);
 
         ContentValues values = new ContentValues();
         values.put(LocMessDBContract.Location.COLUMN_NAME, name);
         values.put(LocMessDBContract.Location.COLUMN_AUTHOR, author);
         values.put(LocMessDBContract.Location.COLUMN_DATE_CREATED, date);
-        values.put(LocMessDBContract.Location.COLUMN_COORDINATES, ssid);
+        values.put(LocMessDBContract.Location.COLUMN_COORDINATES, ssidString);
         Uri uri = getContentResolver().insert(LocMessDBContract.Location.CONTENT_URI, values);
         Log.d(TAG, "New row URI is " + uri);
         //TODO post location to server
@@ -193,10 +191,5 @@ public class NewLocationActivity extends AppCompatActivity {
         ft.show(toShow);
         ft.hide(toHide);
         ft.commit();
-    }
-
-    public void refreshNetworks(View view) {
-        //TODO
-        Log.d(TAG, "refresh clicked");
     }
 }
