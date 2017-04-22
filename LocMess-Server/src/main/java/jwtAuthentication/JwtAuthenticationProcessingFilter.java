@@ -26,11 +26,10 @@ public class JwtAuthenticationProcessingFilter extends AbstractAuthenticationPro
         super(rMatcher);
     }
 
-    @Override public Authentication attemptAuthentication(javax.servlet.http.HttpServletRequest request,
-            javax.servlet.http.HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+    @Override public Authentication attemptAuthentication(HttpServletRequest request,
+            HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         String tokenPayload = request.getHeader(WebSecurityConfig.JWT_TOKEN_HEADER_PARAM);
-        String token = exctractJwtToken(tokenPayload);
-        return getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
+        return getAuthenticationManager().authenticate(new JwtAuthenticationToken(tokenPayload));
     }
 
     @Override protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
@@ -39,18 +38,5 @@ public class JwtAuthenticationProcessingFilter extends AbstractAuthenticationPro
         context.setAuthentication(authResult);
         SecurityContextHolder.setContext(context);
         chain.doFilter(request, response);
-    }
-
-    private String exctractJwtToken(String header) {
-        String HEADER_PREFIX = "Bearer ";
-
-        if (header.isEmpty()) {
-            throw new AuthenticationServiceException("Authorization header cannot be blank!");
-        }
-
-        if (header.length() < HEADER_PREFIX.length()) {
-            throw new AuthenticationServiceException("Invalid authorization header size.");
-        }
-        return header.substring(HEADER_PREFIX.length(), header.length());
     }
 }

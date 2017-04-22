@@ -1,5 +1,9 @@
 package ist.meic.cmu.locmess.api.controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.j256.ormlite.dao.Dao;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
@@ -36,6 +41,7 @@ public class UserController {
         public ResponseEntity<JsonObjectAPI> create(@RequestBody JsonObjectAPI userInfo) {
             JsonObjectAPI response = new JsonObjectAPI();
             UserWrapper newUser = gson.fromJson(userInfo.getData(), UserWrapper.class);
+            logger.info("Data: " + userInfo.getData().toString());
             logger.info("There is a user " + newUser.getName() + " being created");
             try {
                 ConnectionSource connectionSource =
@@ -81,7 +87,13 @@ public class UserController {
                     JsonObject data = new JsonObject();
                     data.addProperty("code", 0);
                     data.addProperty("status", userWrapper.getUsername() + " is now logged in successfully.");
-                    data.addProperty("jwt", "xxx.yyy.zzz");
+                    Algorithm algorithm = Algorithm.HMAC256("secret");
+                    String token = JWT.create()
+                            .withSubject(userWrapper.getUsername())
+                            .withIssuer("auth0")
+                            .sign(algorithm);
+                    data.addProperty("jwt", token);
+
                     response.setData(data);
 
                     return new ResponseEntity<>(response, HttpStatus.OK);
@@ -91,6 +103,10 @@ public class UserController {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (UnsupportedEncodingException exception){
+            //UTF-8 encoding not supported
+        } catch (JWTCreationException exception){
+            //Invalid Signing configuration / Couldn't convert Claims.
         }
 
         response.addError(new Error(1, "the username or password is incorrect"));

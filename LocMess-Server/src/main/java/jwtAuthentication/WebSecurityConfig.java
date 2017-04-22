@@ -28,7 +28,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     public static final String FORM_BASED_LOGIN_ENTRY_POINT = "/api/user/login";
     public static final String TOKEN_BASED_AUTH_ENTRY_POINT = "/api/**";
-    public static final String TOKEN_REFRESH_ENTRY_POINT = "/api/user/token";
+    public static final String TOKEN_REFRESH_ENTRY_POINT = "/api/user/create";
 
     @Autowired
     private RestAuthenticationEntryPoint authenticationEntryPoint;
@@ -61,6 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        System.out.println("hehe getting configured");
         http
                 .csrf().disable() // We don't need CSRF for JWT based authentication
                 .exceptionHandling()
