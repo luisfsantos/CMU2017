@@ -27,7 +27,6 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("auth0")
                     .build(); //Reusable verifier instance
-            System.out.println(jwtToken);
             jwt = verifier.verify(jwtToken);
             String username = jwt.getSubject();
             UserContext context = new UserContext(username, null);

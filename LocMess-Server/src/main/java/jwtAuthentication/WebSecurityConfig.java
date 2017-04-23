@@ -61,7 +61,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        System.out.println("hehe getting configured");
         http
                 .csrf().disable() // We don't need CSRF for JWT based authentication
                 .exceptionHandling()

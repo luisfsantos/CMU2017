@@ -40,7 +40,7 @@ public class UserController {
             JsonObjectAPI response = new JsonObjectAPI();
             UserWrapper newUser = gson.fromJson(userInfo.getData(), UserWrapper.class);
             logger.info("Data: " + userInfo.getData().toString());
-            logger.info("There is a user " + newUser.getUsername() + " being created");
+            logger.info("There is a user " + newUser.getUsername() + " trying to be created");
             try {
                 ConnectionSource connectionSource =
                         new JdbcConnectionSource(Settings.DB_URI);
@@ -48,6 +48,7 @@ public class UserController {
                 Dao<User, String> userDAO = DaoManager.createDao(connectionSource, User.class);
                 TableUtils.createTableIfNotExists(connectionSource, User.class);
                 if (userDAO.idExists(newUser.getUsername())) {
+                    logger.info("The username " + newUser.getUsername() + " is taken, user not created");
                     response.addError(new Error(1, "the username is taken"));
                     return new ResponseEntity<>(response, HttpStatus.CONFLICT);
                 }
@@ -59,8 +60,8 @@ public class UserController {
             }
 
             JsonObject data = new JsonObject();
-            data.addProperty("code", 0);
-            data.addProperty("status", "User " + newUser.getUsername() + "created");
+            data.addProperty("info", "User " + newUser.getUsername() + " created");
+            logger.info("User " + newUser.getUsername() + " created");
             response.setData(data);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -70,7 +71,7 @@ public class UserController {
     public ResponseEntity<JsonObjectAPI> login(@RequestBody JsonObjectAPI userInfo) {
         JsonObjectAPI response = new JsonObjectAPI();
         UserWrapper userWrapper = gson.fromJson(userInfo.getData(), UserWrapper.class);
-        logger.info(userWrapper.getUsername() + "is trying to login");
+        logger.info(userWrapper.getUsername() + " is trying to login");
         try {
             ConnectionSource connectionSource =
                     new JdbcConnectionSource(Settings.DB_URI);
@@ -91,11 +92,10 @@ public class UserController {
 
 
                     data.addProperty("jwt", token);
-                    data.addProperty("code", 0);
-                    data.addProperty("status", userWrapper.getUsername() + " is now logged in successfully.");
+                    data.addProperty("info", userWrapper.getUsername() + " is now logged in successfully.");
                     response.setData(data);
 
-
+                    logger.info("User " +userWrapper.getUsername() + " logged in.");
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
             }
