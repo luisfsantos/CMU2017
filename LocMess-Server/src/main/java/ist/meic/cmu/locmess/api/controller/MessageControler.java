@@ -43,7 +43,7 @@ public class MessageControler {
                     new JdbcConnectionSource(Settings.DB_URI);
             //TODO: see what happens when foirgen keys do not exist
             Dao<Message, String> messageDAO = DaoManager.createDao(connectionSource, Message.class);
-            TableUtils.createTableIfNotExists(connectionSource, Location.class);
+            TableUtils.createTableIfNotExists(connectionSource, Message.class);
             messageDAO.create(newMessage.createMessage());
             connectionSource.close();
 
