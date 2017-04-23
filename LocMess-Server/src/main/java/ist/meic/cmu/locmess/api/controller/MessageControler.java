@@ -1,6 +1,8 @@
 package ist.meic.cmu.locmess.api.controller;
 
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.springframework.http.HttpStatus;
@@ -20,10 +22,9 @@ import com.j256.ormlite.table.TableUtils;
 
 import ist.meic.cmu.locmess.api.json.Error;
 import ist.meic.cmu.locmess.api.json.JsonObjectAPI;
-import ist.meic.cmu.locmess.api.json.wrappers.LocationWrapper;
 import ist.meic.cmu.locmess.api.json.wrappers.MessageWrapper;
+import ist.meic.cmu.locmess.api.json.wrappers.QueryMessageWrapper;
 import ist.meic.cmu.locmess.database.Settings;
-import ist.meic.cmu.locmess.domain.location.Location;
 import ist.meic.cmu.locmess.domain.message.Message;
 
 @RestController
@@ -42,6 +43,7 @@ public class MessageControler {
             ConnectionSource connectionSource =
                     new JdbcConnectionSource(Settings.DB_URI);
             //TODO: see what happens when foirgen keys do not exist
+            //TODO: sessionid? é o token? probabli
             Dao<Message, String> messageDAO = DaoManager.createDao(connectionSource, Message.class);
             TableUtils.createTableIfNotExists(connectionSource, Message.class);
             messageDAO.create(newMessage.createMessage());
@@ -57,6 +59,40 @@ public class MessageControler {
         JsonObject data = new JsonObject();
         data.addProperty("code", 0);
         data.addProperty("status", "Message " + newMessage.getTitle() + "created");
+        response.setData(data);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+    public ResponseEntity<JsonObjectAPI> list(@RequestBody JsonObjectAPI queryInfo) {
+        JsonObjectAPI response = new JsonObjectAPI();
+        QueryMessageWrapper query = gson.fromJson(queryInfo.getData(), QueryMessageWrapper.class);
+        logger.info("Data: " + queryInfo.getData().toString());
+        logger.info("List messages for user " + query.getUser().getUsername() + " located at "+ query.getLocation().getName());
+        List<Message> messages = null;
+        try {
+            ConnectionSource connectionSource =
+                    new JdbcConnectionSource(Settings.DB_URI);
+           
+            Dao<Message, String> messageDAO = DaoManager.createDao(connectionSource, Message.class);
+            messages = new LinkedList<Message>();
+           for(Message m: messageDAO.queryForEq("location", query.getLocation())){
+        	   if(m.vasibleTime())
+        		   messages.add(m);
+           }
+           
+            connectionSource.close();
+
+        } catch (SQLException e) {
+        	
+            response.addError(new Error(2, "Message could not be created please try again later"));
+            e.printStackTrace();
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        }
+
+        JsonObject data = new JsonObject();
+        data.addProperty("code", 0);
+        data.add("messages", gson.toJsonTree(messages));
         response.setData(data);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
