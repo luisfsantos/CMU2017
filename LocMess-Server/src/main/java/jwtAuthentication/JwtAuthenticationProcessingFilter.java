@@ -29,6 +29,9 @@ public class JwtAuthenticationProcessingFilter extends AbstractAuthenticationPro
     @Override public Authentication attemptAuthentication(HttpServletRequest request,
             HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         String tokenPayload = request.getHeader(WebSecurityConfig.JWT_TOKEN_HEADER_PARAM);
+        if (tokenPayload == null || tokenPayload.isEmpty()) {
+            throw new AuthenticationServiceException("Authorization header cannot be blank!");
+        }
         return getAuthenticationManager().authenticate(new JwtAuthenticationToken(tokenPayload));
     }
 
