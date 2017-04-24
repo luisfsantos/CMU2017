@@ -13,9 +13,13 @@ public class Location {
 
     @DatabaseField()
     String name;
+    
+    @DatabaseField()
+    Coordinate coordinates;
 
-    public Location(String name) {
+    public Location(String name, Coordinate coordinates) {
         this.name = name;
+        this.coordinates=coordinates;
     }
 
     public Location() {
@@ -36,4 +40,12 @@ public class Location {
     public void setName(String name) {
         this.name = name;
     }
+
+	public Coordinate getCoordinates() {
+		return coordinates;
+	}
+
+	public void setCoordinates(Coordinate coordinates) {
+		this.coordinates = coordinates;
+	}
 }

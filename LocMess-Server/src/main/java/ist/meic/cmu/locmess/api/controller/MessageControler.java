@@ -27,6 +27,7 @@ import ist.meic.cmu.locmess.api.json.JsonObjectAPI;
 import ist.meic.cmu.locmess.api.json.wrappers.MessageWrapper;
 import ist.meic.cmu.locmess.api.json.wrappers.UserLocationWrapper;
 import ist.meic.cmu.locmess.database.Settings;
+import ist.meic.cmu.locmess.domain.location.Location;
 import ist.meic.cmu.locmess.domain.message.Message;
 
 @RestController
@@ -71,16 +72,8 @@ public class MessageControler {
         logger.info("Data: " + queryInfo.getData().toString());
         JsonArray jArray = new JsonArray();
         try {
-            ConnectionSource connectionSource =new JdbcConnectionSource(Settings.DB_URI);
-            Dao<Message, String> messageDAO = DaoManager.createDao(connectionSource, Message.class);
-            
-//            for(Message m: messageDAO.queryForEq("location", query.getLocation())){
-//        	   if(m.vasibleTime())
-//        	   jArray.add(gson.toJson(m));
-//           }
            
-            connectionSource.close();
-
+        	jArray=getGPSMessages(query);
         } catch (SQLException e) {
         	
             response.addError(new Error(2, "Message could not be created please try again later"));
@@ -90,5 +83,19 @@ public class MessageControler {
         response.setData(jArray);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+	
+	private static JsonArray getGPSMessages(UserLocationWrapper query){
+		 ConnectionSource connectionSource =new JdbcConnectionSource(Settings.DB_URI);
+         Dao<Location, String> locationDAO = DaoManager.createDao(connectionSource, Location.class);
+         Dao<Message, String> messageDAO = DaoManager.createDao(connectionSource, Message.class);
+         
+         List<Message> gpsClose = 
+         for(Location l: locationDAO){
+     	   if(m.vasibleTime())
+     	   jArray.add(gson.toJson(m));
+        }
+        
+         connectionSource.close();
+	}
 
 }
