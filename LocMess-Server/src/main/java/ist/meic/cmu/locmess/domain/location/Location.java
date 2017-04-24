@@ -1,5 +1,7 @@
 package ist.meic.cmu.locmess.domain.location;
 
+import java.sql.Date;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -16,10 +18,18 @@ public class Location {
     
     @DatabaseField()
     Coordinate coordinates;
+    
+    @DatabaseField()
+    Date date;
+    
+    @DatabaseField(canBeNull = false, foreign = true)
+    String username;
 
-    public Location(String name, Coordinate coordinates) {
+    public Location(String name,String authorUsername ,Coordinate coordinates,Date date) {
         this.name = name;
         this.coordinates=coordinates;
+        this.username=authorUsername;
+        this.date=date;
     }
 
     public Location() {
@@ -55,5 +65,21 @@ public class Location {
 		else if (this.coordinates instanceof WIFICoordinate)
 			return CoordinateType.WIFI;
 		return null;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 }
