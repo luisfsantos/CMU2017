@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -21,9 +22,10 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import ist.meic.cmu.locmess.api.json.Error;
+import ist.meic.cmu.locmess.api.json.JsonListAPI;
 import ist.meic.cmu.locmess.api.json.JsonObjectAPI;
 import ist.meic.cmu.locmess.api.json.wrappers.MessageWrapper;
-import ist.meic.cmu.locmess.api.json.wrappers.QueryMessageWrapper;
+import ist.meic.cmu.locmess.api.json.wrappers.UserLocationWrapper;
 import ist.meic.cmu.locmess.database.Settings;
 import ist.meic.cmu.locmess.domain.message.Message;
 
@@ -42,8 +44,7 @@ public class MessageControler {
         try {
             ConnectionSource connectionSource =
                     new JdbcConnectionSource(Settings.DB_URI);
-            //TODO: see what happens when foirgen keys do not exist
-            //TODO: sessionid? é o token? probabli
+            //TODO: see what happens when foirgen keys do not exist? SQLEXCEPTION?
             Dao<Message, String> messageDAO = DaoManager.createDao(connectionSource, Message.class);
             TableUtils.createTableIfNotExists(connectionSource, Message.class);
             messageDAO.create(newMessage.createMessage());
@@ -63,23 +64,20 @@ public class MessageControler {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-	@RequestMapping(value = "/list", method = RequestMethod.GET)
-    public ResponseEntity<JsonObjectAPI> list(@RequestBody JsonObjectAPI queryInfo) {
-        JsonObjectAPI response = new JsonObjectAPI();
-        QueryMessageWrapper query = gson.fromJson(queryInfo.getData(), QueryMessageWrapper.class);
+	@RequestMapping(value = "/list", method = RequestMethod.GET,produces ="application/json")
+    public ResponseEntity<JsonListAPI> list(@RequestBody JsonObjectAPI queryInfo) {
+		JsonListAPI response = new JsonListAPI();
+		UserLocationWrapper query = gson.fromJson(queryInfo.getData(), UserLocationWrapper.class);
         logger.info("Data: " + queryInfo.getData().toString());
-        logger.info("List messages for user " + query.getUser().getUsername() + " located at "+ query.getLocation().getName());
-        List<Message> messages = null;
+        JsonArray jArray = new JsonArray();
         try {
-            ConnectionSource connectionSource =
-                    new JdbcConnectionSource(Settings.DB_URI);
-           
+            ConnectionSource connectionSource =new JdbcConnectionSource(Settings.DB_URI);
             Dao<Message, String> messageDAO = DaoManager.createDao(connectionSource, Message.class);
-            messages = new LinkedList<Message>();
-           for(Message m: messageDAO.queryForEq("location", query.getLocation())){
-        	   if(m.vasibleTime())
-        		   messages.add(m);
-           }
+            
+//            for(Message m: messageDAO.queryForEq("location", query.getLocation())){
+//        	   if(m.vasibleTime())
+//        	   jArray.add(gson.toJson(m));
+//           }
            
             connectionSource.close();
 
@@ -89,12 +87,7 @@ public class MessageControler {
             e.printStackTrace();
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
-
-        JsonObject data = new JsonObject();
-        data.addProperty("code", 0);
-        data.add("messages", gson.toJsonTree(messages));
-        response.setData(data);
-
+        response.setData(jArray);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
