@@ -165,6 +165,7 @@ public class SignUpActivity extends AppCompatActivity implements WebRequestCallb
 
     @Override
     public void onWebRequestSuccessful(String message) {
+        Log.d(TAG, message);
         String username = mUsername.getText().toString();
         String password = mPassword.getText().toString();
         try {

@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.network.BaseWebTask;
@@ -13,6 +13,7 @@ import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestCallback;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
+import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
 /**
@@ -60,18 +61,13 @@ public class LoginTask extends BaseWebTask {
         String jwt;
         Context context = mCallback.getContext();
         String message;
-        try {
-            JSONObject json = new JSONObject(result);
-            JSONObject data = json.getJSONObject(RequestBuilder.DATA);
-            jwt = data.getString("jwt");
-            message = data.getString(RequestBuilder.STATUS);
-            Log.d(TAG, "jwt: " + jwt);
-        } catch (JSONException e) {
-            Log.e(TAG, "Result is not a correct json mapping or jwt could not be found");
-            e.printStackTrace();
-            mCallback.onWebRequestError(context.getString(R.string.something_went_wrong));
-            return;
-        }
+
+        Gson gson = new Gson();
+        JsonObjectAPI json = gson.fromJson(result, JsonObjectAPI.class);
+        JsonObject data = json.getData();
+        jwt = data.get("jwt").getAsString();
+        message = data.get(RequestBuilder.INFO).getAsString();
+        Log.d(TAG, "jwt: " + jwt);
         if (jwt == null) {
             mCallback.onWebRequestError(context.getString(R.string.something_went_wrong));
             return;

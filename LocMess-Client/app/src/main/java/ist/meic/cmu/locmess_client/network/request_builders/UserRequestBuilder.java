@@ -1,11 +1,13 @@
 package ist.meic.cmu.locmess_client.network.request_builders;
 
+import com.google.gson.JsonObject;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 
 import ist.meic.cmu.locmess_client.network.RequestData;
+import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 
 /**
  * Created by Catarina on 22/04/2017.
@@ -24,12 +26,12 @@ public class UserRequestBuilder implements RequestBuilder {
         return new RequestData(url, requestMethod, buildJson());
     }
 
-    private JSONObject buildJson() throws JSONException {
-        JSONObject obj = new JSONObject();
-        obj.put(DATA, (new JSONObject())
-                .put(USERNAME, username)
-                .put(PASSWORD, password)
-        );
-        return obj;
+    private JsonObjectAPI buildJson() throws JSONException {
+        JsonObjectAPI json = new JsonObjectAPI();
+        JsonObject data = new JsonObject();
+        data.addProperty(USERNAME, username);
+        data.addProperty(PASSWORD, password);
+        json.setData(data);
+        return json;
     }
 }

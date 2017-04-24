@@ -1,9 +1,12 @@
 package ist.meic.cmu.locmess_client.network;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
+
+import ist.meic.cmu.locmess_client.network.json.Error;
+import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
 /**
@@ -14,6 +17,7 @@ public class WebRequestResult {
     private String mResult;
     private String mError;
     private Exception connectionException;
+    Gson gson = new Gson();
 
     public Exception getException() {
         return connectionException;
@@ -28,14 +32,9 @@ public class WebRequestResult {
     }
 
     public String getResultStatusMessage() {
-        try {
-            JSONObject json = new JSONObject(mResult);
-            JSONObject data = json.getJSONObject(RequestBuilder.DATA);
-            return data.getString(RequestBuilder.STATUS);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
+        JsonObjectAPI json = gson.fromJson(mResult, JsonObjectAPI.class);
+        JsonObject data = json.getData();
+        return data.get(RequestBuilder.INFO).getAsString();
     }
 
     public void setResult(String mResult) {
@@ -47,19 +46,14 @@ public class WebRequestResult {
     }
 
     public String getErrorMessages() {
-        try {
-            JSONObject json = new JSONObject(mError);
-            JSONArray errors = json.getJSONArray(RequestBuilder.ERRORS);
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < errors.length(); i++) {
-                builder.append(errors.getJSONObject(i).getString(RequestBuilder.MESSAGE));
-                builder.append("\n");
-            }
-            return builder.toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
+        JsonObjectAPI json = gson.fromJson(mError, JsonObjectAPI.class);
+        ArrayList<Error> errors = json.getErrors();
+        StringBuilder builder = new StringBuilder();
+        for (Error error : errors) {
+            builder.append(error.getMessage());
+            builder.append("\n");
         }
+        return builder.toString();
     }
 
     public void setError(String mError) {

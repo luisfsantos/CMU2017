@@ -2,10 +2,15 @@ package ist.meic.cmu.locmess_client.network;
 
 import android.annotation.SuppressLint;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 
 
 /**
@@ -18,17 +23,18 @@ public class RequestData {
 
     private URL url;
     private int requestMethod;
-    private JSONObject data;
+    private JsonObjectAPI json;
+    Gson gson = new Gson();
 
     @SuppressLint("DefaultLocale")
-    public RequestData(String url, int requestMethod, JSONObject data) throws MalformedURLException {
+    public RequestData(String url, int requestMethod, JsonObjectAPI json) throws MalformedURLException {
         this.url = new URL(url);
         if (requestMethod == GET || requestMethod == POST) {
             this.requestMethod = requestMethod;
         } else {
             throw new IllegalArgumentException(String.format("Expected GET (%d) or POST (%d), but received %d", GET, POST, requestMethod));
         }
-        this.data = data;
+        this.json = json;
     }
 
     public URL getUrl() {
@@ -39,5 +45,11 @@ public class RequestData {
         return requestMethod;
     }
 
-    public JSONObject getData() { return data; }
+    public JsonObjectAPI getJson() {
+        return json;
+    }
+
+    public String getJsonAsString() {
+        return gson.toJson(json);
+    }
 }

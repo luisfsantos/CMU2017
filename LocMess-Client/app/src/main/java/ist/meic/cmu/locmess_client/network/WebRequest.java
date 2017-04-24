@@ -51,7 +51,9 @@ public class WebRequest {
                 connection.setRequestMethod("POST");
                 connection.setDoOutput(true);
                 OutputStream out = connection.getOutputStream();
-                out.write(mRequest.getData().toString().getBytes());
+                String outgoing = mRequest.getJsonAsString();
+                Log.i(TAG, "outgoing: " + outgoing);
+                out.write(outgoing.getBytes());
                 out.close();
             }
             connection.connect();

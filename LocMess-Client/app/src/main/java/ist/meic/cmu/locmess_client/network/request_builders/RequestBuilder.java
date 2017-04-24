@@ -13,6 +13,7 @@ import ist.meic.cmu.locmess_client.network.RequestData;
 public interface RequestBuilder {
     String DATA = "data";
     String STATUS = "status";
+    String INFO = "info";
     String ERRORS = "errors";
     String MESSAGE = "message";
     String USERNAME = "username";
