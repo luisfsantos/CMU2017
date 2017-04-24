@@ -13,8 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.json.JSONException;
-
 import java.net.MalformedURLException;
 
 import ist.meic.cmu.locmess_client.R;
@@ -105,7 +103,7 @@ public class SignUpActivity extends AppCompatActivity implements WebRequestCallb
         try {
             RequestData data = (new UserRequestBuilder(username, password)).build(LocMessURL.SIGNUP, RequestData.POST);
             new SignupTask(this, data).execute();
-        } catch (JSONException | MalformedURLException e) {
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }
@@ -171,7 +169,7 @@ public class SignUpActivity extends AppCompatActivity implements WebRequestCallb
         try {
             RequestData data = (new UserRequestBuilder(username, password)).build(LocMessURL.LOGIN, RequestData.POST);
             new LoginTask(new LoginCallback(), data).execute();
-        } catch (JSONException | MalformedURLException e) {
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }

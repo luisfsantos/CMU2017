@@ -22,11 +22,11 @@ public class UserRequestBuilder implements RequestBuilder {
         this.password = password;
     }
 
-    public RequestData build(String url, int requestMethod) throws JSONException, MalformedURLException {
+    public RequestData build(String url, int requestMethod) throws MalformedURLException {
         return new RequestData(url, requestMethod, buildJson());
     }
 
-    private JsonObjectAPI buildJson() throws JSONException {
+    private JsonObjectAPI buildJson() {
         JsonObjectAPI json = new JsonObjectAPI();
         JsonObject data = new JsonObject();
         data.addProperty(USERNAME, username);

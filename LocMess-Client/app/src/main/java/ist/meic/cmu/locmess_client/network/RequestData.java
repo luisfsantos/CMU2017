@@ -3,9 +3,6 @@ package ist.meic.cmu.locmess_client.network;
 import android.annotation.SuppressLint;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
