@@ -13,13 +13,13 @@ public class Location {
     @DatabaseField(generatedId = true)
     int id;
 
-    @DatabaseField()
+    @DatabaseField(canBeNull = false)
     String name;
     
-    @DatabaseField()
+    @DatabaseField(canBeNull = false)
     Coordinate coordinates;
     
-    @DatabaseField()
+    @DatabaseField(canBeNull = false)
     Date date;
     
     @DatabaseField(canBeNull = false, foreign = true)
@@ -78,4 +78,5 @@ public class Location {
 	public void setUsername(String username) {
 		this.username = username;
 	}
+	
 }

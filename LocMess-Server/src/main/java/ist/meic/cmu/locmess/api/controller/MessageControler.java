@@ -27,7 +27,10 @@ import ist.meic.cmu.locmess.api.json.JsonObjectAPI;
 import ist.meic.cmu.locmess.api.json.wrappers.MessageWrapper;
 import ist.meic.cmu.locmess.api.json.wrappers.UserLocationWrapper;
 import ist.meic.cmu.locmess.database.Settings;
+import ist.meic.cmu.locmess.domain.location.CoordinateType;
+import ist.meic.cmu.locmess.domain.location.GPSCoordinate;
 import ist.meic.cmu.locmess.domain.location.Location;
+import ist.meic.cmu.locmess.domain.location.WIFICoordinate;
 import ist.meic.cmu.locmess.domain.message.Message;
 
 @RestController
@@ -73,7 +76,7 @@ public class MessageControler {
         JsonArray jArray = new JsonArray();
         try {
            
-        	jArray=getGPSMessages(query);
+        	jArray=getMessages(query);
         } catch (SQLException e) {
         	
             response.addError(new Error(2, "Message could not be created please try again later"));
@@ -84,18 +87,37 @@ public class MessageControler {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 	
-	private static JsonArray getGPSMessages(UserLocationWrapper query){
+	private JsonArray getMessages(UserLocationWrapper query) throws SQLException{
 		 ConnectionSource connectionSource =new JdbcConnectionSource(Settings.DB_URI);
          Dao<Location, String> locationDAO = DaoManager.createDao(connectionSource, Location.class);
          Dao<Message, String> messageDAO = DaoManager.createDao(connectionSource, Message.class);
+         JsonArray jArray = new JsonArray();
+         GPSCoordinate gps = (GPSCoordinate) query.getCoordinates().createCoordinate();
+         WIFICoordinate wifi = (WIFICoordinate) query.getCoordinates().createCoordinate();
          
-         List<Message> gpsClose = 
          for(Location l: locationDAO){
-     	   if(m.vasibleTime())
-     	   jArray.add(gson.toJson(m));
+        	 if(l.getType().equals(CoordinateType.GPS)){
+        		if(l.getCoordinates().closeCoordinates(gps)){
+        			getMessagesFromLocation(messageDAO,jArray,l);
+        		}
+        	 }else {
+        		 if(l.getCoordinates().closeCoordinates(wifi)){
+        			 getMessagesFromLocation(messageDAO,jArray,l);
+         		}
+        	 }
+     	   
         }
         
          connectionSource.close();
+         return jArray;
+	}
+	
+	private JsonArray getMessagesFromLocation( Dao<Message, String> messageDAO,JsonArray jArray,Location l) throws SQLException{
+		for (Message m:messageDAO.queryForEq("location", l)){
+			//TODO: add check of user keys
+			jArray.add(gson.toJson(m));
+		}
+		return jArray;
 	}
 
 }

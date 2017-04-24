@@ -8,6 +8,7 @@ public class WIFICoordinate extends Coordinate{
 	public WIFICoordinate(){
 		
 	}
+	
 	public WIFICoordinate( Set<String> wifiSSIDs){
 		 this.wifiSSIDs= wifiSSIDs;
 	}
@@ -16,6 +17,19 @@ public class WIFICoordinate extends Coordinate{
 	}
 	public void setWifiSSIDs(Set<String> wifiSSIDs) {
 		this.wifiSSIDs = wifiSSIDs;
+	}
+	@Override
+	public boolean closeCoordinates(Coordinate c1) {
+		if (!(c1 instanceof WIFICoordinate))
+			//TODO: custom exception
+			throw new NullPointerException("can only compare coordinates of the same type");
+		WIFICoordinate coord1= (WIFICoordinate)c1;
+		for(String s : coord1.getWifiSSIDs()){
+			if(this.getWifiSSIDs().contains(s))
+				return true;
+			continue;
+		}
+		return false;
 	}
 	
 }
