@@ -23,13 +23,15 @@ import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 public class LoginTask extends BaseWebTask {
 
     private static final String TAG = "LoginTask";
+    private final String username;
 
-    public LoginTask(WebRequestCallback callback, RequestData requestData) {
+    public LoginTask(WebRequestCallback callback, RequestData requestData, String username) {
         super(callback, requestData);
+        this.username = username;
     }
 
     @Override
-    protected WebRequestResult doInBackground(RequestData... requestData) {
+    protected WebRequestResult doInBackground(Void... voids) {
         try {
             return new WebRequest(mRequestData).execute();
         } catch (Exception e) {
@@ -74,7 +76,8 @@ public class LoginTask extends BaseWebTask {
         }
         SharedPreferences sp = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString(context.getString(R.string.jwtAuthenticator), jwt);
+        editor.putString(context.getString(R.string.pref_jwtAuthenticator), jwt);
+        editor.putString(context.getString(R.string.pref_username), username); // keep track of what user is logged in
         editor.commit();
 
         mCallback.onWebRequestSuccessful(message);

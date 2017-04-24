@@ -168,7 +168,7 @@ public class SignUpActivity extends AppCompatActivity implements WebRequestCallb
         String password = mPassword.getText().toString();
         try {
             RequestData data = (new UserRequestBuilder(username, password)).build(LocMessURL.LOGIN, RequestData.POST);
-            new LoginTask(new LoginCallback(), data).execute();
+            new LoginTask(new LoginCallback(), data, username).execute();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

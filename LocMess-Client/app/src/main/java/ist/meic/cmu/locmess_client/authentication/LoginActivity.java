@@ -90,7 +90,7 @@ public class LoginActivity extends AppCompatActivity implements WebRequestCallba
         freeze();
         try {
             RequestData data = (new UserRequestBuilder(username, password)).build(LocMessURL.LOGIN, RequestData.POST);
-            new LoginTask(this, data).execute();
+            new LoginTask(this, data, username).execute();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

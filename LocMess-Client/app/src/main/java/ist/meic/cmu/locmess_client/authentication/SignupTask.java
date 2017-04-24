@@ -18,7 +18,7 @@ public class SignupTask extends BaseWebTask {
     }
 
     @Override
-    protected WebRequestResult doInBackground(RequestData... requestData) {
+    protected WebRequestResult doInBackground(Void... voids) {
         try {
             return new WebRequest(mRequestData).execute();
         } catch (Exception e) {

@@ -8,12 +8,12 @@ import android.os.AsyncTask;
  * Created by Catarina on 23/04/2017.
  */
 
-public abstract class BaseWebTask extends AsyncTask<RequestData, Void, WebRequestResult> {
+public abstract class BaseWebTask extends AsyncTask<Void, Void, WebRequestResult> {
 
     protected final WebRequestCallback mCallback;
     protected final RequestData mRequestData;
 
-    public BaseWebTask(WebRequestCallback callback, RequestData requestData) {
+    protected BaseWebTask(WebRequestCallback callback, RequestData requestData) {
         mCallback = callback;
         mRequestData = requestData;
     }
@@ -32,5 +32,5 @@ public abstract class BaseWebTask extends AsyncTask<RequestData, Void, WebReques
         }
     }
 
-    protected abstract WebRequestResult doInBackground(RequestData... requestData);
+    protected abstract WebRequestResult doInBackground(Void... voids);
 }
