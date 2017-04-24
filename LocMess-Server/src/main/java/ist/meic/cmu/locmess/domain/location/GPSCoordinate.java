@@ -4,15 +4,17 @@ public class GPSCoordinate extends Coordinate{
 	
 	double lon;
 	double lat;
+	double radius;
 	
 	public GPSCoordinate (){
 		
 	}
 	
 
-	public GPSCoordinate (double lon,double lat){
+	public GPSCoordinate (double lon,double lat,double radius){
 		this.lon=lon;
 		this.lat=lat;
+		this.radius=radius;
 	}
 
 
@@ -33,6 +35,16 @@ public class GPSCoordinate extends Coordinate{
 
 	public void setLat(double lat) {
 		this.lat = lat;
+	}
+
+
+	public double getRadius() {
+		return radius;
+	}
+
+
+	public void setRadius(float radius) {
+		this.radius = radius;
 	}
 
 }

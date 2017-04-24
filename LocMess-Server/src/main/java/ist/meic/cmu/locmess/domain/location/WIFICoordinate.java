@@ -1,23 +1,21 @@
 package ist.meic.cmu.locmess.domain.location;
 
-import java.util.List;
+import java.util.Set;
 
 public class WIFICoordinate extends Coordinate{
 
-	List<String> ssids;
+	 Set<String> wifiSSIDs;
 	public WIFICoordinate(){
 		
 	}
-	public WIFICoordinate(List<String> ssids){
-		this.ssids=ssids;
+	public WIFICoordinate( Set<String> wifiSSIDs){
+		 this.wifiSSIDs= wifiSSIDs;
 	}
-	public List<String> getSsid() {
-		return this.ssids;
+	public Set<String> getWifiSSIDs() {
+		return wifiSSIDs;
 	}
-	public void setSsid(List<String> ssids) {
-		this.ssids = ssids;
+	public void setWifiSSIDs(Set<String> wifiSSIDs) {
+		this.wifiSSIDs = wifiSSIDs;
 	}
-	public void addSsid(String ssid){
-		this.ssids.add(ssid);
-	}
+	
 }

@@ -1,5 +1,10 @@
 package ist.meic.cmu.locmess.api.json.wrappers;
 
+import java.sql.Date;
+
+import com.j256.ormlite.field.DatabaseField;
+
+import ist.meic.cmu.locmess.domain.location.Coordinate;
 import ist.meic.cmu.locmess.domain.location.CoordinateType;
 import ist.meic.cmu.locmess.domain.location.Location;
 
@@ -9,11 +14,14 @@ import ist.meic.cmu.locmess.domain.location.Location;
 public class LocationWrapper {
     String name;
     CoordinateWrapper coordinates;
+    Date date;
+    String username;
 
-
-    public LocationWrapper(String name, CoordinateWrapper coordinates) {
+    public LocationWrapper(String name,String authorUsername ,CoordinateWrapper coordinates,Date date) {
         this.name = name;
         this.coordinates = coordinates;
+        this.date=date;
+        this.username=authorUsername;
     }
 
     public LocationWrapper() {
@@ -36,7 +44,23 @@ public class LocationWrapper {
     }
 
     public Location createLocation() {
-        //TODO return an actual location
-        return new Location(name);
+       
+        return new Location(this.name,this.username,this.coordinates.createCoordinate(),this.date);
     }
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
 }

@@ -60,11 +60,7 @@ public class Location {
 	}
 	
 	public CoordinateType getType(){
-		if (this.coordinates instanceof GPSCoordinate)
-			return CoordinateType.GPS;
-		else if (this.coordinates instanceof WIFICoordinate)
-			return CoordinateType.WIFI;
-		return null;
+		return this.coordinates.getType();
 	}
 
 	public Date getDate() {

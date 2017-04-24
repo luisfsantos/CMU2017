@@ -1,11 +1,12 @@
 package ist.meic.cmu.locmess.api.json.wrappers;
 
+import ist.meic.cmu.locmess.domain.location.Coordinate;
 import ist.meic.cmu.locmess.domain.location.CoordinateType;
 
 /**
  * Created by lads on 22/04/2017.
  */
-public class CoordinateWrapper {
+public abstract class CoordinateWrapper {
     CoordinateType type;
 
     public CoordinateWrapper() {
@@ -18,4 +19,5 @@ public class CoordinateWrapper {
     public void setType(CoordinateType type) {
         this.type = type;
     }
+    public abstract Coordinate createCoordinate();
 }

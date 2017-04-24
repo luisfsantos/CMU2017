@@ -1,5 +1,8 @@
 package ist.meic.cmu.locmess.api.json.wrappers;
 
+import ist.meic.cmu.locmess.domain.location.Coordinate;
+import ist.meic.cmu.locmess.domain.location.GPSCoordinate;
+
 /**
  * Created by lads on 22/04/2017.
  */
@@ -40,4 +43,9 @@ public class GPSCoordinateWapper extends CoordinateWrapper {
     public void setRadius(double radius) {
         this.radius = radius;
     }
+
+	@Override
+	public Coordinate createCoordinate() {
+		return new GPSCoordinate(this.latitude,this.longitude,this.radius);
+	}
 }
