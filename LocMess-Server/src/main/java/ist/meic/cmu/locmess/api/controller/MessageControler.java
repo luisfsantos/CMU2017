@@ -98,11 +98,11 @@ public class MessageControler {
          for(Location l: locationDAO){
         	 if(l.getType().equals(CoordinateType.GPS)){
         		if(l.getCoordinates().closeCoordinates(gps)){
-        			getMessagesFromLocation(messageDAO,jArray,l);
+        			jArray=getMessagesFromLocation(messageDAO,jArray,l);
         		}
         	 }else {
         		 if(l.getCoordinates().closeCoordinates(wifi)){
-        			 getMessagesFromLocation(messageDAO,jArray,l);
+        			 jArray= getMessagesFromLocation(messageDAO,jArray,l);
          		}
         	 }
      	   
