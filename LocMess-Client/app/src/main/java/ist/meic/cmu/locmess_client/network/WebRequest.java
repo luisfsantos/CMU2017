@@ -1,5 +1,7 @@
 package ist.meic.cmu.locmess_client.network;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,41 +14,60 @@ import java.net.HttpURLConnection;
  */
 
 public class WebRequest {
-    private static int TIMEOUT = 5;
-    RequestData mRequest;
+    private static final String TAG = "WebRequest";
+    private static final int TIMEOUT = 5;
+    private RequestData mRequest;
+    private String mAuth = null;
 
     public WebRequest(RequestData request) {
         mRequest = request;
     }
 
-    public String execute() throws IOException{
+    public WebRequest(RequestData request, String auth) {
+        mRequest = request;
+        mAuth = auth;
+    }
+
+    public void setAuth(String auth) {
+        this.mAuth = auth;
+    }
+
+    public WebRequestResult execute() throws IOException{
         InputStream in = null;
         HttpURLConnection connection = null;
-        String result = null;
+        WebRequestResult result = null;
         try {
             connection = (HttpURLConnection) mRequest.getUrl().openConnection();
             connection.setReadTimeout(TIMEOUT * 1000);
             connection.setConnectTimeout(TIMEOUT * 1000);
             connection.setDoInput(true);
-//            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Content-Type", "application/json");
+            if (mAuth != null) {
+                connection.setRequestProperty("Authorization", "Bearer " + mAuth);
+            }
             if (mRequest.getRequestMethod() == RequestData.GET) {
                 connection.setRequestMethod("GET");
             } else if (mRequest.getRequestMethod() == RequestData.POST) {
                 connection.setRequestMethod("POST");
                 connection.setDoOutput(true);
-//                OutputStream out = connection.getOutputStream();
-                //TODO write request data to json object, then to output stream
-//                out.write(...);
-//                out.close();
+                OutputStream out = connection.getOutputStream();
+                out.write(mRequest.getData().toString().getBytes());
+                out.close();
             }
             connection.connect();
             int responseCode = connection.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                throw new IOException("HTTP error code: " + responseCode);
-            }
-            in = connection.getInputStream();
-            if (in != null) {
-                result = readStream(in);
+                in = connection.getErrorStream();
+                result = new WebRequestResult();
+                result.setError(readStream(in));
+                Log.i(TAG, "error from server: " + result.getError());
+            } else {
+                in = connection.getInputStream();
+                if (in != null) {
+                    result = new WebRequestResult();
+                    result.setResult(readStream(in));
+                    Log.i(TAG, "result from server: " + result.getResult());
+                }
             }
         } finally {
             if (in != null) {

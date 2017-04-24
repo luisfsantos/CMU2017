@@ -7,4 +7,5 @@
     <color name="light_text">#ffffff</color>
     <color name="icon_tint_dark">#99333333</color>
     <color name="icon_tint_light">#CCFFFFFF</color>
+    <color name="color_error">#d92e2e</color>
 </resources>

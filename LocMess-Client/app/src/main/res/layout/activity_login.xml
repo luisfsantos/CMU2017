@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_double_margin"
     android:paddingRight="@dimen/activity_double_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="ist.meic.cmu.locmess_client.LoginActivity">
+    tools:context="ist.meic.cmu.locmess_client.authentication.LoginActivity">
 
 
     <LinearLayout
@@ -43,11 +43,20 @@
             style="@style/AppTheme"
             android:layout_marginBottom="@dimen/activity_vertical_margin"/>
         <Button
+            android:id="@+id/login_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_button"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:onClick="doLogin"/>
+        <TextView
+            android:id="@+id/error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/activity_double_margin"
+            android:visibility="gone"
+            android:textColor="@color/color_error" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

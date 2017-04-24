@@ -18,7 +18,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import ist.meic.cmu.locmess_client.LoginActivity;
+import ist.meic.cmu.locmess_client.authentication.LoginActivity;
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
