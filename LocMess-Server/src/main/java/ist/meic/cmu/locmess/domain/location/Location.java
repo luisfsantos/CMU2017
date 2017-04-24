@@ -48,4 +48,12 @@ public class Location {
 	public void setCoordinates(Coordinate coordinates) {
 		this.coordinates = coordinates;
 	}
+	
+	public CoordinateType getType(){
+		if (this.coordinates instanceof GPSCoordinate)
+			return CoordinateType.GPS;
+		else if (this.coordinates instanceof WIFICoordinate)
+			return CoordinateType.WIFI;
+		return null;
+	}
 }
