@@ -2,29 +2,26 @@ package ist.meic.cmu.locmess_client.network;
 
 import android.annotation.SuppressLint;
 
-import com.google.gson.Gson;
-
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 
 
 /**
  * Created by Catarina on 21/04/2017.
  */
 
-public class RequestData {
+public class RequestData implements Serializable {
     public static final int GET = 1;
     public static final int POST = 2;
 
     private URL url;
     private int requestMethod;
-    private JsonObjectAPI json;
-    Gson gson = new Gson();
+//    private JsonObjectAPI json;
+    private String json;
 
     @SuppressLint("DefaultLocale")
-    public RequestData(String url, int requestMethod, JsonObjectAPI json) throws MalformedURLException {
+    public RequestData(String url, int requestMethod, String json) throws MalformedURLException {
         this.url = new URL(url);
         if (requestMethod == GET || requestMethod == POST) {
             this.requestMethod = requestMethod;
@@ -42,11 +39,7 @@ public class RequestData {
         return requestMethod;
     }
 
-    public JsonObjectAPI getJson() {
+    public String getJson() {
         return json;
-    }
-
-    public String getJsonAsString() {
-        return gson.toJson(json);
     }
 }

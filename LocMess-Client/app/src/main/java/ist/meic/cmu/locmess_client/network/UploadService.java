@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import android.os.IBinder;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -31,7 +33,8 @@ import ist.meic.cmu.locmess_client.R;
  *  - Creating/removing keypairs
  */
 public class UploadService extends Service {
-    // TODO: 21/04/2017 TEST THIS!!!
+    // STATUS: 25/04/2017 it performs the request (tested with 1 request)
+    // TODO: 25/04/2017 test: network off -> create 2 locations -> network on -> check if it sends both requests
 
     private static final String TAG = "UploadService";
 
@@ -41,6 +44,7 @@ public class UploadService extends Service {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
                 if (hasNetworkConnection()) {
                     // network connection has been restored
+                    Log.d(TAG, "Network connection restored");
                     unregisterReceiver(this);
                     handleRequest();
                 }
@@ -77,10 +81,17 @@ public class UploadService extends Service {
     private void handleRequest() {
         RequestData request = mRequestQueue.peek();
         if (request == null) {
+            Log.d(TAG, "Service stopping");
             stopSelf();
         } else {
             new Request().execute(request);
         }
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        handleRequest();
+        return START_STICKY;
     }
 
     private boolean hasNetworkConnection() {
@@ -97,7 +108,9 @@ public class UploadService extends Service {
         protected Boolean doInBackground(RequestData... requests) {
             try {
                 //TODO
-                new WebRequest(requests[0]).execute();
+                SharedPreferences pref = getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE);
+                String jwt = pref.getString(getString(R.string.pref_jwtAuthenticator), "No jwt");
+                new WebRequest(requests[0], jwt).execute();
                 return true;
             } catch (IOException e) {
                 Log.e(TAG, e.getMessage());
@@ -119,6 +132,9 @@ public class UploadService extends Service {
                                 getApplicationContext().getString(R.string.no_network_connection),
                                 Snackbar.LENGTH_INDEFINITE);
                     }
+                    Toast.makeText(getApplicationContext(),
+                            getApplicationContext().getString(R.string.no_network_connection),
+                            Toast.LENGTH_LONG).show();
                     // Register receiver in order to resume processing requests once internet connectivity is restored
                     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
                     registerReceiver(mReceiver, filter);

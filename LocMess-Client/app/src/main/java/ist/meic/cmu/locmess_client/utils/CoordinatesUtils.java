@@ -2,7 +2,6 @@ package ist.meic.cmu.locmess_client.utils;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;

@@ -1,10 +1,16 @@
 package ist.meic.cmu.locmess_client.location.create;
 
+import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -18,12 +24,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.network.LocMessURL;
+import ist.meic.cmu.locmess_client.network.RequestData;
+import ist.meic.cmu.locmess_client.network.UploadService;
+import ist.meic.cmu.locmess_client.network.request_builders.GpsLocationRequestBuilder;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
@@ -101,6 +113,26 @@ public class NewLocationActivity extends AppCompatActivity {
         }
     }
 
+    public void onRadioButtonClicked(View view) {
+        switch (view.getId()) {
+            case R.id.radio_gps:
+                Log.d(TAG, "radio gps clicked");
+                showHideFragments(mGpsFragment, mWifiFragment);
+                break;
+            case R.id.radio_wifi:
+                Log.d(TAG, "radio wifi clicked");
+                showHideFragments(mWifiFragment, mGpsFragment);
+                break;
+        }
+    }
+
+    private void showHideFragments(final Fragment toShow, final Fragment toHide){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.show(toShow);
+        ft.hide(toHide);
+        ft.commit();
+    }
+
     private void createLocation() {
         EditText location = (EditText)findViewById(R.id.new_location_name);
         String name = location.getText().toString().trim();
@@ -125,7 +157,12 @@ public class NewLocationActivity extends AppCompatActivity {
                     mGpsFragment.mRadius.setError(getResources().getString(R.string.field_missing));
                     return;
                 }
-                createGpsLocation(name, latitude, longitude, radius);
+                try {
+                    createGpsLocation(name, latitude, longitude, radius);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
             case R.id.radio_wifi:
@@ -141,12 +178,30 @@ public class NewLocationActivity extends AppCompatActivity {
         finish();
     }
 
-    private void createGpsLocation(String name, String latitude, String longitude, String radius) {
-        String coordinates = CoordinatesUtils.formatGpsToDb(latitude, longitude, radius);
-        //FIXME replace with username
-        String author = "username";
+    private void createGpsLocation(String name, String latitude, String longitude, String radius) throws MalformedURLException {
         String date = DateUtils.formatDateTimeLocaleToDb(new Date());
+        String coordinates = CoordinatesUtils.formatGpsToDb(latitude, longitude, radius);
 
+        RequestData data = new GpsLocationRequestBuilder(name,
+                Double.parseDouble(latitude),
+                Double.parseDouble(longitude),
+                Double.parseDouble(radius)
+        ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
+
+        saveToDb(name, date, coordinates);
+        postToServer(data);
+    }
+
+    private void createWifiLocation(String name, String[] ssids) {
+        String date = DateUtils.formatDateTimeLocaleToDb(new Date());
+        String ssidString = CoordinatesUtils.formatWifiToDb(ssids);
+        saveToDb(name, date, ssidString);
+        //TODO post location to server
+    }
+
+    private void saveToDb(String name, String date, String coordinates) {
+        SharedPreferences pref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        String author = pref.getString(getString(R.string.pref_username), "No author");
         ContentValues values = new ContentValues();
         values.put(LocMessDBContract.Location.COLUMN_NAME, name);
         values.put(LocMessDBContract.Location.COLUMN_AUTHOR, author);
@@ -154,42 +209,45 @@ public class NewLocationActivity extends AppCompatActivity {
         values.put(LocMessDBContract.Location.COLUMN_COORDINATES, coordinates);
         Uri uri = getContentResolver().insert(LocMessDBContract.Location.CONTENT_URI, values);
         Log.d(TAG, "New row URI is " + uri);
-        //TODO post location to server
     }
 
-    private void createWifiLocation(String name, String[] ssids) {
-        //FIXME replace with username
-        String author = "username";
-        String date = DateUtils.formatDateTimeLocaleToDb(new Date());
-        String ssidString = CoordinatesUtils.formatWifiToDb(ssids);
-
-        ContentValues values = new ContentValues();
-        values.put(LocMessDBContract.Location.COLUMN_NAME, name);
-        values.put(LocMessDBContract.Location.COLUMN_AUTHOR, author);
-        values.put(LocMessDBContract.Location.COLUMN_DATE_CREATED, date);
-        values.put(LocMessDBContract.Location.COLUMN_COORDINATES, ssidString);
-        Uri uri = getContentResolver().insert(LocMessDBContract.Location.CONTENT_URI, values);
-        Log.d(TAG, "New row URI is " + uri);
-        //TODO post location to server
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = new Intent(NewLocationActivity.this, UploadService.class);
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public void onRadioButtonClicked(View view) {
-        switch (view.getId()) {
-            case R.id.radio_gps:
-                Log.d(TAG, "radio gps clicked");
-                showHideFragments(mGpsFragment, mWifiFragment);
-                break;
-            case R.id.radio_wifi:
-                Log.d(TAG, "radio wifi clicked");
-                showHideFragments(mWifiFragment, mGpsFragment);
-                break;
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unbindService(mServiceConnection);
+    }
+
+    /*
+     * HANDLE POST LOCATION TO SERVER
+     **/
+    UploadService.UploadServiceBinder mBinder;
+
+    private void postToServer(RequestData data) {
+        Intent intent = new Intent(NewLocationActivity.this, UploadService.class);
+        if (mBinder != null) {
+            mBinder.enqueueRequest(data);
         }
+        startService(intent);
     }
 
-    private void showHideFragments(final Fragment toShow, final Fragment toHide){
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.show(toShow);
-        ft.hide(toHide);
-        ft.commit();
-    }
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mBinder = (UploadService.UploadServiceBinder) iBinder;
+            mBinder.bindSnackbarAnchor(mCoordinatesChoice);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBinder.bindSnackbarAnchor(null);
+            mBinder = null;
+        }
+    };
 }

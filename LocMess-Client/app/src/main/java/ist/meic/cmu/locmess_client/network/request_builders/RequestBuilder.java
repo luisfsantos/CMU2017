@@ -15,11 +15,14 @@ public interface RequestBuilder {
     String USERNAME = "username";
     String PASSWORD = "password";
     String NAME = "name";
-    String COORDINATES = "coordinates";
     String LATITUDE = "latitude";
     String LONGITUDE = "longitude";
     String RADIUS = "radius";
+    String SSIDS = "wifiSSIDs";
     String TYPE = "type";
+    String TYPE_GPS = "GPS";
+    String TYPE_WIFI = "WIFI";
+
 
     RequestData build(String url, int requestMethod) throws JSONException, MalformedURLException;
 }

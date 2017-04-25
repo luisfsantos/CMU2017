@@ -43,7 +43,9 @@ public class WebRequest {
             connection.setDoInput(true);
             connection.setRequestProperty("Content-Type", "application/json");
             if (mAuth != null) {
-                connection.setRequestProperty("Authorization", "Bearer " + mAuth);
+//                connection.setRequestProperty("Authorization", "Bearer " + mAuth);
+                Log.i(TAG, "Setting jwt header to: " + mAuth);
+                connection.setRequestProperty("Bearer", mAuth);
             }
             if (mRequest.getRequestMethod() == RequestData.GET) {
                 connection.setRequestMethod("GET");
@@ -51,7 +53,7 @@ public class WebRequest {
                 connection.setRequestMethod("POST");
                 connection.setDoOutput(true);
                 OutputStream out = connection.getOutputStream();
-                String outgoing = mRequest.getJsonAsString();
+                String outgoing = mRequest.getJson();
                 Log.i(TAG, "outgoing: " + outgoing);
                 out.write(outgoing.getBytes());
                 out.close();
