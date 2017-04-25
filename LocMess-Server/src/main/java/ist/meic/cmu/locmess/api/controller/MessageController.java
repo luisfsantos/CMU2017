@@ -79,7 +79,7 @@ public class MessageController {
         	jArray=getMessages(query);
         } catch (SQLException e) {
         	
-            response.addError(new Error(2, "Message could not be created please try again later"));
+            response.addError(new Error(2, "Could not access to locations please try again later"));
             e.printStackTrace();
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
