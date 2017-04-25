@@ -35,7 +35,7 @@ import ist.meic.cmu.locmess.domain.message.Message;
 
 @RestController
 @RequestMapping("/message")
-public class MessageControler {
+public class MessageController {
 	private final static Logger logger = Logger.getLogger(UserController.class.getName());
 	Gson gson = new Gson();
 
