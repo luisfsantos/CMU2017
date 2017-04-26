@@ -3,12 +3,15 @@ package ist.meic.cmu.locmess_client;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.sql.LocMessDBSQLiteHelper;
@@ -21,6 +24,7 @@ public class LocMessProvider extends ContentProvider {
 
     private SQLiteDatabase database;
     private static final String AUTHORITY = "ist.meic.cmu.locmess_client.LocMessProvider";
+    private static final String TAG = "LocMessProvider";
     static final int KEYPAIRS = 1;
     static final int KEYPAIRS_ID = 2;
     static final int LOCATIONS = 3;
@@ -50,9 +54,17 @@ public class LocMessProvider extends ContentProvider {
         return true;
     }
 
+    private int getUsernameHash() {
+        SharedPreferences pref = getContext().getSharedPreferences(
+                getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        String username = pref.getString(getContext().getString(R.string.pref_username), "username");
+        return username.hashCode();
+    }
+
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
         switch (sUriMatcher.match(uri)){
             case KEYPAIRS:
                 qb.setTables(LocMessDBContract.KeyPair.TABLE_NAME);
@@ -100,6 +112,7 @@ public class LocMessProvider extends ContentProvider {
 
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues contentValues) {
+        contentValues.put(LocMessDBContract.COLUMN_ACCOUNT_HASH, getUsernameHash());
         Uri rowUri = Uri.EMPTY;
         long rowId;
         switch (sUriMatcher.match(uri)) {
@@ -135,51 +148,90 @@ public class LocMessProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         int count;
-        String finalSelection;
+        StringBuilder finalSelection = new StringBuilder();
+        finalSelection
+                .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                .append(" = ")
+                .append(getUsernameHash());
         switch (sUriMatcher.match(uri)) {
             case KEYPAIRS:
-                count = database.delete(LocMessDBContract.KeyPair.TABLE_NAME, selection, selectionArgs);
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.delete(LocMessDBContract.KeyPair.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case KEYPAIRS_ID:
-                finalSelection = LocMessDBContract.KeyPair._ID + " = " +
-                        uri.getPathSegments().get(LocMessDBContract.KeyPair.ID_PATH_SEGMENT_INDEX);
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.KeyPair._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.KeyPair.ID_PATH_SEGMENT_INDEX));
                 if (selection != null) {
-                    finalSelection += " AND " + selection;
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
                 }
-                count = database.delete(LocMessDBContract.KeyPair.TABLE_NAME, finalSelection, selectionArgs);
+                count = database.delete(LocMessDBContract.KeyPair.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case LOCATIONS:
-                count = database.delete(LocMessDBContract.Location.TABLE_NAME, selection, selectionArgs);
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.delete(LocMessDBContract.Location.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case LOCATIONS_ID:
-                finalSelection = LocMessDBContract.Location._ID + " = " +
-                        uri.getPathSegments().get(LocMessDBContract.Location.ID_PATH_SEGMENT_INDEX);
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.Location._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.Location.ID_PATH_SEGMENT_INDEX));
                 if (selection != null) {
-                    finalSelection += " AND " + selection;
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
                 }
-                count = database.delete(LocMessDBContract.Location.TABLE_NAME, finalSelection, selectionArgs);
+                count = database.delete(LocMessDBContract.Location.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case POSTED_MESSAGES:
-                count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, selection, selectionArgs);
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case POSTED_MESSAGES_ID:
-                finalSelection = LocMessDBContract.PostedMessages._ID + " = " +
-                        uri.getPathSegments().get(LocMessDBContract.PostedMessages.ID_PATH_SEGMENT_INDEX);
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.PostedMessages._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.PostedMessages.ID_PATH_SEGMENT_INDEX));
                 if (selection != null) {
-                    finalSelection += " AND " + selection;
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
                 }
-                count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, finalSelection, selectionArgs);
+                count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case OPENED_MESSAGES:
                 count = database.delete(LocMessDBContract.OpenedMessages.TABLE_NAME, selection, selectionArgs);
                 break;
             case OPENED_MESSAGES_ID:
-                finalSelection = LocMessDBContract.OpenedMessages._ID + " = " +
-                        uri.getPathSegments().get(LocMessDBContract.OpenedMessages.ID_PATH_SEGMENT_INDEX);
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.OpenedMessages._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.OpenedMessages.ID_PATH_SEGMENT_INDEX));
                 if (selection != null) {
-                    finalSelection += " AND " + selection;
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
                 }
-                count = database.delete(LocMessDBContract.OpenedMessages.TABLE_NAME, finalSelection, selectionArgs);
+                count = database.delete(LocMessDBContract.OpenedMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);

@@ -1,8 +1,11 @@
 package ist.meic.cmu.locmess_client.sql;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import ist.meic.cmu.locmess_client.R;
 
 /**
  * Created by Catarina on 12/04/2017.
@@ -10,7 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocMessDBSQLiteHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "locmess_database";
 
     public LocMessDBSQLiteHelper(Context context) {
@@ -27,6 +30,7 @@ public class LocMessDBSQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+        // this shouldn't happen during production of a real app lol
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocMessDBContract.KeyPair.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocMessDBContract.Location.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocMessDBContract.PostedMessages.TABLE_NAME);

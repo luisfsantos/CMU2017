@@ -11,6 +11,8 @@ public class LocMessDBContract {
     public static final String AUTHORITY = "ist.meic.cmu.locmess_client.LocMessProvider";
     public static final String SIMPLE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    public static final String COLUMN_ACCOUNT_HASH = "account_hash";
+
     private LocMessDBContract(){
 
     }
@@ -36,7 +38,8 @@ public class LocMessDBContract {
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_KEY + " TEXT, " +
-                COLUMN_VALUE + " TEXT " + ")";
+                COLUMN_VALUE + " TEXT, " +
+                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
     }
 
     public static class Location implements BaseColumns {
@@ -59,7 +62,8 @@ public class LocMessDBContract {
                 COLUMN_NAME + " TEXT, " +
                 COLUMN_AUTHOR + " TEXT, " +
                 COLUMN_DATE_CREATED + " TEXT, " +
-                COLUMN_COORDINATES + " TEXT " + ")";
+                COLUMN_COORDINATES + " TEXT, " +
+                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.Location._ID,
@@ -93,7 +97,8 @@ public class LocMessDBContract {
                 COLUMN_LOCATION + " TEXT, " + // FIXME: 14/04/2017 decide whether it'll be just the name of the location or a foreign key
                 // FIXME: 14/04/2017 note that if it is a foreign key then there will be problems in retrieving info if location is deleted
                 COLUMN_DATE_FROM + " TEXT, " +
-                COLUMN_DATE_TO + " TEXT " + ")";
+                COLUMN_DATE_TO + " TEXT, " +
+                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.PostedMessages._ID,
@@ -127,7 +132,8 @@ public class LocMessDBContract {
                 COLUMN_CONTENT + " TEXT, " +
                 COLUMN_LOCATION + " TEXT, " +
                 COLUMN_AUTHOR + " TEXT, " +
-                COLUMN_DATE_POSTED + " TEXT " + ")";
+                COLUMN_DATE_POSTED + " TEXT, " +
+                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.OpenedMessages._ID,
