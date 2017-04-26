@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 
@@ -46,7 +47,7 @@ public class CoordinatesUtils {
         return GPS_TAG + SEPARATOR + latitude + SEPARATOR + longitude + SEPARATOR + radius;
     }
 
-    public static String formatWifiToDb(String... ssids) {
+    public static String formatWifiToDb(List<String> ssids) {
         return WIFI_TAG + SEPARATOR + TextUtils.join(SEPARATOR, ssids);
     }
 

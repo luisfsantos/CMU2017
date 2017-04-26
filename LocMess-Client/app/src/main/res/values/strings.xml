@@ -86,5 +86,7 @@
     <!-- SHARED PREFERENCES -->
     <string name="pref_jwtAuthenticator">jwtAuth</string>
     <string name="pref_username">username</string>
+    <string name="account_type">ist.meic.cmu.locmess_client.network.sync.basicsyncadapter</string>
+    <string name="pick_network">Pick at least one network.</string>
 
 </resources>

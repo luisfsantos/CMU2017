@@ -13,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
@@ -114,7 +113,7 @@ public class NewWifiLocationFragment extends Fragment {
             } else {
                 mSsidsChecked.remove(((CheckBox) view).getText().toString());
             }
-            Log.d(TAG, Arrays.toString(mSsidsChecked.toArray(new String[mSsidsChecked.size()])));
+            Log.d(TAG, TextUtils.join(", ", mSsidsChecked));
         }
     }
 

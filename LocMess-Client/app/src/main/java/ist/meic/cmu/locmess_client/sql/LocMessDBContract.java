@@ -8,7 +8,7 @@ import android.provider.BaseColumns;
  */
 
 public class LocMessDBContract {
-    private static final String AUTHORITY = "ist.meic.cmu.locmess_client.LocMessProvider";
+    public static final String AUTHORITY = "ist.meic.cmu.locmess_client.LocMessProvider";
     public static final String SIMPLE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private LocMessDBContract(){

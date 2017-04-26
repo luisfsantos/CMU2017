@@ -1,16 +1,12 @@
 package ist.meic.cmu.locmess_client.location.create;
 
-import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -18,6 +14,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,15 +24,15 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.net.MalformedURLException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
-import ist.meic.cmu.locmess_client.network.UploadService;
 import ist.meic.cmu.locmess_client.network.request_builders.GpsLocationRequestBuilder;
+import ist.meic.cmu.locmess_client.network.request_builders.WifiLocationRequestBuilder;
+import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
@@ -51,6 +48,9 @@ public class NewLocationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_location);
+
+        // create account if necessary
+        SyncUtils.CreateSyncAccount(this);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Drawable close = AppCompatResources.getDrawable(this, R.drawable.ic_close);
@@ -116,11 +116,9 @@ public class NewLocationActivity extends AppCompatActivity {
     public void onRadioButtonClicked(View view) {
         switch (view.getId()) {
             case R.id.radio_gps:
-                Log.d(TAG, "radio gps clicked");
                 showHideFragments(mGpsFragment, mWifiFragment);
                 break;
             case R.id.radio_wifi:
-                Log.d(TAG, "radio wifi clicked");
                 showHideFragments(mWifiFragment, mGpsFragment);
                 break;
         }
@@ -160,17 +158,20 @@ public class NewLocationActivity extends AppCompatActivity {
                 try {
                     createGpsLocation(name, latitude, longitude, radius);
                 } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                    Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    Log.wtf(TAG, e.getMessage());
                 }
                 break;
 
             case R.id.radio_wifi:
-                List<String> ssidsList = mWifiFragment.mSsidsChecked;
-                if (!ssidsList.isEmpty()) {
-                    String[] ssids = ssidsList.toArray(new String[ssidsList.size()]);
-                    Log.d(TAG, Arrays.toString(ssids));
+                final List<String> ssids = mWifiFragment.mSsidsChecked;
+                if (ssids.isEmpty()) {
+                    Toast.makeText(this, getResources().getString(R.string.pick_network), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                try {
                     createWifiLocation(name, ssids);
+                } catch (MalformedURLException e) {
+                    Log.wtf(TAG, e.getMessage());
                 }
                 break;
         }
@@ -189,14 +190,20 @@ public class NewLocationActivity extends AppCompatActivity {
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
         saveToDb(name, date, coordinates);
-        postToServer(data);
+        SyncUtils.triggerSync(data);
     }
 
-    private void createWifiLocation(String name, String[] ssids) {
+    private void createWifiLocation(String name, List<String> ssids) throws MalformedURLException {
         String date = DateUtils.formatDateTimeLocaleToDb(new Date());
         String ssidString = CoordinatesUtils.formatWifiToDb(ssids);
+
+        RequestData data = new WifiLocationRequestBuilder(
+                name,
+                ssids
+        ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
+
         saveToDb(name, date, ssidString);
-        //TODO post location to server
+        SyncUtils.triggerSync(data);
     }
 
     private void saveToDb(String name, String date, String coordinates) {
@@ -210,44 +217,4 @@ public class NewLocationActivity extends AppCompatActivity {
         Uri uri = getContentResolver().insert(LocMessDBContract.Location.CONTENT_URI, values);
         Log.d(TAG, "New row URI is " + uri);
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Intent intent = new Intent(NewLocationActivity.this, UploadService.class);
-        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unbindService(mServiceConnection);
-    }
-
-    /*
-     * HANDLE POST LOCATION TO SERVER
-     **/
-    UploadService.UploadServiceBinder mBinder;
-
-    private void postToServer(RequestData data) {
-        Intent intent = new Intent(NewLocationActivity.this, UploadService.class);
-        if (mBinder != null) {
-            mBinder.enqueueRequest(data);
-        }
-        startService(intent);
-    }
-
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mBinder = (UploadService.UploadServiceBinder) iBinder;
-            mBinder.bindSnackbarAnchor(mCoordinatesChoice);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mBinder.bindSnackbarAnchor(null);
-            mBinder = null;
-        }
-    };
 }

@@ -15,7 +15,8 @@ import java.net.HttpURLConnection;
 
 public class WebRequest {
     private static final String TAG = "WebRequest";
-    private static final int TIMEOUT = 5;
+    private static final int CONN_TIMEOUT = 15;
+    private static final int READ_TIMEOUT = 10;
     private RequestData mRequest;
     private String mAuth = null;
 
@@ -38,8 +39,8 @@ public class WebRequest {
         WebRequestResult result = null;
         try {
             connection = (HttpURLConnection) mRequest.getUrl().openConnection();
-            connection.setReadTimeout(TIMEOUT * 1000);
-            connection.setConnectTimeout(TIMEOUT * 1000);
+            connection.setReadTimeout(READ_TIMEOUT * 1000);
+            connection.setConnectTimeout(CONN_TIMEOUT * 1000);
             connection.setDoInput(true);
             connection.setRequestProperty("Content-Type", "application/json");
             if (mAuth != null) {

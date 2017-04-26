@@ -24,5 +24,5 @@ public interface RequestBuilder {
     String TYPE_WIFI = "WIFI";
 
 
-    RequestData build(String url, int requestMethod) throws JSONException, MalformedURLException;
+    RequestData build(String url, int requestMethod) throws MalformedURLException;
 }

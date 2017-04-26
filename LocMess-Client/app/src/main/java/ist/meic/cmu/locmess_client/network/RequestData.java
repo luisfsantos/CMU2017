@@ -16,12 +16,15 @@ public class RequestData implements Serializable {
     public static final int POST = 2;
 
     private URL url;
-    private int requestMethod;
-//    private JsonObjectAPI json;
-    private String json;
 
+    private String stringUrl;
+
+    private int requestMethod;
+    //    private JsonObjectAPI json;
+    private String json;
     @SuppressLint("DefaultLocale")
     public RequestData(String url, int requestMethod, String json) throws MalformedURLException {
+        this.stringUrl = url;
         this.url = new URL(url);
         if (requestMethod == GET || requestMethod == POST) {
             this.requestMethod = requestMethod;
@@ -29,6 +32,10 @@ public class RequestData implements Serializable {
             throw new IllegalArgumentException(String.format("Expected GET (%d) or POST (%d), but received %d", GET, POST, requestMethod));
         }
         this.json = json;
+    }
+
+    public String getStringUrl() {
+        return stringUrl;
     }
 
     public URL getUrl() {
