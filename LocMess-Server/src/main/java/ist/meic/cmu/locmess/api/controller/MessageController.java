@@ -36,7 +36,7 @@ import ist.meic.cmu.locmess.domain.message.Message;
 @RestController
 @RequestMapping("/message")
 public class MessageController {
-	private final static Logger logger = Logger.getLogger(UserController.class.getName());
+	private final static Logger logger = Logger.getLogger(MessageController.class.getName());
 	Gson gson = new Gson();
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
