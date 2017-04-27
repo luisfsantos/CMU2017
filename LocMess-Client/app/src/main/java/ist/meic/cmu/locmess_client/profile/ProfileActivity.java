@@ -4,6 +4,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,6 +45,10 @@ public class ProfileActivity extends BaseNavigationActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_profile, frameLayout);
+
+        SharedPreferences pref = getSharedPreferences(getResources().getString(R.string.preference_file_key), MODE_PRIVATE);
+        String username = pref.getString(getResources().getString(R.string.pref_username), "username");
+        ((TextView)findViewById(R.id.login_username)).setText(username);
 
         LocMessRecyclerView mRecyclerView = (LocMessRecyclerView) findViewById(R.id.rv_key_pairs);
         TextView mEmptyView = (TextView)findViewById(R.id.empty_view);

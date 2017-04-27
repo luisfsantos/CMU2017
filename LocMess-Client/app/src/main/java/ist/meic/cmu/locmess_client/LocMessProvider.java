@@ -11,7 +11,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.sql.LocMessDBSQLiteHelper;
@@ -24,7 +23,6 @@ public class LocMessProvider extends ContentProvider {
 
     private SQLiteDatabase database;
     private static final String AUTHORITY = "ist.meic.cmu.locmess_client.LocMessProvider";
-    private static final String TAG = "LocMessProvider";
     static final int KEYPAIRS = 1;
     static final int KEYPAIRS_ID = 2;
     static final int LOCATIONS = 3;

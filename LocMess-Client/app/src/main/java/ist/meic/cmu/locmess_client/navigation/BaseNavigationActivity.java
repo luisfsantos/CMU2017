@@ -1,6 +1,7 @@
 package ist.meic.cmu.locmess_client.navigation;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.NavUtils;
@@ -10,7 +11,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.location.LocationsActivity;
@@ -46,6 +49,13 @@ public class BaseNavigationActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View navigationHeader = navigationView.getHeaderView(0);
+        SharedPreferences pref = getSharedPreferences(getResources().getString(R.string.preference_file_key), MODE_PRIVATE);
+        String username = pref.getString(getResources().getString(R.string.pref_username), "username");
+        ((TextView)navigationHeader.findViewById(R.id.nav_username)).setText(username);
+        ((TextView)navigationHeader.findViewById(R.id.nav_email))
+                .setText(String.format("%s%s", username, getResources().getString(R.string.locmess_email_suffix)));
     }
 
     @Override

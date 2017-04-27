@@ -79,14 +79,16 @@
     <string name="unpost_message_info">The message will also be unposted, and no other users will receive it in the future.</string>
     <string name="no_network_connection">No network connection.</string>
     <string name="something_went_wrong">Something went wrong. Please try again.</string>
-    <string name="preference_file_key">ist.meic.cmu.locmess_client.PREFERENCE_FILE_KEY</string>
     <string name="error_login_after_signup">Your account was created but there was a problem while logging in. Please try to log in from the login screen.</string>
+    <string name="pick_network">Pick at least one network.</string>
 
+    <!-- STRINGS BELOW THIS POINT ARE LOCALE INDEPENDENT -->
+    <string name="account_type">ist.meic.cmu.locmess_client.network.sync.basicsyncadapter</string>
+    <string name="locmess_email_suffix">\@locmess.com</string>
 
     <!-- SHARED PREFERENCES -->
+    <string name="preference_file_key">ist.meic.cmu.locmess_client.PREFERENCE_FILE_KEY</string>
     <string name="pref_jwtAuthenticator">jwtAuth</string>
     <string name="pref_username">username</string>
-    <string name="account_type">ist.meic.cmu.locmess_client.network.sync.basicsyncadapter</string>
-    <string name="pick_network">Pick at least one network.</string>
 
 </resources>

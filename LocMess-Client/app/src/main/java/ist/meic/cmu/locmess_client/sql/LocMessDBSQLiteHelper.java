@@ -1,11 +1,8 @@
 package ist.meic.cmu.locmess_client.sql;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import ist.meic.cmu.locmess_client.R;
 
 /**
  * Created by Catarina on 12/04/2017.

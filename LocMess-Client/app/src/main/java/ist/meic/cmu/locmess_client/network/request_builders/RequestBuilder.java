@@ -1,7 +1,5 @@
 package ist.meic.cmu.locmess_client.network.request_builders;
 
-import org.json.JSONException;
-
 import java.net.MalformedURLException;
 
 import ist.meic.cmu.locmess_client.network.RequestData;
