@@ -29,6 +29,11 @@ public class SyncUtils {
     static final String REQUEST_METHOD = "request_method";
     static final String REQUEST_JSON = "request_json";
 
+    static final String SYNC_TYPE = "sync_type";
+    static final int NO_SYNC = 0;
+    static final int SYNC_PULL = 1;
+    static final int SYNC_PUSH = 2;
+
     /**
      * Create an entry for this application in the system account list, if it isn't already there.
      *
@@ -67,7 +72,7 @@ public class SyncUtils {
         }
     }
 
-    public static void triggerSync() {
+    private static void triggerSync() {
         triggerSync(new Bundle());
     }
 
@@ -82,18 +87,18 @@ public class SyncUtils {
      * but the user is not actively waiting for that data, you should omit this flag; this will give
      * the OS additional freedom in scheduling your sync request.
      */
-    public static void triggerSync(Bundle bundle) {
+    private static void triggerSync(Bundle bundle) {
         // Disable sync backoff and ignore sync preferences. In other words...perform sync NOW!
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(
                 GenericAccountService.GetAccount(username),      // Sync account
                 CONTENT_AUTHORITY,                       // Content authority
                 bundle);                                 // Extras
     }
 
-    public static void triggerSync(RequestData data) {
+    public static void push(RequestData data) {
         Bundle bundle = new Bundle();
+        bundle.putInt(SYNC_TYPE, SYNC_PUSH);
         bundle.putString(REQUEST_URL, data.getStringUrl());
         bundle.putInt(REQUEST_METHOD, data.getRequestMethod());
         bundle.putString(REQUEST_JSON, data.getJson());

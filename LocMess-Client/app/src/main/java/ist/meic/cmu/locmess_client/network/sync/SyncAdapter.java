@@ -99,24 +99,17 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                               ContentProviderClient provider, SyncResult syncResult) {
         Log.i(TAG, "Beginning network synchronization");
         try {
-            String url = extras.getString(SyncUtils.REQUEST_URL);
-            int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
-            String json = extras.getString(SyncUtils.REQUEST_JSON);
-            RequestData request = new RequestData(url, requestMethod, json);
-
-            SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-            String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
-            new WebRequest(request, jwt).execute();
-//        try {
-//            final URL location = new URL(FEED_URL);
-//            InputStream stream = null;
-
-//                Log.i(TAG, "Streaming data from network: " + location);
-//                stream = downloadUrl(location);
-//                updateLocalFeedData(stream, syncResult);
-            // Makes sure that the InputStream is closed after the app is
-            // finished using it.
-
+            int syncType = extras.getInt(SyncUtils.SYNC_TYPE, SyncUtils.NO_SYNC);
+            switch (syncType) {
+                case SyncUtils.SYNC_PUSH:
+                    push(extras);
+                    break;
+                case SyncUtils.SYNC_PULL:
+                    // TODO: 27/04/2017 pull
+                    break;
+                default:
+                    Log.i(TAG, "No sync");
+            }
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Feed URL is malformed", e);
             syncResult.stats.numParseExceptions++;
@@ -144,6 +137,17 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 //            return;
 //        }
         Log.i(TAG, "Network synchronization complete");
+    }
+
+    private void push(Bundle extras) throws IOException {
+        String url = extras.getString(SyncUtils.REQUEST_URL);
+        int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
+        String json = extras.getString(SyncUtils.REQUEST_JSON);
+        RequestData request = new RequestData(url, requestMethod, json);
+
+        SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
+        new WebRequest(request, jwt).execute();
     }
 
     /**

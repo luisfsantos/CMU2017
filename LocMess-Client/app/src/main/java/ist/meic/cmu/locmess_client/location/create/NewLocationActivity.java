@@ -189,7 +189,7 @@ public class NewLocationActivity extends AppCompatActivity {
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
         saveToDb(name, date, coordinates);
-        SyncUtils.triggerSync(data);
+        SyncUtils.push(data);
     }
 
     private void createWifiLocation(String name, List<String> ssids) throws MalformedURLException {
@@ -202,7 +202,7 @@ public class NewLocationActivity extends AppCompatActivity {
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
         saveToDb(name, date, ssidString);
-        SyncUtils.triggerSync(data);
+        SyncUtils.push(data);
     }
 
     private void saveToDb(String name, String date, String coordinates) {
