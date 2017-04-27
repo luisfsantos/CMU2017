@@ -40,7 +40,7 @@
 
         <receiver android:name=".network.location_update.AlarmReceiver" >
             <intent-filter>
-                <action android:name="@string/ALARM_INTENT" />
+                <action android:name="@string/ALARM_ACTION" />
             </intent-filter>
         </receiver>
 
