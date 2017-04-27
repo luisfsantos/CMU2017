@@ -6,11 +6,12 @@ public class WIFICoordinate extends Coordinate{
 
 	 Set<String> wifiSSIDs;
 	public WIFICoordinate(){
-		
+		this.type = CoordinateType.WIFI;
 	}
 	
 	public WIFICoordinate( Set<String> wifiSSIDs){
-		 this.wifiSSIDs= wifiSSIDs;
+		this();
+		this.wifiSSIDs= wifiSSIDs;
 	}
 	public Set<String> getWifiSSIDs() {
 		return wifiSSIDs;

@@ -92,6 +92,7 @@ public class MessageController {
          Dao<Location, String> locationDAO = DaoManager.createDao(connectionSource, Location.class);
          Dao<Message, String> messageDAO = DaoManager.createDao(connectionSource, Message.class);
          JsonArray jArray = new JsonArray();
+         /*
          GPSCoordinate gps = (GPSCoordinate) query.getCoordinates().createCoordinate();
          WIFICoordinate wifi = (WIFICoordinate) query.getCoordinates().createCoordinate();
          
@@ -107,7 +108,7 @@ public class MessageController {
         	 }
      	   
         }
-        
+        */
          connectionSource.close();
          return jArray;
 	}

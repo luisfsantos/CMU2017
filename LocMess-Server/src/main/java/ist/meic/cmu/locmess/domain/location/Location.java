@@ -1,9 +1,20 @@
 package ist.meic.cmu.locmess.domain.location;
 
-import java.sql.Date;
+import java.util.Date;
+import java.sql.SQLException;
 
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
+import com.j256.ormlite.table.TableUtils;
+import ist.meic.cmu.locmess.api.json.Error;
+import ist.meic.cmu.locmess.database.Settings;
+import ist.meic.cmu.locmess.domain.users.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 /**
  * Created by lads on 22/04/2017.
@@ -11,35 +22,42 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "locations")
 public class Location {
     @DatabaseField(generatedId = true)
-    int id;
+    long id;
 
     @DatabaseField(canBeNull = false)
     String name;
     
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(canBeNull = false, foreign = true)
     Coordinate coordinates;
     
     @DatabaseField(canBeNull = false)
     Date date;
     
     @DatabaseField(canBeNull = false, foreign = true)
-    String username;
+    User author;
 
-    public Location(String name,String authorUsername ,Coordinate coordinates,Date date) {
+    public Location(String name, User author ,Coordinate coordinates,Date date) {
         this.name = name;
         this.coordinates=coordinates;
-        this.username=authorUsername;
+        this.author=author;
+        this.date=date;
+    }
+
+    public Location(String name, String author, Coordinate coordinates, Date date) {
+        this.name = name;
+        this.coordinates=coordinates;
+        setAuthor(author);
         this.date=date;
     }
 
     public Location() {
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -71,12 +89,28 @@ public class Location {
 		this.date = date;
 	}
 
-	public String getUsername() {
-		return username;
+	public User getAuthor() {
+		return author;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setAuthor(User author) {
+		this.author = author;
 	}
+
+    public void setAuthor(String username) {
+        try {
+            ConnectionSource connectionSource =
+                    new JdbcConnectionSource(Settings.DB_URI);
+
+            Dao<User, String> userDAO = DaoManager.createDao(connectionSource, User.class);
+            TableUtils.createTableIfNotExists(connectionSource, User.class);
+            if (userDAO.idExists(username)) {
+                this.author = userDAO.queryForId(username);
+            }
+            connectionSource.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 	
 }

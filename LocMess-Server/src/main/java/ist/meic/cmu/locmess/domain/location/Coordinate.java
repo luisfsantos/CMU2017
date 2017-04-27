@@ -1,6 +1,13 @@
 package ist.meic.cmu.locmess.domain.location;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable
 public abstract class Coordinate {
+	@DatabaseField(generatedId = true)
+	private long id;
+	@DatabaseField
 	CoordinateType type;
 
 	public Coordinate() {

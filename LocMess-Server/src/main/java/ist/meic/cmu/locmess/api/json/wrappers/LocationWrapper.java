@@ -1,27 +1,31 @@
 package ist.meic.cmu.locmess.api.json.wrappers;
 
-import java.sql.Date;
-
-import com.j256.ormlite.field.DatabaseField;
-
-import ist.meic.cmu.locmess.domain.location.Coordinate;
-import ist.meic.cmu.locmess.domain.location.CoordinateType;
 import ist.meic.cmu.locmess.domain.location.Location;
+
+import java.util.Date;
 
 /**
  * Created by lads on 22/04/2017.
  */
 public class LocationWrapper {
+    long id;
+    String author;
     String name;
     CoordinateWrapper coordinates;
     Date date;
-    String username;
 
-    public LocationWrapper(String name,String authorUsername ,CoordinateWrapper coordinates,Date date) {
+    public LocationWrapper(String name, CoordinateWrapper coordinates, Date date) {
         this.name = name;
         this.coordinates = coordinates;
         this.date=date;
-        this.username=authorUsername;
+    }
+
+    public LocationWrapper(Location location) {
+        id = location.getId();
+        author = location.getAuthor().getUsername();
+        name = location.getName();
+        coordinates = new CoordinateWrapper(location.getCoordinates());
+        date = location.getDate();
     }
 
     public LocationWrapper() {
@@ -43,9 +47,8 @@ public class LocationWrapper {
         this.coordinates = coordinates;
     }
 
-    public Location createLocation() {
-       
-        return new Location(this.name,this.username,this.coordinates.createCoordinate(),this.date);
+    public Location createLocation(String username) {
+        return new Location(this.name, username, this.coordinates.createCoordinate(), this.date);
     }
 
 	public Date getDate() {
@@ -56,11 +59,12 @@ public class LocationWrapper {
 		this.date = date;
 	}
 
-	public String getUsername() {
-		return username;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
+
 }

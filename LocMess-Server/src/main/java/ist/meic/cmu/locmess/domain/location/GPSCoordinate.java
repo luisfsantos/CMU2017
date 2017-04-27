@@ -1,40 +1,45 @@
 package ist.meic.cmu.locmess.domain.location;
 
+import com.j256.ormlite.field.DatabaseField;
+
 public class GPSCoordinate extends Coordinate{
-	
-	double lon;
-	double lat;
+	@DatabaseField
+	double longitude;
+	@DatabaseField
+	double latitude;
+	@DatabaseField
 	double radius;
 	
 	public GPSCoordinate (){
-		
+		this.type = CoordinateType.GPS;
 	}
 	
 
-	public GPSCoordinate (double lon,double lat,double radius){
-		this.lon=lon;
-		this.lat=lat;
+	public GPSCoordinate (double longitude, double latitude, double radius){
+		this();
+		this.longitude = longitude;
+		this.latitude = latitude;
 		this.radius=radius;
 	}
 
 
-	public double getLon() {
-		return lon;
+	public double getLongitude() {
+		return longitude;
 	}
 
 
-	public void setLon(double lon) {
-		this.lon = lon;
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
 	}
 
 
-	public double getLat() {
-		return lat;
+	public double getLatitude() {
+		return latitude;
 	}
 
 
-	public void setLat(double lat) {
-		this.lat = lat;
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
 	}
 
 
@@ -54,7 +59,7 @@ public class GPSCoordinate extends Coordinate{
 			//TODO: custom exception
 			throw new NullPointerException("can only compare coordinates of the same type");
 		GPSCoordinate coord1 = (GPSCoordinate)c1;
-		double distance = distance(this.getLat(),coord1.getLat(),this.getLon(),coord1.getLon(),0.0,0.0);
+		double distance = distance(this.getLatitude(),coord1.getLatitude(),this.getLongitude(),coord1.getLongitude(),0.0,0.0);
 		
 		return distance < coord1.getRadius();
 	}
