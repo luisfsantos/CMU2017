@@ -1,6 +1,9 @@
 package ist.meic.cmu.locmess_client.authentication;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -14,6 +17,7 @@ import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestCallback;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
+import ist.meic.cmu.locmess_client.network.location_update.AlarmReceiver;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
 /**
@@ -54,12 +58,15 @@ public class LoginTask extends BaseWebTask {
                 }
                 mCallback.onWebRequestError(message);
             } else if (result.getResult() != null) {
-                storeJwtAuth(result.getResult());
+                Context context = mCallback.getContext();
+                SharedPreferences pref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                setupLocationUpdateAlarm(pref);
+                storeJwtAuth(pref, result.getResult());
             }
         }
     }
 
-    private void storeJwtAuth(String result) {
+    private void storeJwtAuth(SharedPreferences pref, String result) {
         String jwt;
         Context context = mCallback.getContext();
         String message;
@@ -74,12 +81,26 @@ public class LoginTask extends BaseWebTask {
             mCallback.onWebRequestError(context.getString(R.string.something_went_wrong));
             return;
         }
-        SharedPreferences sp = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
+        SharedPreferences.Editor editor = pref.edit();
         editor.putString(context.getString(R.string.pref_jwtAuthenticator), jwt);
         editor.putString(context.getString(R.string.pref_username), username); // keep track of what user is logged in
         editor.commit();
 
         mCallback.onWebRequestSuccessful(message);
+    }
+
+    private void setupLocationUpdateAlarm(SharedPreferences pref) {
+        Context context = mCallback.getContext();
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context.getString(R.string.ALARM_ACTION));
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        // inexact repeating to reduce battery drain
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000, //trigger in 5 seconds (forced by Android 5+)
+                AlarmReceiver.REPEAT_INTERVAL, alarmIntent);
+
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(context.getString(R.string.pref_currentAlarmInterval), AlarmReceiver.REPEAT_INTERVAL);
+        editor.apply();
     }
 }

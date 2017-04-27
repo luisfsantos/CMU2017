@@ -38,6 +38,11 @@
                 android:resource="@xml/sync_adapter"/>
         </service>
 
+        <receiver android:name=".network.location_update.AlarmReceiver" >
+            <intent-filter>
+                <action android:name="@string/ALARM_INTENT" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".authentication.LoginActivity"
