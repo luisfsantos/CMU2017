@@ -44,6 +44,9 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".network.location_update.LocationUpdateService"
+            android:exported="false"/>
+
         <activity
             android:name=".authentication.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar">

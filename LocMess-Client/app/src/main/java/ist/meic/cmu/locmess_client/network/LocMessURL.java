@@ -12,4 +12,5 @@ public final class LocMessURL {
     public static final String SIGNUP =  BASE_URL + "/api/user/create";
     public static final String LOGIN = BASE_URL + "/api/user/login";
     public static final String NEW_LOCATION = BASE_URL + "/api/location/create";
+    public static final String UPDATE_LOCATION = BASE_URL + "/api/messages/poll"; //FIXME replace with actual url
 }
