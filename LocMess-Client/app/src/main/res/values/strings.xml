@@ -84,6 +84,7 @@
 
     <!-- STRINGS BELOW THIS POINT ARE LOCALE INDEPENDENT -->
     <string name="account_type">ist.meic.cmu.locmess_client.network.sync.basicsyncadapter</string>
+    <string name="ALARM_ACTION">ist.meic.cmu.locmess_client.ALARM_ACTION</string>
     <string name="locmess_email_suffix">\@locmess.com</string>
 
     <!-- SHARED PREFERENCES -->
@@ -91,6 +92,11 @@
     <string name="pref_jwtAuthenticator">jwtAuth</string>
     <string name="pref_username">username</string>
     <string name="pref_currentAlarmInterval">currentAlarmInterval</string>
-    <string name="ALARM_ACTION">ist.meic.cmu.locmess_client.ALARM_ACTION</string>
+    <string name="pref_prevLocationSsids">prev_location_ssids</string>
+    <string name="pref_prevLatitude">prev_latitude</string>
+    <string name="pref_prevLongitude">prev_longitude</string>
+    <string name="pref_currLocationSsids">curr_location_ssids</string>
+    <string name="pref_currLatitude">curr_latitude</string>
+    <string name="pref_currLongitude">curr_longitude</string>
 
 </resources>

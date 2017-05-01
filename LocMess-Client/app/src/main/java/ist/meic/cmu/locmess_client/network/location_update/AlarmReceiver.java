@@ -6,13 +6,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.net.MalformedURLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
@@ -27,99 +31,204 @@ public class AlarmReceiver extends BroadcastReceiver {
     private static final String TAG = "AlarmReceiver";
     public static int REPEAT_INTERVAL = 60 * 1000; // 1 minute
     private static int MAX_REPEAT_INTERVAL = 5 * 60 * 1000; // 5 minutes
-    private static int MAX_TOLERANCE_DISTANCE = 10; // 10 meters? FIXME
+    private static float MAX_TOLERANCE_DISTANCE = 10; // 10 meters? FIXME
+    private Context mContext;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "Alarm received");
+        mContext = context;
+        boolean networkOn = isNetworkOn();
+        if (!networkOn) {
+            Intent serviceIntent = new Intent(mContext, LocationUpdateService.class);
+            context.stopService(serviceIntent);
+            doubleAlarmInterval();
+            return;
+        }
 
-        Object currentLocation = new Object(); //FIXME Stub! get current location from google location services and Termite
-        Object previousLocation = new Object(); //FIXME Stub! (get from shared pref)
-        boolean networkOn = isNetworkOn(context);
-
-        // double alarm interval if no network, or user has not changed location since the last alarm
-        if (!networkOn || !locationHasChanged(previousLocation, currentLocation)) {
-            int currentInterval = getCurrentAlarmInterval(context);
-            // we only call the method that reschedules alarm if interval is not already max
-            if (currentInterval != MAX_REPEAT_INTERVAL) {
-                int nextInterval = currentInterval * 2;
-                rescheduleAlarm(context, nextInterval);
-            }
+        LocationWrapper previousLocation = getPreviousLocation();
+        LocationWrapper  currentLocation = getCurrentLocation();
+        // also double alarm interval if location has not changed since last check
+        if (!locationHasChanged(previousLocation, currentLocation)) {
+            doubleAlarmInterval();
         } else {
             // if network is on and location has changed, we are back to "regular state"
             // set alarm back to base repeat interval, but only if not already done before
-            if (getCurrentAlarmInterval(context) != REPEAT_INTERVAL) {
-                rescheduleAlarm(context, REPEAT_INTERVAL);
+            if (getCurrentAlarmInterval() != REPEAT_INTERVAL) {
+                rescheduleAlarm(REPEAT_INTERVAL);
             }
         }
-        if (networkOn) {
-            // FIXME: (DISCUSS) 28/04/2017 i think for the case where the location has not changed but network is on, we should still fetch the messages
-            Intent serviceIntent = new Intent(context, LocationUpdateService.class);
-            Bundle bundle = new Bundle();
-            try {
-                bundle.putSerializable(LocationUpdateService.INTENT_REQUEST,
-                        new UpdateLocationRequestBuilder().build(LocMessURL.UPDATE_LOCATION, RequestData.POST));
-            } catch (MalformedURLException e) {
-                Log.wtf(TAG, "Malformed URL: " + LocMessURL.UPDATE_LOCATION);
-                return;
-            }
-            intent.putExtra(LocationUpdateService.INTENT_BUNDLE, bundle);
-            context.startService(serviceIntent);
+        saveCurrentLocationAsPrevious(currentLocation);
+        // FIXME: (DISCUSS) 28/04/2017 i think for the case where the location has not changed but network is on, we should still fetch the messages
+        Intent serviceIntent = new Intent(mContext, FetchLocationMessagesService.class);
+        Bundle bundle = new Bundle();
+        try {
+            bundle.putSerializable(FetchLocationMessagesService.INTENT_REQUEST,
+                    new UpdateLocationRequestBuilder(/*TODO params*/).build(LocMessURL.UPDATE_LOCATION, RequestData.POST));
+        } catch (MalformedURLException e) {
+            Log.wtf(TAG, "Malformed URL: " + LocMessURL.UPDATE_LOCATION);
+            return;
         }
+        serviceIntent.putExtra(FetchLocationMessagesService.INTENT_BUNDLE, bundle);
+        mContext.startService(serviceIntent);
     }
 
-    /**
-     * 1. Compares list of SSIDs from both locations. If they're different, then the location has changed.
-     * 2. Compares coordinates of both locations, using the usual trigonometry rule. There is no need
-     * to use the Haversine method, since we're comparing the distance between two locations, but this
-     * distance is constrained by time (it cannot have changed that much since the last time we
-     * calculated it - at most MAX_REPEAT_INTERVAL minutes ago), and so the Earth's curvature is irrelevant.
-     * If the distance is between the two locations is larger than MAX_TOLERANCE_DISTANCE, then the
-     * location has changed.
-     *
-     * @param previousLocation the previous detected location
-     * @param currentLocation the current detected location
-     * @return whether the location has changed
-     */
-    private boolean locationHasChanged(Object previousLocation, Object currentLocation) {
-        // TODO: 27/04/2017 compare list of ssids
-        // TODO: 27/04/2017 compare coordinates using regular distance between two points (not Haversine function!!)
-        return true;
+    private LocationWrapper getPreviousLocation(){
+        SharedPreferences pref = mContext.getSharedPreferences(
+                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        Set<String> ssids = pref.getStringSet(mContext.getString(R.string.pref_prevLocationSsids), new HashSet<String>());
+        double latitude = getDouble(pref, mContext.getString(R.string.pref_prevLatitude), LocationWrapper.NO_LATITUDE);
+        double longitude = getDouble(pref, mContext.getString(R.string.pref_prevLongitude), LocationWrapper.NO_LONGITUDE);
+        Location location = new Location("");
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+        LocationWrapper wrapper = new LocationWrapper(ssids, location);
+        Log.d(TAG, "Previous location - " + wrapper);
+        return wrapper;
     }
 
-    private int getCurrentAlarmInterval(Context context) {
-        SharedPreferences pref = context.getSharedPreferences(
-                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        return pref.getInt(context.getString(R.string.pref_currentAlarmInterval), REPEAT_INTERVAL);
+    private LocationWrapper getCurrentLocation(){
+        SharedPreferences pref = mContext.getSharedPreferences(
+                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        Set<String> ssids = pref.getStringSet(mContext.getString(R.string.pref_currLocationSsids), new HashSet<String>()); //FIXME get ssids from Termite
+        double latitude = getDouble(pref, mContext.getString(R.string.pref_currLatitude), LocationWrapper.NO_LATITUDE);
+        double longitude = getDouble(pref, mContext.getString(R.string.pref_currLongitude), LocationWrapper.NO_LONGITUDE);
+        Location location = new Location("");
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+        LocationWrapper wrapper = new LocationWrapper(ssids, location);
+        Log.d(TAG, "Current location - " + wrapper);
+        return wrapper;
     }
 
-    private void saveCurrentAlarmInterval(Context context, int intervalMillis) {
-        SharedPreferences pref = context.getSharedPreferences(
-                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+    private void saveCurrentLocationAsPrevious(LocationWrapper location){
+        SharedPreferences pref = mContext.getSharedPreferences(
+                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putInt(context.getString(R.string.pref_currentAlarmInterval), intervalMillis);
+        editor.putStringSet(
+                mContext.getString(R.string.pref_prevLocationSsids), location.getSsids()); // put ssids
+        putDouble(editor, mContext.getString(R.string.pref_prevLatitude), location.getLatitude()); // put latitude
+        putDouble(editor, mContext.getString(R.string.pref_prevLongitude), location.getLongitude()); // put longitude
         editor.apply();
     }
 
-    private void rescheduleAlarm(Context context, int intervalMillis) {
+    private boolean locationHasChanged(LocationWrapper previousLocation, LocationWrapper currentLocation) {
+        return !currentLocation.equals(previousLocation);
+    }
+
+    private int getCurrentAlarmInterval() {
+        SharedPreferences pref = mContext.getSharedPreferences(
+                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        return pref.getInt(mContext.getString(R.string.pref_currentAlarmInterval), REPEAT_INTERVAL);
+    }
+    private void saveCurrentAlarmInterval(int intervalMillis) {
+        SharedPreferences pref = mContext.getSharedPreferences(
+                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(mContext.getString(R.string.pref_currentAlarmInterval), intervalMillis);
+        editor.apply();
+    }
+
+    private void doubleAlarmInterval() {
+        int currentInterval = getCurrentAlarmInterval();
+        // we only call the method that reschedules alarm if interval is not already max
+        if (currentInterval != MAX_REPEAT_INTERVAL) {
+            int nextInterval = currentInterval * 2;
+            rescheduleAlarm(nextInterval);
+        }
+    }
+
+    private void rescheduleAlarm(int intervalMillis) {
         if (intervalMillis > MAX_REPEAT_INTERVAL) {
             intervalMillis = MAX_REPEAT_INTERVAL;
         }
         Log.i(TAG, "Setting alarm interval to " + intervalMillis);
-        AlarmManager manager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context.getString(R.string.ALARM_ACTION));
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager manager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(mContext, AlarmReceiver.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         manager.cancel(alarmIntent);
-        manager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + intervalMillis, intervalMillis, alarmIntent);
-        saveCurrentAlarmInterval(context, intervalMillis);
+        manager.setInexactRepeating(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + intervalMillis,
+                intervalMillis, alarmIntent);
+        saveCurrentAlarmInterval(intervalMillis);
     }
 
-    private boolean isNetworkOn(Context context) {
+    private SharedPreferences.Editor putDouble(final SharedPreferences.Editor edit, final String key, final double value) {
+        return edit.putLong(key, Double.doubleToRawLongBits(value));
+    }
+    private double getDouble(final SharedPreferences prefs, final String key, final double defaultValue) {
+        return Double.longBitsToDouble(prefs.getLong(key, Double.doubleToLongBits(defaultValue)));
+    }
+
+    private boolean isNetworkOn() {
         ConnectivityManager connectivityManager =
-                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected() &&
                 (networkInfo.getType() == ConnectivityManager.TYPE_WIFI
                         || networkInfo.getType() == ConnectivityManager.TYPE_MOBILE);
+    }
+
+    private class LocationWrapper {
+        private static final double NO_LATITUDE = 0.0;
+        private static final double NO_LONGITUDE = 0.0;
+
+        final Set<String> ssids;
+        final Location coordinates;
+
+        LocationWrapper(Set<String> ssids, Location coordinates) {
+            this.ssids = ssids;
+            this.coordinates = coordinates;
+        }
+
+        public Set<String> getSsids() {
+            return ssids;
+        }
+
+        public Location getCoordinates() {
+            return coordinates;
+        }
+
+        public double getLatitude() {
+            return coordinates.getLatitude();
+        }
+
+        public double getLongitude() {
+            return coordinates.getLongitude();
+        }
+
+        public boolean equals(LocationWrapper location) {
+            if (location == this) return true;
+            if (location == null) return false;
+
+            if (location.isEmpty()) return false;
+            // equality for a set means they have the same size and the same elements
+            if (!this.getSsids().equals(location.getSsids())) return false;
+
+            float distance = this.getCoordinates().distanceTo(location.getCoordinates());
+            Log.d(TAG, "distance = " + distance);
+            // if distance is within the tolerance distance, then we consider the GPS locations to be equal
+            if (distance < MAX_TOLERANCE_DISTANCE) {
+                return true;
+            }
+            return false;
+        }
+
+        public boolean isEmpty() {
+            return ssids.isEmpty() && getLatitude() == NO_LATITUDE && getLongitude() == NO_LONGITUDE;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("SSIDs: [")
+                    .append(TextUtils.join(", ", ssids))
+                    .append("] ")
+                    .append("; ")
+                    .append("latitude: ").append(getLatitude()).append(", ")
+                    .append("longitude: ").append(getLongitude());
+            return builder.toString();
+        }
     }
 }

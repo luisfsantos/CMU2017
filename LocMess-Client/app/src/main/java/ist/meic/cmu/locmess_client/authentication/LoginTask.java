@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -18,6 +19,7 @@ import ist.meic.cmu.locmess_client.network.WebRequestCallback;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.location_update.AlarmReceiver;
+import ist.meic.cmu.locmess_client.network.location_update.LocationUpdateService;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
 /**
@@ -47,7 +49,7 @@ public class LoginTask extends BaseWebTask {
     }
 
     @Override
-    protected void onPostExecute(WebRequestResult result) {
+    protected void onPostExecute(final WebRequestResult result) { //runs on the UI thread!!
         if (result != null && mCallback != null) {
             if (result.getException() != null) {
                 mCallback.onWebRequestError(mCallback.getContext().getString(R.string.something_went_wrong));
@@ -58,49 +60,72 @@ public class LoginTask extends BaseWebTask {
                 }
                 mCallback.onWebRequestError(message);
             } else if (result.getResult() != null) {
-                Context context = mCallback.getContext();
-                SharedPreferences pref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-                setupLocationUpdateAlarm(pref);
-                storeJwtAuth(pref, result.getResult());
+                //runs on another thread, not on UI thread :)
+                Handler handler = new Handler();
+                MyRunnable runnable = new MyRunnable(mCallback.getContext(), result);
+                handler.post(runnable);
             }
         }
     }
 
-    private void storeJwtAuth(SharedPreferences pref, String result) {
-        String jwt;
-        Context context = mCallback.getContext();
-        String message;
+    private class MyRunnable implements Runnable {
 
-        Gson gson = new Gson();
-        JsonObjectAPI json = gson.fromJson(result, JsonObjectAPI.class);
-        JsonObject data = json.getData();
-        jwt = data.get("jwt").getAsString();
-        message = data.get(RequestBuilder.INFO).getAsString();
-        Log.d(TAG, "jwt: " + jwt);
-        if (jwt == null) {
-            mCallback.onWebRequestError(context.getString(R.string.something_went_wrong));
-            return;
+        Context context;
+        SharedPreferences pref;
+        WebRequestResult result;
+
+        public MyRunnable(Context context, WebRequestResult result) {
+            this.context = context;
+            pref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+            this.result = result;
         }
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString(context.getString(R.string.pref_jwtAuthenticator), jwt);
-        editor.putString(context.getString(R.string.pref_username), username); // keep track of what user is logged in
-        editor.commit();
 
-        mCallback.onWebRequestSuccessful(message);
-    }
+        @Override
+        public void run() {
+            setupLocationUpdates(pref);
+            storeJwtAuth(pref, result.getResult());
+        }
 
-    private void setupLocationUpdateAlarm(SharedPreferences pref) {
-        Context context = mCallback.getContext();
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context.getString(R.string.ALARM_ACTION));
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        private void storeJwtAuth(SharedPreferences pref, String result) {
+            String jwt;
+            Context context = mCallback.getContext();
+            String message;
 
-        // inexact repeating to reduce battery drain
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000, //trigger in 5 seconds (forced by Android 5+)
-                AlarmReceiver.REPEAT_INTERVAL, alarmIntent);
+            Gson gson = new Gson();
+            JsonObjectAPI json = gson.fromJson(result, JsonObjectAPI.class);
+            JsonObject data = json.getData();
+            jwt = data.get("jwt").getAsString();
+            message = data.get(RequestBuilder.INFO).getAsString();
+            Log.d(TAG, "jwt: " + jwt);
+            if (jwt == null) {
+                mCallback.onWebRequestError(context.getString(R.string.something_went_wrong));
+                return;
+            }
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString(context.getString(R.string.pref_jwtAuthenticator), jwt);
+            editor.putString(context.getString(R.string.pref_username), username); // keep track of what user is logged in
+            editor.apply();
 
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putInt(context.getString(R.string.pref_currentAlarmInterval), AlarmReceiver.REPEAT_INTERVAL);
-        editor.apply();
+            mCallback.onWebRequestSuccessful(message);
+        }
+
+        private void setupLocationUpdates(SharedPreferences pref) {
+            Context context = mCallback.getContext();
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            alarmManager.cancel(pendingIntent);
+
+            // inexact repeating to reduce battery drain
+            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000, //trigger in 5 seconds (forced by Android 5+)
+                    AlarmReceiver.REPEAT_INTERVAL, pendingIntent);
+
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putInt(context.getString(R.string.pref_currentAlarmInterval), AlarmReceiver.REPEAT_INTERVAL);
+            editor.apply();
+
+            Intent serviceIntent = new Intent(context, LocationUpdateService.class);
+            context.startService(serviceIntent);
+        }
     }
 }
