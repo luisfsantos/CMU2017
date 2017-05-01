@@ -48,8 +48,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         LocationWrapper previousLocation = getPreviousLocation();
         LocationWrapper  currentLocation = getCurrentLocation();
-        // also double alarm interval if location has not changed since last check
-        if (!locationHasChanged(previousLocation, currentLocation)) {
+        if (previousLocation.isEmpty() && currentLocation.isEmpty()) {
+            return;
+        } else
+            // also double alarm interval if location has not changed since last check
+            if (!locationHasChanged(previousLocation, currentLocation)) {
             doubleAlarmInterval();
         } else {
             // if network is on and location has changed, we are back to "regular state"
@@ -58,6 +61,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 rescheduleAlarm(REPEAT_INTERVAL);
             }
         }
+
         saveCurrentLocationAsPrevious(currentLocation);
         // FIXME: (DISCUSS) 28/04/2017 i think for the case where the location has not changed but network is on, we should still fetch the messages
         Intent serviceIntent = new Intent(mContext, FetchLocationMessagesService.class);

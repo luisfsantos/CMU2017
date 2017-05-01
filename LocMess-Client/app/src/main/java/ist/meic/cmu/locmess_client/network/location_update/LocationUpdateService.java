@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -20,13 +21,19 @@ import com.google.android.gms.location.LocationServices;
 
 import ist.meic.cmu.locmess_client.R;
 
+import static android.app.Activity.RESULT_OK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 /**
  * Created by Catarina on 01/05/2017.
  */
 
-public class LocationUpdateService extends Service implements GoogleApiClient.ConnectionCallbacks, LocationListener {
+public class LocationUpdateService extends Service implements GoogleApiClient.ConnectionCallbacks,
+        LocationListener {
 
     private static final String TAG = "LocationUpdateService";
+    public static final String KEY_RECEIVER = "PermissionReceiver";
+    public static final String KEY_RESULT = "PermissionResult";
     GoogleApiClient googleApiClient;
     private static final long UPDATE_INTERVAL = 90 * 1000; // 1 minute 30 seconds
     private static final long FASTEST_UPDATE_INTERVAL = 60 * 1000; // 1 minute
@@ -55,15 +62,23 @@ public class LocationUpdateService extends Service implements GoogleApiClient.Co
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Registering request for location updates...");
-            LocationRequest locationRequest = LocationRequest.create()
-                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                    .setInterval(UPDATE_INTERVAL)
-                    .setFastestInterval(FASTEST_UPDATE_INTERVAL);
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            requestLocationUpdates();
         } else {
-            Log.i(TAG, "No permission to access fine location");
-            stopSelf();
+            Log.i(TAG, "Requesting permission to access fine location");
+            Intent intent = new Intent(this, LocationPermissionsActivity.class);
+            intent.putExtra(KEY_RECEIVER, new PermissionReceiver());
+            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
+    }
+
+    @SuppressWarnings("MissingPermission")
+    private void requestLocationUpdates() {
+        LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(UPDATE_INTERVAL)
+                .setFastestInterval(FASTEST_UPDATE_INTERVAL);
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
     @Override
@@ -79,9 +94,30 @@ public class LocationUpdateService extends Service implements GoogleApiClient.Co
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "Stopping service...");
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
         googleApiClient.disconnect();
         super.onDestroy();
+    }
+
+    private class PermissionReceiver extends ResultReceiver {
+        PermissionReceiver() {
+            super(null);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode == RESULT_OK) {
+                if (resultData.getInt(KEY_RESULT) == PackageManager.PERMISSION_GRANTED) {
+                    requestLocationUpdates();
+                } else {
+                    Log.i(TAG, "No permission to access fine location");
+                    stopSelf();
+                }
+            } else {
+                Log.wtf(TAG, "Received wrong result from LocationPermissionActivity");
+            }
+        }
     }
 
 

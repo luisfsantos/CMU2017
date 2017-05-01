@@ -49,6 +49,8 @@
             android:exported="false"/>
         <service android:name=".network.location_update.FetchLocationMessagesService"
             android:exported="false"/>
+        <activity android:name=".network.location_update.LocationPermissionsActivity"
+            android:theme="@style/Theme.AppCompat.Dialog"/>
 
         <activity
             android:name=".authentication.LoginActivity"
