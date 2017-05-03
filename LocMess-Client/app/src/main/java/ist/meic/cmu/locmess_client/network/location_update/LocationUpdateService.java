@@ -8,8 +8,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
+import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.ResultReceiver;
 import android.util.Log;
@@ -28,8 +30,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
  * Created by Catarina on 01/05/2017.
  */
 
-public class LocationUpdateService extends Service implements GoogleApiClient.ConnectionCallbacks,
-        LocationListener {
+public class LocationUpdateService extends Service implements LocationListener {
 
     private static final String TAG = "LocationUpdateService";
     public static final String KEY_RECEIVER = "PermissionReceiver";
@@ -37,13 +38,50 @@ public class LocationUpdateService extends Service implements GoogleApiClient.Co
     GoogleApiClient googleApiClient;
     private static final long UPDATE_INTERVAL = 90 * 1000; // 1 minute 30 seconds
     private static final long FASTEST_UPDATE_INTERVAL = 60 * 1000; // 1 minute
+    private volatile ServiceHandler mHandler;
+    private volatile Looper mServiceLooper;
+
+    private final class ServiceHandler extends Handler implements GoogleApiClient.ConnectionCallbacks {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void onConnected(Bundle bundle) {
+            if (ContextCompat.checkSelfPermission(LocationUpdateService.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Registering request for location updates...");
+                requestLocationUpdates();
+            } else {
+                Log.i(TAG, "Requesting permission to access fine location");
+                Intent intent = new Intent(LocationUpdateService.this, LocationPermissionsActivity.class);
+                intent.putExtra(KEY_RECEIVER, new PermissionReceiver());
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        }
+
+        @Override
+        public void onConnectionSuspended(int i) {
+            Log.i(TAG, "Google API Client connection suspended");
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        HandlerThread thread = new HandlerThread(TAG);
+        thread.start();
+        mServiceLooper = thread.getLooper();
+        mHandler = new ServiceHandler(mServiceLooper);
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Starting service...");
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
+                    .addConnectionCallbacks(mHandler)
                     .addApi(LocationServices.API)
                     .build();
             googleApiClient.connect();
@@ -51,25 +89,9 @@ public class LocationUpdateService extends Service implements GoogleApiClient.Co
         return super.onStartCommand(intent, flags, startId);
     }
 
-    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Registering request for location updates...");
-            requestLocationUpdates();
-        } else {
-            Log.i(TAG, "Requesting permission to access fine location");
-            Intent intent = new Intent(this, LocationPermissionsActivity.class);
-            intent.putExtra(KEY_RECEIVER, new PermissionReceiver());
-            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }
     }
 
     @SuppressWarnings("MissingPermission")
@@ -79,11 +101,6 @@ public class LocationUpdateService extends Service implements GoogleApiClient.Co
                 .setInterval(UPDATE_INTERVAL)
                 .setFastestInterval(FASTEST_UPDATE_INTERVAL);
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.i(TAG, "Google API Client connection suspended");
     }
 
     @Override
