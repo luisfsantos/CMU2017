@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import java.net.MalformedURLException;
 
 import ist.meic.cmu.locmess_client.network.RequestData;
-import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 
 /**
  * Created by Catarina on 22/04/2017.
@@ -28,11 +27,11 @@ public class UserRequestBuilder implements RequestBuilder {
     }
 
     private String buildJson() {
-        JsonObjectAPI json = new JsonObjectAPI();
+//        JsonObjectAPI json = new JsonObjectAPI();
         JsonObject data = new JsonObject();
         data.addProperty(USERNAME, username);
         data.addProperty(PASSWORD, password);
-        json.setData(data);
-        return gson.toJson(json);
+//        json.setData(data);
+        return gson.toJson(data);
     }
 }

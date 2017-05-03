@@ -3,9 +3,6 @@ package ist.meic.cmu.locmess_client.network;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import java.util.ArrayList;
-
-import ist.meic.cmu.locmess_client.network.json.Error;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
@@ -34,7 +31,7 @@ public class WebRequestResult {
     public String getResultStatusMessage() {
         JsonObjectAPI json = gson.fromJson(mResult, JsonObjectAPI.class);
         JsonObject data = json.getData();
-        return data.get(RequestBuilder.INFO).getAsString();
+        return data.get(RequestBuilder.STATUS).getAsString();
     }
 
     public void setResult(String mResult) {
@@ -46,13 +43,15 @@ public class WebRequestResult {
     }
 
     public String getErrorMessages() {
-        JsonObjectAPI json = gson.fromJson(mError, JsonObjectAPI.class);
-        ArrayList<Error> errors = json.getErrors();
+//        JsonObjectAPI json = gson.fromJson(mError, JsonObjectAPI.class);
+//        ArrayList<Error> errors = json.getErrors();
         StringBuilder builder = new StringBuilder();
-        for (Error error : errors) {
-            builder.append(error.getMessage());
-            builder.append("\n");
-        }
+        // FIXME: 03/05/2017 redo this when api changes
+        builder.append("TODO: Error message placeholder.");
+//        for (Error error : errors) {
+//            builder.append(error.getMessage());
+//            builder.append("\n");
+//        }
         return builder.toString();
     }
 

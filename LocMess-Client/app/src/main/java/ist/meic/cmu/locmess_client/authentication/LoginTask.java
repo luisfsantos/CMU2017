@@ -17,7 +17,6 @@ import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestCallback;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
-import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.location_update.AlarmReceiver;
 import ist.meic.cmu.locmess_client.network.location_update.LocationUpdateService;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
@@ -89,13 +88,10 @@ public class LoginTask extends BaseWebTask {
         private void storeJwtAuth(SharedPreferences pref, String result) {
             String jwt;
             Context context = mCallback.getContext();
-            String message;
 
             Gson gson = new Gson();
-            JsonObjectAPI json = gson.fromJson(result, JsonObjectAPI.class);
-            JsonObject data = json.getData();
-            jwt = data.get("jwt").getAsString();
-            message = data.get(RequestBuilder.INFO).getAsString();
+            JsonObject data = gson.fromJson(result, JsonObject.class);
+            jwt = data.get(RequestBuilder.TOKEN).getAsString();
             Log.d(TAG, "jwt: " + jwt);
             if (jwt == null) {
                 mCallback.onWebRequestError(context.getString(R.string.something_went_wrong));
@@ -106,7 +102,7 @@ public class LoginTask extends BaseWebTask {
             editor.putString(context.getString(R.string.pref_username), username); // keep track of what user is logged in
             editor.apply();
 
-            mCallback.onWebRequestSuccessful(message);
+            mCallback.onWebRequestSuccessful("User " + username + " logged in");
         }
 
         private void setupLocationUpdates(SharedPreferences pref) {

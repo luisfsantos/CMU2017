@@ -13,14 +13,16 @@ import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
  */
 
 public class GpsLocationRequestBuilder implements RequestBuilder {
-    private String name;
-    private double latitude;
-    private double longitude;
-    private double radius;
+    private final String name;
+    private final double latitude;
+    private final double longitude;
+    private final double radius;
+    private final String date_created;
     Gson gson;
 
-    public GpsLocationRequestBuilder(String name, double latitude, double longitude, double radius) {
+    public GpsLocationRequestBuilder(String name, String date, double latitude, double longitude, double radius) {
         this.name = name;
+        this.date_created = date;
         this.latitude = latitude;
         this.longitude = longitude;
         this.radius = radius;
@@ -36,10 +38,13 @@ public class GpsLocationRequestBuilder implements RequestBuilder {
         JsonObjectAPI json = new JsonObjectAPI();
         JsonObject data = new JsonObject();
         data.addProperty(NAME, name);
-        data.addProperty(TYPE, TYPE_GPS);
-        data.addProperty(LATITUDE, latitude);
-        data.addProperty(LONGITUDE, longitude);
-        data.addProperty(RADIUS, radius);
+        data.addProperty(CREATION_DATE, date_created);
+        JsonObject coordinate = new JsonObject();
+        coordinate.addProperty(TYPE, TYPE_GPS);
+        coordinate.addProperty(LATITUDE, latitude);
+        coordinate.addProperty(LONGITUDE, longitude);
+        coordinate.addProperty(RADIUS, radius);
+        data.add(COORDINATE, coordinate);
         json.setData(data);
         return gson.toJson(json);
     }

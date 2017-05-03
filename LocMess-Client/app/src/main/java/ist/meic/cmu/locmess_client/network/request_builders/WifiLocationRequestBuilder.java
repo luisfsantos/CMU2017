@@ -15,12 +15,14 @@ import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
  */
 
 public class WifiLocationRequestBuilder implements RequestBuilder {
-    private String name;
-    private List<String> ssids;
+    private final String name;
+    private final List<String> ssids;
+    private final String date_created;
     Gson gson;
 
-    public WifiLocationRequestBuilder(String name, List<String> ssids) {
+    public WifiLocationRequestBuilder(String name, String date, List<String> ssids) {
         this.name = name;
+        this.date_created = date;
         this.ssids = ssids;
         gson = new Gson();
     }
@@ -34,12 +36,17 @@ public class WifiLocationRequestBuilder implements RequestBuilder {
         JsonObjectAPI json = new JsonObjectAPI();
         JsonObject data = new JsonObject();
         data.addProperty(NAME, name);
-        data.addProperty(TYPE, TYPE_WIFI);
+        data.addProperty(CREATION_DATE, date_created);
+        JsonObject coordinate = new JsonObject();
+        coordinate.addProperty(TYPE, TYPE_WIFI);
         JsonArray jssids = new JsonArray();
         for (String ssid : ssids) {
-            jssids.add(ssid);
+            JsonObject jssid = new JsonObject();
+            jssid.addProperty(NAME, ssid);
+            jssids.add(jssid);
         }
-        data.add(SSIDS, jssids);
+        coordinate.add(SSIDS, jssids);
+        data.add(COORDINATE, coordinate);
         json.setData(data);
         return gson.toJson(json);
     }

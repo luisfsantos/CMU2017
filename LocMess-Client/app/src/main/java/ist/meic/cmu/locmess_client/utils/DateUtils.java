@@ -7,7 +7,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
+import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 
 /**
@@ -15,6 +17,7 @@ import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
  */
 
 public class DateUtils {
+    private DateUtils(){}
 
     public static String formatDate(Date date) {
         return SimpleDateFormat.getDateInstance().format(date);
@@ -58,5 +61,13 @@ public class DateUtils {
             localeDate = new SimpleDateFormat(LocMessDBContract.SIMPLE_DATE_FORMAT).parse(dbDate);
         } catch (ParseException e) { e.printStackTrace(); }
         return formatDate(localeDate);
+    }
+
+    public static String formatDateTimeISO8601(Calendar calendar) {
+        return new SimpleDateFormat(RequestBuilder.DATE_FORMAT, Locale.getDefault()).format(calendar.getTime());
+    }
+
+    public static String formatDateTimeISO8601(Date date) {
+        return new SimpleDateFormat(RequestBuilder.DATE_FORMAT, Locale.getDefault()).format(date);
     }
 }

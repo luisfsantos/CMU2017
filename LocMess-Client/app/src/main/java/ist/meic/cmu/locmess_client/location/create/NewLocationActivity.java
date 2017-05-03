@@ -179,29 +179,34 @@ public class NewLocationActivity extends AppCompatActivity {
     }
 
     private void createGpsLocation(String name, String latitude, String longitude, String radius) throws MalformedURLException {
-        String date = DateUtils.formatDateTimeLocaleToDb(new Date());
+        Date now = new Date();
+        String dbDate = DateUtils.formatDateTimeLocaleToDb(now);
+        String isoDate = DateUtils.formatDateTimeISO8601(now);
         String coordinates = CoordinatesUtils.formatGpsToDb(latitude, longitude, radius);
 
-        RequestData data = new GpsLocationRequestBuilder(name,
+        RequestData data = new GpsLocationRequestBuilder(name, isoDate,
                 Double.parseDouble(latitude),
                 Double.parseDouble(longitude),
                 Double.parseDouble(radius)
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
-        saveToDb(name, date, coordinates);
+        saveToDb(name, dbDate, coordinates);
         SyncUtils.push(data);
     }
 
     private void createWifiLocation(String name, List<String> ssids) throws MalformedURLException {
-        String date = DateUtils.formatDateTimeLocaleToDb(new Date());
+        Date now = new Date();
+        String dbDate = DateUtils.formatDateTimeLocaleToDb(now);
+        String isoDate = DateUtils.formatDateTimeISO8601(now);
         String ssidString = CoordinatesUtils.formatWifiToDb(ssids);
 
         RequestData data = new WifiLocationRequestBuilder(
                 name,
+                isoDate,
                 ssids
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
-        saveToDb(name, date, ssidString);
+        saveToDb(name, dbDate, ssidString);
         SyncUtils.push(data);
     }
 

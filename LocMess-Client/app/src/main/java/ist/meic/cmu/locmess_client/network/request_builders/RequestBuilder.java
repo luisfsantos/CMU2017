@@ -9,10 +9,14 @@ import ist.meic.cmu.locmess_client.network.RequestData;
  */
 
 public interface RequestBuilder {
-    String INFO = "info";
+    String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
+    String STATUS = "status";
+    String TOKEN = "token";
     String USERNAME = "username";
     String PASSWORD = "password";
     String NAME = "name";
+    String CREATION_DATE = "creation_date";
+    String COORDINATE = "coordinate";
     String LATITUDE = "latitude";
     String LONGITUDE = "longitude";
     String RADIUS = "radius";

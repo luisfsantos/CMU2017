@@ -8,12 +8,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Catarina on 21/04/2017.
  */
 
 public class WebRequest {
+    private static final Set<Integer> STATUS_CODES = new HashSet<>();
+    static {
+        STATUS_CODES.add(HttpURLConnection.HTTP_OK);
+        STATUS_CODES.add(HttpURLConnection.HTTP_CREATED);
+        STATUS_CODES.add(HttpURLConnection.HTTP_ACCEPTED);
+    }
     private static final String TAG = "WebRequest";
     private static final int CONN_TIMEOUT = 15;
     private static final int READ_TIMEOUT = 10;
@@ -44,9 +52,8 @@ public class WebRequest {
             connection.setDoInput(true);
             connection.setRequestProperty("Content-Type", "application/json");
             if (mAuth != null) {
-//                connection.setRequestProperty("Authorization", "Bearer " + mAuth);
                 Log.i(TAG, "Setting jwt header to: " + mAuth);
-                connection.setRequestProperty("Bearer", mAuth);
+                connection.setRequestProperty("Authorization", "JWT " + mAuth);
             }
             if (mRequest.getRequestMethod() == RequestData.GET) {
                 connection.setRequestMethod("GET");
@@ -61,7 +68,7 @@ public class WebRequest {
             }
             connection.connect();
             int responseCode = connection.getResponseCode();
-            if (responseCode != HttpURLConnection.HTTP_OK) {
+            if (!STATUS_CODES.contains(responseCode)) {
                 in = connection.getErrorStream();
                 result = new WebRequestResult();
                 result.setError(readStream(in));
