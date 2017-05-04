@@ -12,7 +12,7 @@ public class LocMessDBContract {
     public static final String SIMPLE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static final String COLUMN_ACCOUNT_HASH = "account_hash";
-
+    public static final String COLUMN_SERVER_ID = "server_id";
     private LocMessDBContract(){
 
     }
@@ -31,7 +31,8 @@ public class LocMessDBContract {
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.KeyPair._ID,
                 LocMessDBContract.KeyPair.COLUMN_KEY,
-                LocMessDBContract.KeyPair.COLUMN_VALUE
+                LocMessDBContract.KeyPair.COLUMN_VALUE,
+                LocMessDBContract.COLUMN_SERVER_ID
         };
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
@@ -39,6 +40,7 @@ public class LocMessDBContract {
                 _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_KEY + " TEXT, " +
                 COLUMN_VALUE + " TEXT, " +
+                COLUMN_SERVER_ID + " INTEGER, " +
                 COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
     }
 
@@ -63,6 +65,7 @@ public class LocMessDBContract {
                 COLUMN_AUTHOR + " TEXT, " +
                 COLUMN_DATE_CREATED + " TEXT, " +
                 COLUMN_COORDINATES + " TEXT, " +
+                COLUMN_SERVER_ID + " INTEGER, " +
                 COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
@@ -70,7 +73,8 @@ public class LocMessDBContract {
                 LocMessDBContract.Location.COLUMN_NAME,
                 LocMessDBContract.Location.COLUMN_AUTHOR,
                 LocMessDBContract.Location.COLUMN_DATE_CREATED,
-                LocMessDBContract.Location.COLUMN_COORDINATES
+                LocMessDBContract.Location.COLUMN_COORDINATES,
+                LocMessDBContract.COLUMN_SERVER_ID
         };
     }
 
@@ -98,6 +102,7 @@ public class LocMessDBContract {
                 // FIXME: 14/04/2017 note that if it is a foreign key then there will be problems in retrieving info if location is deleted
                 COLUMN_DATE_FROM + " TEXT, " +
                 COLUMN_DATE_TO + " TEXT, " +
+                COLUMN_SERVER_ID + " INTEGER, " +
                 COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
@@ -106,7 +111,8 @@ public class LocMessDBContract {
                 LocMessDBContract.PostedMessages.COLUMN_CONTENT,
                 LocMessDBContract.PostedMessages.COLUMN_LOCATION,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_FROM,
-                LocMessDBContract.PostedMessages.COLUMN_DATE_TO
+                LocMessDBContract.PostedMessages.COLUMN_DATE_TO,
+                LocMessDBContract.COLUMN_SERVER_ID
         };
     }
 

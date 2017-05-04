@@ -240,7 +240,102 @@ public class LocMessProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
-        return 0;
+        int count;
+        StringBuilder finalSelection = new StringBuilder();
+        finalSelection
+                .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                .append(" = ")
+                .append(getUsernameHash());
+        switch (sUriMatcher.match(uri)) {
+            case KEYPAIRS:
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.KeyPair.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
+            case KEYPAIRS_ID:
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.KeyPair._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.KeyPair.ID_PATH_SEGMENT_INDEX));
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.KeyPair.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
+            case LOCATIONS:
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.Location.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
+            case LOCATIONS_ID:
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.Location._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.Location.ID_PATH_SEGMENT_INDEX));
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.Location.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
+            case POSTED_MESSAGES:
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.PostedMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
+            case POSTED_MESSAGES_ID:
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.PostedMessages._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.PostedMessages.ID_PATH_SEGMENT_INDEX));
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.PostedMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
+            case OPENED_MESSAGES:
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.OpenedMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
+            case OPENED_MESSAGES_ID:
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.OpenedMessages._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.OpenedMessages.ID_PATH_SEGMENT_INDEX));
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.OpenedMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 
     @Override
