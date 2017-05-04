@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.network.sync;
+package ist.meic.cmu.locmess_client.network.sync.merge;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -23,15 +23,15 @@ import ist.meic.cmu.locmess_client.utils.DateUtils;
  * Created by Catarina on 04/05/2017.
  */
 
-public class MergeUtils {
-    private static final String TAG = "MergeUtils";
-    private MergeUtils() {}
+public class MergeLocation {
+    private static final String TAG = "MergeLocation";
+    private MergeLocation() {}
 
-    static void mergeLocations(ContentResolver contentResolver, JsonArray locations, SyncResult syncResult) throws RemoteException, OperationApplicationException {
+    public static void mergeAll(ContentResolver contentResolver, JsonArray locations, SyncResult syncResult) throws RemoteException, OperationApplicationException {
         Log.i(TAG, "Parsing json into Location map");
         HashMap<Integer, LocationSerializer.Location> remoteLocations =
                 new LocationSerializer().parseAll(locations);
-        Log.i(TAG, "Parsing complete. Found " + remoteLocations.size() + " entries");
+        Log.i(TAG, "Parsing complete. Found " + remoteLocations.size() + " remote entries");
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
@@ -41,7 +41,7 @@ public class MergeUtils {
                 LocMessDBContract.Location.DEFAULT_PROJECTION,
                 null, null, null);
         assert c != null;
-        Log.i(TAG, "Found " +  c.getCount() + " local entries. Computing merge solution...");
+        Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
 
         // find stale data
         int serverId;
@@ -87,3 +87,4 @@ public class MergeUtils {
                 false);                                 // IMPORTANT: do not sync do network
     }
 }
+

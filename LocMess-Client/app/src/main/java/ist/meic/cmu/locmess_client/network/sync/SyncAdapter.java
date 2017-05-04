@@ -7,34 +7,29 @@ package ist.meic.cmu.locmess_client.network.sync;
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.stream.Stream;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
-import ist.meic.cmu.locmess_client.network.json.serializers.LocationSerializer;
-import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
+import ist.meic.cmu.locmess_client.network.sync.merge.MergeLocation;
 
 /**
  * Define a sync adapter for the app.
@@ -123,24 +118,24 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         @RequestData.RequestMethod int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
         String json = extras.getString(SyncUtils.REQUEST_JSON);
         RequestData request = new RequestData(url, requestMethod, json);
-        @WebRequestResult.ReturnedObject String returnedObj;
+        @WebRequestResult.ReturnedObject String returnedObjLabel;
         @SyncUtils.PushWhat int pushWhat = extras.getInt(SyncUtils.PUSH_WHAT, SyncUtils.NO_PUSH);
         switch (pushWhat) {
             case SyncUtils.CREATE_LOCATION:
-                returnedObj = WebRequestResult.LOCATION;
+                returnedObjLabel = WebRequestResult.LOCATION;
                 break;
             case SyncUtils.CREATE_MESSAGE:
-                returnedObj = WebRequestResult.MESSAGE;
+                returnedObjLabel = WebRequestResult.MESSAGE;
                 break;
             case SyncUtils.CREATE_KEYPAIR:
-                returnedObj = null; // FIXME: 04/05/2017
+                returnedObjLabel = null; // FIXME: 04/05/2017
                 break;
             case SyncUtils.DELETE_MESSAGE:
             case SyncUtils.DELETE_KEYPAIR:
             case SyncUtils.DELETE_LOCATION:
             case SyncUtils.NO_PUSH:
             default:
-                returnedObj = null;
+                returnedObjLabel = null;
                 Log.i(TAG, "Syncing without expecting a result from the server.");
                 break;
         }
@@ -148,12 +143,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
         WebRequestResult response = new WebRequest(request, jwt).execute();
-        if (returnedObj != null) {
-            updateWithServerId(response.getResult(), returnedObj);
+        if (returnedObjLabel != null) {
+            updateWithServerId(response.getResult(), returnedObjLabel);
         }
     }
 
-    private void updateWithServerId(String json, @WebRequestResult.ReturnedObject String returnedObj) {
+    private void updateWithServerId(String result, @WebRequestResult.ReturnedObject String returnedObj) {
         // TODO: 04/05/2017
     }
 
@@ -180,7 +175,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 JsonObjectAPI jresult = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
                 JsonArray jlocations = jresult.getData().getAsJsonArray(returnedObjLabel);
                 Log.d(TAG, "Locations: " + jlocations.toString());
-                MergeUtils.mergeLocations(mContentResolver, jlocations, syncResult);
+                MergeLocation.mergeAll(mContentResolver, jlocations, syncResult);
                 break;
             case SyncUtils.PULL_KEYPAIRS:
                 // TODO: 04/05/2017
