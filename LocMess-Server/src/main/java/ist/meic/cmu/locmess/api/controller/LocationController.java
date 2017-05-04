@@ -14,6 +14,7 @@ import ist.meic.cmu.locmess.api.json.JsonListAPI;
 import ist.meic.cmu.locmess.api.json.JsonObjectAPI;
 import ist.meic.cmu.locmess.api.json.wrappers.LocationWrapper;
 import ist.meic.cmu.locmess.database.Settings;
+import ist.meic.cmu.locmess.domain.location.Coordinate;
 import ist.meic.cmu.locmess.domain.location.GPSCoordinate;
 import ist.meic.cmu.locmess.domain.location.Location;
 import jwtAuthentication.UserContext;
@@ -82,9 +83,12 @@ public class LocationController extends AuthenticatedController{
                     new JdbcConnectionSource(Settings.DB_URI);
 
             Dao<Location, String> locationDAO = DaoManager.createDao(connectionSource, Location.class);
+            Dao<Coordinate, String> coordinateDao = DaoManager.createDao(connectionSource, Coordinate.class);
             TableUtils.createTableIfNotExists(connectionSource, Location.class);
-            System.out.println("username: " + getUser());
-            location = new Location("arco", getUser(), new GPSCoordinate(21.1, 23.1, 20), new Date());
+            TableUtils.createTableIfNotExists(connectionSource, Coordinate.class);
+            Coordinate coordinate = new Coordinate(Double.valueOf(22.1), Double.valueOf(23.1), Double.valueOf(23.1));
+            coordinateDao.create(coordinate);
+            location = new Location("arco", getUser(), coordinate, new Date());
             locationDAO.create(location);
             connectionSource.close();
 
@@ -102,8 +106,8 @@ public class LocationController extends AuthenticatedController{
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET,produces ="application/json")
-    public ResponseEntity<JsonObjectAPI> list() {
-    	 JsonObjectAPI response = new JsonObjectAPI();;
+    public ResponseEntity<JsonListAPI> list() {
+    	 JsonListAPI response = new JsonListAPI();;
     	logger.info("request locations");
     	List<Location> locations=null;
     	try {
@@ -112,7 +116,7 @@ public class LocationController extends AuthenticatedController{
 
             Dao<Location, String> locationDAO = DaoManager.createDao(connectionSource, Location.class);
             TableUtils.createTableIfNotExists(connectionSource, Location.class);
-            locations= locationDAO.queryForAll();
+            locations = locationDAO.queryForAll();
             connectionSource.close();
 
         } catch (SQLException e) {
@@ -120,10 +124,10 @@ public class LocationController extends AuthenticatedController{
             e.printStackTrace();
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
-    	JsonObject data = new JsonObject();
-        data.addProperty("code", 0);
-        data.addProperty("status", "List locations with sucess");
-        data.addProperty("locations", gson.toJson(locations));
+    	JsonArray data = new JsonArray();
+        for (Location l: locations) {
+            data.add(gson.toJsonTree(new LocationWrapper(l), LocationWrapper.class));
+        }
         response.setData(data);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

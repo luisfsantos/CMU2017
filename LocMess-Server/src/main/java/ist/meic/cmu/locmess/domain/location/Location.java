@@ -1,8 +1,5 @@
 package ist.meic.cmu.locmess.domain.location;
 
-import java.util.Date;
-import java.sql.SQLException;
-
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DatabaseField;
@@ -10,11 +7,11 @@ import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
 import com.j256.ormlite.table.TableUtils;
-import ist.meic.cmu.locmess.api.json.Error;
 import ist.meic.cmu.locmess.database.Settings;
 import ist.meic.cmu.locmess.domain.users.User;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
+import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * Created by lads on 22/04/2017.
@@ -27,16 +24,16 @@ public class Location {
     @DatabaseField(canBeNull = false)
     String name;
     
-    @DatabaseField(canBeNull = false, foreign = true)
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
     Coordinate coordinates;
-    
+
     @DatabaseField(canBeNull = false)
     Date date;
     
     @DatabaseField(canBeNull = false, foreign = true)
     User author;
 
-    public Location(String name, User author ,Coordinate coordinates,Date date) {
+    public Location(String name, User author ,Coordinate coordinates, Date date) {
         this.name = name;
         this.coordinates=coordinates;
         this.author=author;
@@ -75,10 +72,6 @@ public class Location {
 
 	public void setCoordinates(Coordinate coordinates) {
 		this.coordinates = coordinates;
-	}
-	
-	public CoordinateType getType(){
-		return this.coordinates.getType();
 	}
 
 	public Date getDate() {

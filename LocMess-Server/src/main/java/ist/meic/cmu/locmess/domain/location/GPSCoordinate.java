@@ -1,13 +1,8 @@
 package ist.meic.cmu.locmess.domain.location;
 
-import com.j256.ormlite.field.DatabaseField;
-
 public class GPSCoordinate extends Coordinate{
-	@DatabaseField
 	double longitude;
-	@DatabaseField
 	double latitude;
-	@DatabaseField
 	double radius;
 	
 	public GPSCoordinate (){
@@ -23,27 +18,27 @@ public class GPSCoordinate extends Coordinate{
 	}
 
 
-	public double getLongitude() {
+	public Double getLongitude() {
 		return longitude;
 	}
 
 
-	public void setLongitude(double longitude) {
+	public void setLongitude(Double longitude) {
 		this.longitude = longitude;
 	}
 
 
-	public double getLatitude() {
+	public Double getLatitude() {
 		return latitude;
 	}
 
 
-	public void setLatitude(double latitude) {
+	public void setLatitude(Double latitude) {
 		this.latitude = latitude;
 	}
 
 
-	public double getRadius() {
+	public Double getRadius() {
 		return radius;
 	}
 
@@ -53,7 +48,7 @@ public class GPSCoordinate extends Coordinate{
 	}
 
 
-	@Override
+
 	public  boolean closeCoordinates( Coordinate c1) {
 		if (!(c1 instanceof GPSCoordinate))
 			//TODO: custom exception
