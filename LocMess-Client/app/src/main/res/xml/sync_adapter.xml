@@ -3,7 +3,7 @@
     android:contentAuthority="ist.meic.cmu.locmess_client.LocMessProvider"
     android:accountType="@string/account_type"
     android:userVisible="true"
-    android:supportsUploading="true"
+    android:supportsUploading="false"
     android:allowParallelSyncs="false"
     android:isAlwaysSyncable="true"
     />

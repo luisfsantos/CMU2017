@@ -11,8 +11,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 
@@ -33,6 +38,29 @@ public class SyncUtils {
     static final int NO_SYNC = 0;
     static final int SYNC_PULL = 1;
     static final int SYNC_PUSH = 2;
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({NO_SYNC, SYNC_PULL, SYNC_PUSH}) public @interface SyncType {}
+
+    static final String PULL_WHAT = "pull_what";
+    public static final int NO_PULL = 0;
+    public static final int PULL_LOCATIONS = 1;
+    public static final int PULL_KEYPAIRS = 2;
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({NO_PULL, PULL_LOCATIONS, PULL_KEYPAIRS})
+    public @interface PullWhat {}
+
+    static final String PUSH_WHAT = "push_what";
+    public static final int NO_PUSH = 0;
+    public static final int CREATE_LOCATION = 1;
+    public static final int DELETE_LOCATION = 2;
+    public static final int CREATE_MESSAGE = 3;
+    public static final int DELETE_MESSAGE = 4;
+    public static final int CREATE_KEYPAIR = 5;
+    public static final int DELETE_KEYPAIR = 6;
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({NO_PUSH, CREATE_LOCATION, DELETE_LOCATION, CREATE_MESSAGE, DELETE_MESSAGE, CREATE_KEYPAIR, DELETE_KEYPAIR})
+    public @interface PushWhat {}
+
 
     /**
      * Create an entry for this application in the system account list, if it isn't already there.
@@ -96,12 +124,22 @@ public class SyncUtils {
                 bundle);                                 // Extras
     }
 
-    public static void push(RequestData data) {
+    public static void push(@PushWhat int what, RequestData data) {
         Bundle bundle = new Bundle();
+        bundle.putInt(PUSH_WHAT, what);
         bundle.putInt(SYNC_TYPE, SYNC_PUSH);
         bundle.putString(REQUEST_URL, data.getStringUrl());
         bundle.putInt(REQUEST_METHOD, data.getRequestMethod());
         bundle.putString(REQUEST_JSON, data.getJson());
+        triggerSync(bundle);
+    }
+
+    public static void pull(@PullWhat int what) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(PULL_WHAT, what);
+        bundle.putInt(SYNC_TYPE, SYNC_PULL);
+        bundle.putString(REQUEST_URL, LocMessURL.LIST_LOCATIONS);
+        bundle.putInt(REQUEST_METHOD, RequestData.GET);
         triggerSync(bundle);
     }
 }

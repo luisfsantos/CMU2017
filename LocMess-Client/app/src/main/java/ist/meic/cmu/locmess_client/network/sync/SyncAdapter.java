@@ -7,19 +7,34 @@ package ist.meic.cmu.locmess_client.network.sync;
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
+import ist.meic.cmu.locmess_client.network.WebRequestResult;
+import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
+import ist.meic.cmu.locmess_client.network.json.serializers.LocationSerializer;
+import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 
 /**
  * Define a sync adapter for the app.
@@ -34,34 +49,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String TAG = "SyncAdapter";
 
     /**
-     * URL to fetch content from during a sync.
-     *
-     * <p>This points to the Android Developers Blog. (Side note: We highly recommend reading the
-     * Android Developer Blog to stay up to date on the latest Android platform developments!)
-     */
-    private static final String FEED_URL = "http://android-developers.blogspot.com/atom.xml";
-
-    /**
      * Content resolver, for performing database operations.
      */
     private final ContentResolver mContentResolver;
-
-    /**
-     * Project used when querying content provider. Returns all known fields.
-     */
-//    private static final String[] PROJECTION = new String[] {
-//            FeedContract.Entry._ID,
-//            FeedContract.Entry.COLUMN_NAME_ENTRY_ID,
-//            FeedContract.Entry.COLUMN_NAME_TITLE,
-//            FeedContract.Entry.COLUMN_NAME_LINK,
-//            FeedContract.Entry.COLUMN_NAME_PUBLISHED};
-//
-//    // Constants representing column positions from PROJECTION.
-//    public static final int COLUMN_ID = 0;
-//    public static final int COLUMN_ENTRY_ID = 1;
-//    public static final int COLUMN_TITLE = 2;
-//    public static final int COLUMN_LINK = 3;
-//    public static final int COLUMN_PUBLISHED = 4;
 
     /**
      * Constructor. Obtains handle to content resolver for later use.
@@ -99,15 +89,18 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                               ContentProviderClient provider, SyncResult syncResult) {
         Log.i(TAG, "Beginning network synchronization");
         try {
-            int syncType = extras.getInt(SyncUtils.SYNC_TYPE, SyncUtils.NO_SYNC);
+            @SyncUtils.SyncType int syncType = extras.getInt(SyncUtils.SYNC_TYPE, SyncUtils.NO_SYNC);
             switch (syncType) {
                 case SyncUtils.SYNC_PUSH:
-                    push(extras);
+                    Log.i(TAG, "Performing push to server...");
+                    push(extras, syncResult);
                     break;
                 case SyncUtils.SYNC_PULL:
+                    Log.i(TAG, "Performing pull from server...");
                     // TODO: 27/04/2017 pull
+                    pull(extras, syncResult);
                     break;
-                default:
+                case SyncUtils.NO_SYNC:
                     Log.i(TAG, "No sync");
             }
         } catch (MalformedURLException e) {
@@ -118,161 +111,81 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(TAG, "Error reading from network: " + e.toString());
             syncResult.stats.numIoExceptions++;
             return;
+        } catch (RemoteException | OperationApplicationException e) {
+            Log.e(TAG, "Error updating database: " + e.getMessage());
+            syncResult.databaseError = true;
         }
-//        } catch (XmlPullParserException e) {
-//            Log.e(TAG, "Error parsing feed: " + e.toString());
-//            syncResult.stats.numParseExceptions++;
-//            return;
-//        } catch (ParseException e) {
-//            Log.e(TAG, "Error parsing feed: " + e.toString());
-//            syncResult.stats.numParseExceptions++;
-//            return;
-//        } catch (RemoteException e) {
-//            Log.e(TAG, "Error updating database: " + e.toString());
-//            syncResult.databaseError = true;
-//            return;
-//        } catch (OperationApplicationException e) {
-//            Log.e(TAG, "Error updating database: " + e.toString());
-//            syncResult.databaseError = true;
-//            return;
-//        }
         Log.i(TAG, "Network synchronization complete");
     }
 
-    private void push(Bundle extras) throws IOException {
+    private void push(Bundle extras, SyncResult syncResult) throws IOException {
         String url = extras.getString(SyncUtils.REQUEST_URL);
-        int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
+        @RequestData.RequestMethod int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
         String json = extras.getString(SyncUtils.REQUEST_JSON);
         RequestData request = new RequestData(url, requestMethod, json);
+        @WebRequestResult.ReturnedObject String returnedObj;
+        @SyncUtils.PushWhat int pushWhat = extras.getInt(SyncUtils.PUSH_WHAT, SyncUtils.NO_PUSH);
+        switch (pushWhat) {
+            case SyncUtils.CREATE_LOCATION:
+                returnedObj = WebRequestResult.LOCATION;
+                break;
+            case SyncUtils.CREATE_MESSAGE:
+                returnedObj = WebRequestResult.MESSAGE;
+                break;
+            case SyncUtils.CREATE_KEYPAIR:
+                returnedObj = null; // FIXME: 04/05/2017
+                break;
+            case SyncUtils.DELETE_MESSAGE:
+            case SyncUtils.DELETE_KEYPAIR:
+            case SyncUtils.DELETE_LOCATION:
+            case SyncUtils.NO_PUSH:
+            default:
+                returnedObj = null;
+                Log.i(TAG, "Syncing without expecting a result from the server.");
+                break;
+        }
 
         SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
-        new WebRequest(request, jwt).execute();
+        WebRequestResult response = new WebRequest(request, jwt).execute();
+        if (returnedObj != null) {
+            updateWithServerId(response.getResult(), returnedObj);
+        }
     }
 
-    /**
-     * Read XML from an input stream, storing it into the content provider.
-     *
-     * <p>This is where incoming data is persisted, committing the results of a sync. In order to
-     * minimize (expensive) disk operations, we compare incoming data with what's already in our
-     * database, and compute a merge. Only changes (insert/update/delete) will result in a database
-     * write.
-     *
-     * <p>As an additional optimization, we use a batch operation to perform all database writes at
-     * once.
-     *
-     * <p>Merge strategy:
-     * 1. Get cursor to all items in feed<br/>
-     * 2. For each item, check if it's in the incoming data.<br/>
-     *    a. YES: Remove from "incoming" list. Check if data has mutated, if so, perform
-     *            database UPDATE.<br/>
-     *    b. NO: Schedule DELETE from database.<br/>
-     * (At this point, incoming database only contains missing items.)<br/>
-     * 3. For any items remaining in incoming list, ADD to database.
-     */
-//    public void updateLocalFeedData(final InputStream stream, final SyncResult syncResult)
-//            throws IOException, XmlPullParserException, RemoteException,
-//            OperationApplicationException, ParseException {
-//        final FeedParser feedParser = new FeedParser();
-//        final ContentResolver contentResolver = getContext().getContentResolver();
-//
-//        Log.i(TAG, "Parsing stream as Atom feed");
-//        final List<FeedParser.Entry> entries = feedParser.parse(stream);
-//        Log.i(TAG, "Parsing complete. Found " + entries.size() + " entries");
-//
-//
-//        ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-//
-//        // Build hash table of incoming entries
-//        HashMap<String, FeedParser.Entry> entryMap = new HashMap<String, FeedParser.Entry>();
-//        for (FeedParser.Entry e : entries) {
-//            entryMap.put(e.id, e);
-//        }
-//
-//        // Get list of all items
-//        Log.i(TAG, "Fetching local entries for merge");
-//        Uri uri = FeedContract.Entry.CONTENT_URI; // Get all entries
-//        Cursor c = contentResolver.query(uri, PROJECTION, null, null, null);
-//        assert c != null;
-//        Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
-//
-//        // Find stale data
-//        int id;
-//        String entryId;
-//        String title;
-//        String link;
-//        long published;
-//        while (c.moveToNext()) {
-//            syncResult.stats.numEntries++;
-//            id = c.getInt(COLUMN_ID);
-//            entryId = c.getString(COLUMN_ENTRY_ID);
-//            title = c.getString(COLUMN_TITLE);
-//            link = c.getString(COLUMN_LINK);
-//            published = c.getLong(COLUMN_PUBLISHED);
-//            FeedParser.Entry match = entryMap.get(entryId);
-//            if (match != null) {
-//                // Entry exists. Remove from entry map to prevent insert later.
-//                entryMap.remove(entryId);
-//                // Check to see if the entry needs to be updated
-//                Uri existingUri = FeedContract.Entry.CONTENT_URI.buildUpon()
-//                        .appendPath(Integer.toString(id)).build();
-//                if ((match.title != null && !match.title.equals(title)) ||
-//                        (match.link != null && !match.link.equals(link)) ||
-//                        (match.published != published)) {
-//                    // Update existing record
-//                    Log.i(TAG, "Scheduling update: " + existingUri);
-//                    batch.add(ContentProviderOperation.newUpdate(existingUri)
-//                            .withValue(FeedContract.Entry.COLUMN_NAME_TITLE, title)
-//                            .withValue(FeedContract.Entry.COLUMN_NAME_LINK, link)
-//                            .withValue(FeedContract.Entry.COLUMN_NAME_PUBLISHED, published)
-//                            .build());
-//                    syncResult.stats.numUpdates++;
-//                } else {
-//                    Log.i(TAG, "No action: " + existingUri);
-//                }
-//            } else {
-//                // Entry doesn't exist. Remove it from the database.
-//                Uri deleteUri = FeedContract.Entry.CONTENT_URI.buildUpon()
-//                        .appendPath(Integer.toString(id)).build();
-//                Log.i(TAG, "Scheduling delete: " + deleteUri);
-//                batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-//                syncResult.stats.numDeletes++;
-//            }
-//        }
-//        c.close();
-//
-//        // Add new items
-//        for (FeedParser.Entry e : entryMap.values()) {
-//            Log.i(TAG, "Scheduling insert: entry_id=" + e.id);
-//            batch.add(ContentProviderOperation.newInsert(FeedContract.Entry.CONTENT_URI)
-//                    .withValue(FeedContract.Entry.COLUMN_NAME_ENTRY_ID, e.id)
-//                    .withValue(FeedContract.Entry.COLUMN_NAME_TITLE, e.title)
-//                    .withValue(FeedContract.Entry.COLUMN_NAME_LINK, e.link)
-//                    .withValue(FeedContract.Entry.COLUMN_NAME_PUBLISHED, e.published)
-//                    .build());
-//            syncResult.stats.numInserts++;
-//        }
-//        Log.i(TAG, "Merge solution ready. Applying batch update");
-//        mContentResolver.applyBatch(FeedContract.CONTENT_AUTHORITY, batch);
-//        mContentResolver.notifyChange(
-//                FeedContract.Entry.CONTENT_URI, // URI where data was modified
-//                null,                           // No local observer
-//                false);                         // IMPORTANT: Do not sync to network
-//        // This sample doesn't support uploads, but if *your* code does, make sure you set
-//        // syncToNetwork=false in the line above to prevent duplicate syncs.
-//    }
+    private void updateWithServerId(String json, @WebRequestResult.ReturnedObject String returnedObj) {
+        // TODO: 04/05/2017
+    }
 
-    /**
-     * Given a string representation of a URL, sets up a connection and gets an input stream.
-     */
-//    private InputStream downloadUrl(final URL url) throws IOException {
-//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//        conn.setReadTimeout(NET_READ_TIMEOUT_MILLIS /* milliseconds */);
-//        conn.setConnectTimeout(NET_CONNECT_TIMEOUT_MILLIS /* milliseconds */);
-//        conn.setRequestMethod("GET");
-//        conn.setDoInput(true);
-//        // Starts the query
-//        conn.connect();
-//        return conn.getInputStream();
-//    }
+    private void pull(Bundle extras, SyncResult syncResult) throws IOException, RemoteException, OperationApplicationException {
+        String url = extras.getString(SyncUtils.REQUEST_URL);
+        @RequestData.RequestMethod int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
+        String json = extras.getString(SyncUtils.REQUEST_JSON);
+//        @WebRequestResult.ReturnedObject String returnedObj;
+        @SyncUtils.PullWhat int pullWhat = extras.getInt(SyncUtils.PULL_WHAT, SyncUtils.NO_PULL);
+
+        if (pullWhat == SyncUtils.NO_PULL) {
+            Log.i(TAG, "Syncing without expecting a result from the server (pull failed)");
+            return;
+        }
+
+        RequestData request = new RequestData(url, requestMethod, json);
+        SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
+        WebRequestResult response = new WebRequest(request, jwt).execute();
+        @WebRequestResult.ReturnedObject String returnedObjLabel;
+        switch (pullWhat) {
+            case SyncUtils.PULL_LOCATIONS:
+                returnedObjLabel = WebRequestResult.LOCATIONS;
+                JsonObjectAPI jresult = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
+                JsonArray jlocations = jresult.getData().getAsJsonArray(returnedObjLabel);
+                Log.d(TAG, "Locations: " + jlocations.toString());
+                MergeUtils.mergeLocations(mContentResolver, jlocations, syncResult);
+                break;
+            case SyncUtils.PULL_KEYPAIRS:
+                // TODO: 04/05/2017
+//                returnedObj = WebRequestResult.KEYPAIRS;
+                break;
+        }
+    }
 }

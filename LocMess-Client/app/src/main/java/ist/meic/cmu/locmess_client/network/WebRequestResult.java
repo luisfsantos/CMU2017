@@ -1,7 +1,12 @@
 package ist.meic.cmu.locmess_client.network;
 
+import android.support.annotation.StringDef;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
@@ -58,4 +63,13 @@ public class WebRequestResult {
     public void setError(String mError) {
         this.mError = mError;
     }
+
+    public static final String LOCATION = "Location";
+    public static final String LOCATIONS = "Locations";
+    public static final String MESSAGE = "Message";
+    public static final String KEYPAIR = "Keypair";
+    public static final String KEYPAIRS = "Keypairs";
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({LOCATION, LOCATIONS, MESSAGE, KEYPAIR, KEYPAIRS})
+    public @interface ReturnedObject {}
 }

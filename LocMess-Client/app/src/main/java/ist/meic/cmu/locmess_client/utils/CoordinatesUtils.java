@@ -47,7 +47,11 @@ public class CoordinatesUtils {
         return GPS_TAG + SEPARATOR + latitude + SEPARATOR + longitude + SEPARATOR + radius;
     }
 
-    public static String formatWifiToDb(List<String> ssids) {
+    public static String formatGpsToDb(double latitude, double longitude, double radius) {
+        return GPS_TAG + SEPARATOR + latitude + SEPARATOR + longitude + SEPARATOR + radius;
+    }
+
+    public static String formatWifiToDb(Iterable<String> ssids) {
         return WIFI_TAG + SEPARATOR + TextUtils.join(SEPARATOR, ssids);
     }
 

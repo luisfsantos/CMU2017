@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +27,7 @@ import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
+import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
@@ -40,11 +42,15 @@ public class LocationsActivity extends BaseNavigationActivity implements
     private static final int LOCATIONS_LOADER_ID = R.id.locations_loader_id;
 
     SimpleCursorRecyclerAdapter mAdapter;
+    SwipeRefreshLayout swipeRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_locations, frameLayout);
+
+        // create account if necessary
+        SyncUtils.CreateSyncAccount(this);
 
         LocMessRecyclerView mRecyclerView = (LocMessRecyclerView)findViewById(R.id.rv_card_list);
         TextView mEmptyView = (TextView)findViewById(R.id.empty_view);
@@ -54,6 +60,15 @@ public class LocationsActivity extends BaseNavigationActivity implements
         setupAdapter();
         mRecyclerView.setAdapter(mAdapter);
         getSupportLoaderManager().initLoader(LOCATIONS_LOADER_ID, new Bundle(), this);
+
+        swipeRefresh = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.i(TAG, "Refreshing Locations");
+                SyncUtils.pull(SyncUtils.PULL_LOCATIONS);
+            }
+        });
 
     }
 
@@ -186,6 +201,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
     @Override
     public void onLoadFinished(Loader loader, Cursor cursor) {
         mAdapter.changeCursor(cursor);
+        swipeRefresh.setRefreshing(false);
     }
 
     @Override

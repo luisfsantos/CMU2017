@@ -12,8 +12,8 @@ import ist.meic.cmu.locmess_client.network.RequestData;
  */
 
 public class UserRequestBuilder implements RequestBuilder {
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
     Gson gson;
 
     public UserRequestBuilder(String username, String password) {
@@ -27,11 +27,9 @@ public class UserRequestBuilder implements RequestBuilder {
     }
 
     private String buildJson() {
-//        JsonObjectAPI json = new JsonObjectAPI();
         JsonObject data = new JsonObject();
         data.addProperty(USERNAME, username);
         data.addProperty(PASSWORD, password);
-//        json.setData(data);
         return gson.toJson(data);
     }
 }
