@@ -12,6 +12,7 @@ import java.util.Set;
 
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
+import ist.meic.cmu.locmess_client.utils.DateUtils;
 
 /**
  * Created by Catarina on 28/04/2017.
@@ -29,9 +30,7 @@ public class UpdateLocationRequestBuilder implements RequestBuilder {
         this.longitude = longitude;
         this.ssids = ssids;
         this.date = date;
-        gson = new GsonBuilder()
-                .setDateFormat(RequestBuilder.DATE_FORMAT)
-                .create();
+        gson = new Gson();
     }
 
     @Override
@@ -55,6 +54,7 @@ public class UpdateLocationRequestBuilder implements RequestBuilder {
             wifi.add(jssid);
         }
         data.add(UPDATE_WIFI, wifi);
+        data.addProperty(DATE, DateUtils.formatDateTimeISO8601(date));
         json.setData(data);
         return gson.toJson(json);
     }

@@ -32,6 +32,7 @@ public interface RequestBuilder {
     String UPDATE_GPS = "gps";
     String UPDATE_WIFI = "wifi";
     String UPDATE_SSID = "ssid";
+    String DATE = "date";
 
     RequestData build(String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException;
 }
