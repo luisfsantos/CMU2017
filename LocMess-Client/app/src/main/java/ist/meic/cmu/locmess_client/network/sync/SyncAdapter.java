@@ -19,18 +19,15 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.stream.Stream;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
-import ist.meic.cmu.locmess_client.network.json.serializers.LocationSerializer;
 import ist.meic.cmu.locmess_client.network.sync.merge.MergeLocation;
 
 /**
@@ -119,7 +116,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         @RequestData.RequestMethod int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
         String json = extras.getString(SyncUtils.REQUEST_JSON);
         RequestData request = new RequestData(url, requestMethod, json);
-        Uri databaseEntry = Uri.parse(extras.getString(SyncUtils.DB_ENTRY_URI));
+        Uri databaseEntry = Uri.parse(extras.getString(SyncUtils.DB_ENTRY_URI, Uri.EMPTY.toString()));
         @WebRequestResult.ReturnedObject String returnedObjLabel;
         @SyncUtils.PushWhat int pushWhat = extras.getInt(SyncUtils.PUSH_WHAT, SyncUtils.NO_PUSH);
 

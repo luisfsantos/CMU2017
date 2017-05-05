@@ -1,5 +1,7 @@
 package ist.meic.cmu.locmess_client.network.request_builders;
 
+import android.support.annotation.Nullable;
+
 import java.net.MalformedURLException;
 
 import ist.meic.cmu.locmess_client.network.RequestData;
@@ -34,5 +36,5 @@ public interface RequestBuilder {
     String UPDATE_SSID = "ssid";
     String DATE = "date";
 
-    RequestData build(String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException;
+    RequestData build(@Nullable String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException;
 }

@@ -23,10 +23,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.net.MalformedURLException;
+
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
+import ist.meic.cmu.locmess_client.network.RequestData;
+import ist.meic.cmu.locmess_client.network.request_builders.delete.DeleteLocationRequestBuilder;
 import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
@@ -110,17 +114,25 @@ public class LocationsActivity extends BaseNavigationActivity implements
         startActivity(intent);
     }
 
-    public void removeLocation(int id) {
+    public void removeLocation(int id, int serverID) {
         Uri uri = ContentUris.withAppendedId(LocMessDBContract.Location.CONTENT_URI, id);
         int count = getContentResolver().delete(uri, null, null);
         Log.d(TAG, "Deleted " + count + " row(s)");
         //TODO notify server
+        RequestData data = null;
+        try {
+            data = new DeleteLocationRequestBuilder(serverID).build(null, RequestData.DELETE);
+        } catch (MalformedURLException e) {
+            Log.wtf(TAG, "Malformed URL: ", e);
+        }
+        SyncUtils.push(SyncUtils.DELETE_LOCATION, data, null);
     }
 
     @Override
     public void onAttachToViewHolder(View itemView) {
         Cursor cursor = mAdapter.getCursor();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID));
+        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
         final String name = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_NAME));
         final String dbDate = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_DATE_CREATED));
         bindCoordinates(itemView, cursor);
@@ -140,13 +152,13 @@ public class LocationsActivity extends BaseNavigationActivity implements
         removeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showRemoveDialog(name, id);
+                showRemoveDialog(name, id, serverID);
             }
         });
 
     }
 
-    private void showRemoveDialog(final String name, final int id) {
+    private void showRemoveDialog(final String name, final int id, final int serverID) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.remove_location)
                 .setMessage(getString(R.string.remove_dialog_message_start) +
@@ -154,7 +166,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
                 .setPositiveButton(R.string.remove_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        removeLocation(id);
+                        removeLocation(id, serverID);
                     }
                 }).setNegativeButton(R.string.cancel, null);
         builder.show();
@@ -187,14 +199,15 @@ public class LocationsActivity extends BaseNavigationActivity implements
                 LocMessDBContract.Location.COLUMN_NAME,
                 LocMessDBContract.Location.COLUMN_AUTHOR,
                 LocMessDBContract.Location.COLUMN_DATE_CREATED,
-                LocMessDBContract.Location.COLUMN_COORDINATES
+                LocMessDBContract.Location.COLUMN_COORDINATES,
+                LocMessDBContract.COLUMN_SERVER_ID
         };
         return new CursorLoader(LocationsActivity.this,
                 LocMessDBContract.Location.CONTENT_URI,
                 queryCols,          // the projection fields
                 null,               // the selection criteria
                 null,               // the selection args
-                null                // the sort order
+                LocMessDBContract.Location.COLUMN_DATE_CREATED + " asc"                // the sort order
         );
     }
 

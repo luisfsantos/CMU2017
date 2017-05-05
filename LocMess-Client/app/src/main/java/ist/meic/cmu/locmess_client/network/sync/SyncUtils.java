@@ -133,7 +133,7 @@ public class SyncUtils {
         bundle.putString(REQUEST_URL, data.getStringUrl());
         bundle.putInt(REQUEST_METHOD, data.getRequestMethod());
         bundle.putString(REQUEST_JSON, data.getJson());
-        bundle.putString(DB_ENTRY_URI, databaseEntry.toString());
+        bundle.putString(DB_ENTRY_URI, databaseEntry == null ? null : databaseEntry.toString());
         triggerSync(bundle);
     }
 
