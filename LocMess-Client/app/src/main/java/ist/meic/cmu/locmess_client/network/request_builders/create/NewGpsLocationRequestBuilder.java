@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.network.request_builders;
+package ist.meic.cmu.locmess_client.network.request_builders.create;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -7,12 +7,13 @@ import java.net.MalformedURLException;
 
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
+import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
 /**
  * Created by Catarina on 23/04/2017.
  */
 
-public class GpsLocationRequestBuilder implements RequestBuilder {
+public class NewGpsLocationRequestBuilder implements RequestBuilder {
     private final String name;
     private final double latitude;
     private final double longitude;
@@ -20,7 +21,7 @@ public class GpsLocationRequestBuilder implements RequestBuilder {
     private final String date_created;
     Gson gson;
 
-    public GpsLocationRequestBuilder(String name, String date, double latitude, double longitude, double radius) {
+    public NewGpsLocationRequestBuilder(String name, String date, double latitude, double longitude, double radius) {
         this.name = name;
         this.date_created = date;
         this.latitude = latitude;
@@ -30,7 +31,7 @@ public class GpsLocationRequestBuilder implements RequestBuilder {
     }
 
     @Override
-    public RequestData build(String url, int requestMethod) throws MalformedURLException {
+    public RequestData build(String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException {
         return new RequestData(url, requestMethod, buildJson());
     }
 

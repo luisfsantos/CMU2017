@@ -92,7 +92,7 @@ public class LoginActivity extends AppCompatActivity implements WebRequestCallba
             RequestData data = (new UserRequestBuilder(username, password)).build(LocMessURL.LOGIN, RequestData.POST);
             new LoginTask(this, data, username).execute();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            Log.wtf(TAG, "URL is malformed", e);
         }
     }
 

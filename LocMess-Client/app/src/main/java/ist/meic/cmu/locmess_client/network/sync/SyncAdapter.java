@@ -100,7 +100,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.i(TAG, "No sync");
             }
         } catch (MalformedURLException e) {
-            Log.wtf(TAG, "Feed URL is malformed", e);
+            Log.wtf(TAG, "URL is malformed", e);
             syncResult.stats.numParseExceptions++;
             return;
         } catch (IOException e) {

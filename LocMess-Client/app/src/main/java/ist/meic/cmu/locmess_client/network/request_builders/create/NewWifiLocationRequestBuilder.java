@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.network.request_builders;
+package ist.meic.cmu.locmess_client.network.request_builders.create;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -9,18 +9,19 @@ import java.util.List;
 
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
+import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
 /**
  * Created by Catarina on 26/04/2017.
  */
 
-public class WifiLocationRequestBuilder implements RequestBuilder {
+public class NewWifiLocationRequestBuilder implements RequestBuilder {
     private final String name;
     private final List<String> ssids;
     private final String date_created;
     Gson gson;
 
-    public WifiLocationRequestBuilder(String name, String date, List<String> ssids) {
+    public NewWifiLocationRequestBuilder(String name, String date, List<String> ssids) {
         this.name = name;
         this.date_created = date;
         this.ssids = ssids;
@@ -28,7 +29,7 @@ public class WifiLocationRequestBuilder implements RequestBuilder {
     }
 
     @Override
-    public RequestData build(String url, int requestMethod) throws MalformedURLException {
+    public RequestData build(String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException {
         return new RequestData(url, requestMethod, buildJson());
     }
 

@@ -104,7 +104,7 @@ public class SignUpActivity extends AppCompatActivity implements WebRequestCallb
             RequestData data = (new UserRequestBuilder(username, password)).build(LocMessURL.SIGNUP, RequestData.POST);
             new SignupTask(this, data).execute();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            Log.wtf(TAG, "URL is malformed", e);
         }
     }
 
@@ -170,7 +170,7 @@ public class SignUpActivity extends AppCompatActivity implements WebRequestCallb
             RequestData data = (new UserRequestBuilder(username, password)).build(LocMessURL.LOGIN, RequestData.POST);
             new LoginTask(new LoginCallback(), data, username).execute();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            Log.wtf(TAG, "URL is malformed", e);
         }
     }
 

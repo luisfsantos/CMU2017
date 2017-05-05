@@ -70,7 +70,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             bundle.putSerializable(FetchLocationMessagesService.INTENT_REQUEST,
                     new UpdateLocationRequestBuilder(/*TODO params*/).build(LocMessURL.UPDATE_LOCATION, RequestData.POST));
         } catch (MalformedURLException e) {
-            Log.wtf(TAG, "Malformed URL: " + LocMessURL.UPDATE_LOCATION);
+            Log.wtf(TAG, "Malformed URL: " + LocMessURL.UPDATE_LOCATION, e);
             return;
         }
         serviceIntent.putExtra(FetchLocationMessagesService.INTENT_BUNDLE, bundle);

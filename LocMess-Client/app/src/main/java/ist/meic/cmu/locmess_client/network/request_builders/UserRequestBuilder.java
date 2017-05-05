@@ -22,7 +22,7 @@ public class UserRequestBuilder implements RequestBuilder {
         gson = new Gson();
     }
 
-    public RequestData build(String url, int requestMethod) throws MalformedURLException {
+    public RequestData build(String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException {
         return new RequestData(url, requestMethod, buildJson());
     }
 

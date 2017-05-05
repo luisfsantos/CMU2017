@@ -21,7 +21,7 @@ public class UpdateLocationRequestBuilder implements RequestBuilder {
     }
 
     @Override
-    public RequestData build(String url, int requestMethod) throws MalformedURLException {
+    public RequestData build(String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException {
         return new RequestData(url, requestMethod, buildJson());
     }
 

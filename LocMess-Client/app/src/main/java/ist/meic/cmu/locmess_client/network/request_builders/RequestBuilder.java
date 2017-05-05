@@ -24,7 +24,9 @@ public interface RequestBuilder {
     String TYPE = "type";
     String TYPE_GPS = "GPS";
     String TYPE_WIFI = "WIFI";
+    String KEY = "key";
+    String VALUE = "value";
 
 
-    RequestData build(String url, int requestMethod) throws MalformedURLException;
+    RequestData build(String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException;
 }

@@ -29,8 +29,8 @@ import java.util.List;
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
-import ist.meic.cmu.locmess_client.network.request_builders.GpsLocationRequestBuilder;
-import ist.meic.cmu.locmess_client.network.request_builders.WifiLocationRequestBuilder;
+import ist.meic.cmu.locmess_client.network.request_builders.create.NewGpsLocationRequestBuilder;
+import ist.meic.cmu.locmess_client.network.request_builders.create.NewWifiLocationRequestBuilder;
 import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
@@ -157,7 +157,7 @@ public class NewLocationActivity extends AppCompatActivity {
                 try {
                     createGpsLocation(name, latitude, longitude, radius);
                 } catch (MalformedURLException e) {
-                    Log.wtf(TAG, e.getMessage());
+                    Log.wtf(TAG, "URL is malformed", e);
                 }
                 break;
 
@@ -170,7 +170,7 @@ public class NewLocationActivity extends AppCompatActivity {
                 try {
                     createWifiLocation(name, ssids);
                 } catch (MalformedURLException e) {
-                    Log.wtf(TAG, e.getMessage());
+                    Log.wtf(TAG, "URL is malformed", e);
                 }
                 break;
         }
@@ -184,7 +184,7 @@ public class NewLocationActivity extends AppCompatActivity {
         String isoDate = DateUtils.formatDateTimeISO8601(now);
         String coordinates = CoordinatesUtils.formatGpsToDb(latitude, longitude, radius);
 
-        RequestData data = new GpsLocationRequestBuilder(name, isoDate,
+        RequestData data = new NewGpsLocationRequestBuilder(name, isoDate,
                 Double.parseDouble(latitude),
                 Double.parseDouble(longitude),
                 Double.parseDouble(radius)
@@ -200,7 +200,7 @@ public class NewLocationActivity extends AppCompatActivity {
         String isoDate = DateUtils.formatDateTimeISO8601(now);
         String ssidString = CoordinatesUtils.formatWifiToDb(ssids);
 
-        RequestData data = new WifiLocationRequestBuilder(
+        RequestData data = new NewWifiLocationRequestBuilder(
                 name,
                 isoDate,
                 ssids
