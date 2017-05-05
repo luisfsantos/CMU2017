@@ -16,8 +16,9 @@ import java.net.URL;
 public class RequestData implements Serializable {
     public static final int GET = 1;
     public static final int POST = 2;
+    public static final int DELETE = 3;
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({GET, POST}) public @interface RequestMethod {}
+    @IntDef({GET, POST, DELETE}) public @interface RequestMethod {}
 
     private URL url;
 
@@ -42,7 +43,7 @@ public class RequestData implements Serializable {
         return url;
     }
 
-    public int getRequestMethod() {
+    public @RequestMethod int getRequestMethod() {
         return requestMethod;
     }
 

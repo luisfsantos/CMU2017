@@ -98,8 +98,7 @@ public class LocMessDBContract {
                 _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_TITLE + " TEXT, " +
                 COLUMN_CONTENT + " TEXT, " +
-                COLUMN_LOCATION + " TEXT, " + // FIXME: 14/04/2017 decide whether it'll be just the name of the location or a foreign key
-                // FIXME: 14/04/2017 note that if it is a foreign key then there will be problems in retrieving info if location is deleted
+                COLUMN_LOCATION + " TEXT, " +
                 COLUMN_DATE_FROM + " TEXT, " +
                 COLUMN_DATE_TO + " TEXT, " +
                 COLUMN_SERVER_ID + " INTEGER, " +

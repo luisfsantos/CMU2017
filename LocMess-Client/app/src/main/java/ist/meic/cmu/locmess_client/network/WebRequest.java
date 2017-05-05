@@ -55,16 +55,24 @@ public class WebRequest {
                 Log.i(TAG, "Setting jwt header to: " + mAuth);
                 connection.setRequestProperty("Authorization", "JWT " + mAuth);
             }
-            if (mRequest.getRequestMethod() == RequestData.GET) {
-                connection.setRequestMethod("GET");
-            } else if (mRequest.getRequestMethod() == RequestData.POST) {
-                connection.setRequestMethod("POST");
-                connection.setDoOutput(true);
-                OutputStream out = connection.getOutputStream();
-                String outgoing = mRequest.getJson();
-                Log.i(TAG, "outgoing: " + outgoing);
-                out.write(outgoing.getBytes());
-                out.close();
+            switch (mRequest.getRequestMethod()) {
+                case RequestData.GET:
+                    connection.setRequestMethod("GET");
+                    break;
+                case RequestData.DELETE:
+                    connection.setRequestMethod("DELETE");
+                    break;
+                case RequestData.POST:
+                    connection.setRequestMethod("POST");
+                    connection.setDoOutput(true);
+                    OutputStream out = connection.getOutputStream();
+                    String outgoing = mRequest.getJson();
+                    if (outgoing != null) {
+                        Log.i(TAG, "outgoing: " + outgoing);
+                        out.write(outgoing.getBytes());
+                    }
+                    out.close();
+                    break;
             }
             connection.connect();
             int responseCode = connection.getResponseCode();
