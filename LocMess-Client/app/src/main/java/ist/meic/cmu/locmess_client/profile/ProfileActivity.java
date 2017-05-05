@@ -19,9 +19,15 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.net.MalformedURLException;
+
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.authentication.LoginActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
+import ist.meic.cmu.locmess_client.network.LocMessURL;
+import ist.meic.cmu.locmess_client.network.RequestData;
+import ist.meic.cmu.locmess_client.network.request_builders.create.NewKeypairRequestBuilder;
+import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
 import ist.meic.cmu.locmess_client.utils.recycler.SimpleCursorRecyclerAdapter;
@@ -45,6 +51,9 @@ public class ProfileActivity extends BaseNavigationActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_profile, frameLayout);
+
+        // create account if necessary
+        SyncUtils.CreateSyncAccount(this);
 
         SharedPreferences pref = getSharedPreferences(getResources().getString(R.string.preference_file_key), MODE_PRIVATE);
         String username = pref.getString(getResources().getString(R.string.pref_username), "username");
@@ -93,7 +102,13 @@ public class ProfileActivity extends BaseNavigationActivity
         values.put(LocMessDBContract.KeyPair.COLUMN_VALUE, value);
         Uri uri = getContentResolver().insert(LocMessDBContract.KeyPair.CONTENT_URI, values);
         Log.d(TAG, "New row URI is " + uri);
-        // TODO notify server
+
+        try {
+            RequestData data = new NewKeypairRequestBuilder(key, value).build(LocMessURL.NEW_KEYPAIR, RequestData.POST);
+            SyncUtils.push(SyncUtils.CREATE_KEYPAIR, data, uri);
+        } catch (MalformedURLException e) {
+            Log.wtf(TAG, "URL is malformed", e);
+        }
     }
 
     private void removeKeyPair(int id) {
