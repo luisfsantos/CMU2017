@@ -1,9 +1,14 @@
 package ist.meic.cmu.locmess_client.network.request_builders;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.net.MalformedURLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
@@ -13,11 +18,20 @@ import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
  */
 
 public class UpdateLocationRequestBuilder implements RequestBuilder {
-    Gson gson;
+    private final double latitude;
+    private final double longitude;
+    private final Set<String> ssids;
+    private final Date date;
+    private Gson gson;
 
-    public UpdateLocationRequestBuilder(/*FIXME add params*/){
-        gson = new Gson();
-        // TODO: 28/04/2017
+    public UpdateLocationRequestBuilder(double latitude, double longitude, Set<String> ssids, Date date){
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.ssids = ssids;
+        this.date = date;
+        gson = new GsonBuilder()
+                .setDateFormat(RequestBuilder.DATE_FORMAT)
+                .create();
     }
 
     @Override
@@ -29,7 +43,18 @@ public class UpdateLocationRequestBuilder implements RequestBuilder {
         JsonObjectAPI json = new JsonObjectAPI();
         JsonObject data = new JsonObject();
 
-        // TODO: 03/05/2017
+        JsonObject gps = new JsonObject();
+        gps.addProperty(LATITUDE, latitude);
+        gps.addProperty(LONGITUDE, longitude);
+        data.add(UPDATE_GPS, gps);
+
+        JsonArray wifi = new JsonArray();
+        for (String ssid : ssids) {
+            JsonObject jssid = new JsonObject();
+            jssid.addProperty(UPDATE_SSID, ssid);
+            wifi.add(jssid);
+        }
+        data.add(UPDATE_WIFI, wifi);
         json.setData(data);
         return gson.toJson(json);
     }

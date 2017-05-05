@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.net.MalformedURLException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -68,7 +69,12 @@ public class AlarmReceiver extends BroadcastReceiver {
         Bundle bundle = new Bundle();
         try {
             bundle.putSerializable(FetchLocationMessagesService.INTENT_REQUEST,
-                    new UpdateLocationRequestBuilder(/*TODO params*/).build(LocMessURL.UPDATE_LOCATION, RequestData.POST));
+                    new UpdateLocationRequestBuilder(
+                            currentLocation.getLatitude(),
+                            currentLocation.getLongitude(),
+                            currentLocation.getSsids(),
+                            new Date()
+                    ).build(LocMessURL.UPDATE_LOCATION, RequestData.POST));
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: " + LocMessURL.UPDATE_LOCATION, e);
             return;

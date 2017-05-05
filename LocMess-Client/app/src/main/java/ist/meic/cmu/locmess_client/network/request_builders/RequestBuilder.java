@@ -16,6 +16,7 @@ public interface RequestBuilder {
     String PASSWORD = "password";
     String NAME = "name";
     String CREATION_DATE = "creation_date";
+
     String COORDINATE = "coordinate";
     String LATITUDE = "latitude";
     String LONGITUDE = "longitude";
@@ -24,9 +25,13 @@ public interface RequestBuilder {
     String TYPE = "type";
     String TYPE_GPS = "GPS";
     String TYPE_WIFI = "WIFI";
+
     String KEY = "key";
     String VALUE = "value";
 
+    String UPDATE_GPS = "gps";
+    String UPDATE_WIFI = "wifi";
+    String UPDATE_SSID = "ssid";
 
     RequestData build(String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException;
 }
