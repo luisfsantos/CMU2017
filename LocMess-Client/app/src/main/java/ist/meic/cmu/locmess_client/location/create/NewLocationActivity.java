@@ -190,8 +190,8 @@ public class NewLocationActivity extends AppCompatActivity {
                 Double.parseDouble(radius)
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
-        saveToDb(name, dbDate, coordinates);
-        SyncUtils.push(SyncUtils.CREATE_LOCATION, data);
+        Uri uri = saveToDb(name, dbDate, coordinates);
+        SyncUtils.push(SyncUtils.CREATE_LOCATION, data, uri);
     }
 
     private void createWifiLocation(String name, List<String> ssids) throws MalformedURLException {
@@ -206,11 +206,11 @@ public class NewLocationActivity extends AppCompatActivity {
                 ssids
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
-        saveToDb(name, dbDate, ssidString);
-        SyncUtils.push(SyncUtils.CREATE_LOCATION, data);
+        Uri uri = saveToDb(name, dbDate, ssidString);
+        SyncUtils.push(SyncUtils.CREATE_LOCATION, data, uri);
     }
 
-    private void saveToDb(String name, String date, String coordinates) {
+    private Uri saveToDb(String name, String date, String coordinates) {
         SharedPreferences pref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         String author = pref.getString(getString(R.string.pref_username), "No author");
         ContentValues values = new ContentValues();
@@ -220,5 +220,6 @@ public class NewLocationActivity extends AppCompatActivity {
         values.put(LocMessDBContract.Location.COLUMN_COORDINATES, coordinates);
         Uri uri = getContentResolver().insert(LocMessDBContract.Location.CONTENT_URI, values);
         Log.d(TAG, "New row URI is " + uri);
+        return uri;
     }
 }

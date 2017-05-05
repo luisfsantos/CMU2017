@@ -3,6 +3,7 @@ package ist.meic.cmu.locmess_client.network.sync.merge;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.OperationApplicationException;
 import android.content.SyncResult;
 import android.database.Cursor;
@@ -10,11 +11,15 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ist.meic.cmu.locmess_client.network.WebRequestResult;
+import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.json.serializers.LocationSerializer;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
@@ -86,5 +91,20 @@ public class MergeLocation {
                 null,                                   // no local observer
                 false);                                 // IMPORTANT: do not sync do network
     }
+
+    public static void fillInServerId(ContentResolver contentResolver, Uri databaseEntryUri, String result,
+                                      @WebRequestResult.ReturnedObject String label, SyncResult syncResult) {
+        JsonObjectAPI jresult = new Gson().fromJson(result, JsonObjectAPI.class);
+        JsonObject jlocation = jresult.getData().getAsJsonObject(label);
+        LocationSerializer.Location location = new LocationSerializer().parse(jlocation);
+        int serverId = location.getId();
+
+        ContentValues values = new ContentValues();
+        values.put(LocMessDBContract.COLUMN_SERVER_ID, serverId);
+        contentResolver.update(databaseEntryUri, values, null, null);
+
+        Log.i(TAG, "Filled server_id=" + serverId + " of entry " + databaseEntryUri);
+    }
+
 }
 

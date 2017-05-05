@@ -9,6 +9,7 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
@@ -33,6 +34,7 @@ public class SyncUtils {
     static final String REQUEST_URL = "url";
     static final String REQUEST_METHOD = "request_method";
     static final String REQUEST_JSON = "request_json";
+    static final String DB_ENTRY_URI = "db_entry_uri";
 
     static final String SYNC_TYPE = "sync_type";
     static final int NO_SYNC = 0;
@@ -124,13 +126,14 @@ public class SyncUtils {
                 bundle);                                 // Extras
     }
 
-    public static void push(@PushWhat int what, RequestData data) {
+    public static void push(@PushWhat int what, RequestData data, Uri databaseEntry) {
         Bundle bundle = new Bundle();
         bundle.putInt(PUSH_WHAT, what);
         bundle.putInt(SYNC_TYPE, SYNC_PUSH);
         bundle.putString(REQUEST_URL, data.getStringUrl());
         bundle.putInt(REQUEST_METHOD, data.getRequestMethod());
         bundle.putString(REQUEST_JSON, data.getJson());
+        bundle.putString(DB_ENTRY_URI, databaseEntry.toString());
         triggerSync(bundle);
     }
 

@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -29,6 +30,7 @@ import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
+import ist.meic.cmu.locmess_client.network.json.serializers.LocationSerializer;
 import ist.meic.cmu.locmess_client.network.sync.merge.MergeLocation;
 
 /**
@@ -92,7 +94,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     break;
                 case SyncUtils.SYNC_PULL:
                     Log.i(TAG, "Performing pull from server...");
-                    // TODO: 27/04/2017 pull
                     pull(extras, syncResult);
                     break;
                 case SyncUtils.NO_SYNC:
@@ -118,45 +119,44 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         @RequestData.RequestMethod int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
         String json = extras.getString(SyncUtils.REQUEST_JSON);
         RequestData request = new RequestData(url, requestMethod, json);
+        Uri databaseEntry = Uri.parse(extras.getString(SyncUtils.DB_ENTRY_URI));
         @WebRequestResult.ReturnedObject String returnedObjLabel;
         @SyncUtils.PushWhat int pushWhat = extras.getInt(SyncUtils.PUSH_WHAT, SyncUtils.NO_PUSH);
+
+        SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
+        WebRequestResult response = new WebRequest(request, jwt).execute();
         switch (pushWhat) {
             case SyncUtils.CREATE_LOCATION:
                 returnedObjLabel = WebRequestResult.LOCATION;
+                MergeLocation.fillInServerId(mContentResolver,
+                        databaseEntry,
+                        response.getResult(),
+                        returnedObjLabel,
+                        syncResult);
                 break;
             case SyncUtils.CREATE_MESSAGE:
                 returnedObjLabel = WebRequestResult.MESSAGE;
+                // TODO: 05/05/2017 fill server id
                 break;
             case SyncUtils.CREATE_KEYPAIR:
-                returnedObjLabel = null; // FIXME: 04/05/2017
+                returnedObjLabel = null;// FIXME: 04/05/2017 define according to api
+                // TODO: 05/05/2017 fill server id
                 break;
             case SyncUtils.DELETE_MESSAGE:
             case SyncUtils.DELETE_KEYPAIR:
             case SyncUtils.DELETE_LOCATION:
             case SyncUtils.NO_PUSH:
             default:
-                returnedObjLabel = null;
-                Log.i(TAG, "Syncing without expecting a result from the server.");
+                Log.i(TAG, "Synced without expecting a result from the server.");
                 break;
         }
-
-        SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
-        WebRequestResult response = new WebRequest(request, jwt).execute();
-        if (returnedObjLabel != null) {
-            updateWithServerId(response.getResult(), returnedObjLabel);
-        }
-    }
-
-    private void updateWithServerId(String result, @WebRequestResult.ReturnedObject String returnedObj) {
-        // TODO: 04/05/2017
     }
 
     private void pull(Bundle extras, SyncResult syncResult) throws IOException, RemoteException, OperationApplicationException {
         String url = extras.getString(SyncUtils.REQUEST_URL);
         @RequestData.RequestMethod int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
         String json = extras.getString(SyncUtils.REQUEST_JSON);
-//        @WebRequestResult.ReturnedObject String returnedObj;
         @SyncUtils.PullWhat int pullWhat = extras.getInt(SyncUtils.PULL_WHAT, SyncUtils.NO_PULL);
 
         if (pullWhat == SyncUtils.NO_PULL) {
