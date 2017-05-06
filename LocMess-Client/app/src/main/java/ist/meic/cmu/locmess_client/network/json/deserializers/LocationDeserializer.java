@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.network.json.serializers;
+package ist.meic.cmu.locmess_client.network.json.deserializers;
 
 import android.util.Log;
 import android.util.SparseArray;
@@ -20,7 +20,7 @@ import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
  * Created by Catarina on 04/05/2017.
  */
 
-public class LocationSerializer {
+public class LocationDeserializer {
 
     private static Gson gson = new GsonBuilder()
             .setDateFormat(RequestBuilder.DATE_FORMAT)
@@ -78,7 +78,7 @@ public class LocationSerializer {
                 }
                 return CoordinatesUtils.formatWifiToDb(ssids);
             } else {
-                Log.wtf("LocationSerializer", "Unknown coordinate type: " + coordinateType);
+                Log.wtf("LocationDeserializer", "Unknown coordinate type: " + coordinateType);
                 return null;
             }
         }

@@ -17,11 +17,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
-import ist.meic.cmu.locmess_client.network.json.serializers.LocationSerializer;
+import ist.meic.cmu.locmess_client.network.json.deserializers.LocationDeserializer;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
 
@@ -35,8 +34,8 @@ public class MergeLocation {
 
     public static void mergeAll(ContentResolver contentResolver, JsonArray locations, SyncResult syncResult) throws RemoteException, OperationApplicationException {
         Log.i(TAG, "Parsing json into Location map");
-        SparseArray<LocationSerializer.Location> remoteLocations =
-                new LocationSerializer().parseAll(locations);
+        SparseArray<LocationDeserializer.Location> remoteLocations =
+                new LocationDeserializer().parseAll(locations);
         Log.i(TAG, "Parsing complete. Found " + remoteLocations.size() + " remote entries");
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
@@ -56,7 +55,7 @@ public class MergeLocation {
             syncResult.stats.numEntries++;
             serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
             dbId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.Location._ID));
-            LocationSerializer.Location match = remoteLocations.get(serverId);
+            LocationDeserializer.Location match = remoteLocations.get(serverId);
             if (match != null) {
                 // entry exists. remove from remote locations map to prevent insert later
                 remoteLocations.remove(serverId);
@@ -73,7 +72,7 @@ public class MergeLocation {
 
         // add new items
         for (int i = 0; i < remoteLocations.size(); i++) {
-            LocationSerializer.Location l = remoteLocations.valueAt(i);
+            LocationDeserializer.Location l = remoteLocations.valueAt(i);
             Log.i(TAG, "Scheduling insert: server_id=" + l.getId());
             batch.add(ContentProviderOperation.newInsert(LocMessDBContract.Location.CONTENT_URI)
                     .withValue(LocMessDBContract.Location.COLUMN_NAME, l.getName())
@@ -98,7 +97,7 @@ public class MergeLocation {
         @WebRequestResult.ReturnedObject String label = WebRequestResult.LOCATION;
         JsonObjectAPI jresult = new Gson().fromJson(result, JsonObjectAPI.class);
         JsonObject jlocation = jresult.getData().getAsJsonObject(label);
-        LocationSerializer.Location location = new LocationSerializer().parse(jlocation);
+        LocationDeserializer.Location location = new LocationDeserializer().parse(jlocation);
         int serverId = location.getId();
 
         ContentValues values = new ContentValues();
