@@ -1,4 +1,4 @@
-package ist.meic.cmu.locmess_client.network.request_builders.delete;
+package ist.meic.cmu.locmess_client.network.request_builders;
 
 import java.net.MalformedURLException;
 
@@ -10,16 +10,17 @@ import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
  * Created by lads on 05/05/2017.
  */
 
-public class DeleteLocationRequestBuilder implements RequestBuilder {
+public class GenericDeleteRequestBuilder implements RequestBuilder {
 
-    private final String url;
+    private final int serverID;
 
-    public DeleteLocationRequestBuilder(int serverID) {
-        this.url = LocMessURL.DELETE_LOCATION.replace(LocMessURL.ID, String.valueOf(serverID));
+    public GenericDeleteRequestBuilder(int serverID) {
+        this.serverID = serverID;
     }
 
     @Override
     public RequestData build(String url, @RequestData.RequestMethod int requestMethod) throws MalformedURLException {
-        return new RequestData(this.url, requestMethod, null);
+        String urlWithID = url.replace(LocMessURL.ID, String.valueOf(serverID));
+        return new RequestData(urlWithID, requestMethod, null);
     }
 }

@@ -11,12 +11,12 @@ import ist.meic.cmu.locmess_client.network.RequestData;
  * Created by Catarina on 22/04/2017.
  */
 
-public class UserRequestBuilder implements RequestBuilder {
+public class GenericUserRequestBuilder implements RequestBuilder {
     private final String username;
     private final String password;
     Gson gson;
 
-    public UserRequestBuilder(String username, String password) {
+    public GenericUserRequestBuilder(String username, String password) {
         this.username = username;
         this.password = password;
         gson = new Gson();

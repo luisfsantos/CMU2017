@@ -29,8 +29,9 @@ import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
+import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
-import ist.meic.cmu.locmess_client.network.request_builders.delete.DeleteLocationRequestBuilder;
+import ist.meic.cmu.locmess_client.network.request_builders.GenericDeleteRequestBuilder;
 import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
@@ -118,10 +119,9 @@ public class LocationsActivity extends BaseNavigationActivity implements
         Uri uri = ContentUris.withAppendedId(LocMessDBContract.Location.CONTENT_URI, id);
         int count = getContentResolver().delete(uri, null, null);
         Log.d(TAG, "Deleted " + count + " row(s)");
-        //TODO notify server
         RequestData data = null;
         try {
-            data = new DeleteLocationRequestBuilder(serverID).build(null, RequestData.DELETE);
+            data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_LOCATION, RequestData.DELETE);
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: ", e);
         }

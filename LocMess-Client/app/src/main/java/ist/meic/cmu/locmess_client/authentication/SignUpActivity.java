@@ -20,7 +20,7 @@ import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequestCallback;
-import ist.meic.cmu.locmess_client.network.request_builders.UserRequestBuilder;
+import ist.meic.cmu.locmess_client.network.request_builders.GenericUserRequestBuilder;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
@@ -101,7 +101,7 @@ public class SignUpActivity extends AppCompatActivity implements WebRequestCallb
         freeze();
 
         try {
-            RequestData data = (new UserRequestBuilder(username, password)).build(LocMessURL.SIGNUP, RequestData.POST);
+            RequestData data = (new GenericUserRequestBuilder(username, password)).build(LocMessURL.SIGNUP, RequestData.POST);
             new SignupTask(this, data).execute();
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "URL is malformed", e);
@@ -167,7 +167,7 @@ public class SignUpActivity extends AppCompatActivity implements WebRequestCallb
         String username = mUsername.getText().toString();
         String password = mPassword.getText().toString();
         try {
-            RequestData data = (new UserRequestBuilder(username, password)).build(LocMessURL.LOGIN, RequestData.POST);
+            RequestData data = (new GenericUserRequestBuilder(username, password)).build(LocMessURL.LOGIN, RequestData.POST);
             new LoginTask(new LoginCallback(), data, username).execute();
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "URL is malformed", e);
