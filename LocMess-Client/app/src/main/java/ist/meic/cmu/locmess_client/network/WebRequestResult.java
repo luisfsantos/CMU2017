@@ -67,8 +67,8 @@ public class WebRequestResult {
     public static final String LOCATION = "Location";
     public static final String LOCATIONS = "Locations";
     public static final String MESSAGE = "Message";
-    public static final String KEYPAIR = "Keypair";
-    public static final String KEYPAIRS = "Keypairs";
+    public static final String KEYPAIR = "Information";
+    public static final String KEYPAIRS = "User Information";
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({LOCATION, LOCATIONS, MESSAGE, KEYPAIR, KEYPAIRS})
     public @interface ReturnedObject {}

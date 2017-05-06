@@ -17,34 +17,32 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
-import ist.meic.cmu.locmess_client.network.json.serializers.LocationSerializer;
+import ist.meic.cmu.locmess_client.network.json.serializers.KeypairSerializer;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
-import ist.meic.cmu.locmess_client.utils.DateUtils;
 
 /**
- * Created by Catarina on 04/05/2017.
+ * Created by Catarina on 05/05/2017.
  */
 
-public class MergeLocation {
-    private static final String TAG = "MergeLocation";
-    private MergeLocation() {}
+public class MergeKeypair {
+    private static final String TAG = "MergeKeypair";
+    private MergeKeypair() {}
 
-    public static void mergeAll(ContentResolver contentResolver, JsonArray locations, SyncResult syncResult) throws RemoteException, OperationApplicationException {
-        Log.i(TAG, "Parsing json into Location map");
-        SparseArray<LocationSerializer.Location> remoteLocations =
-                new LocationSerializer().parseAll(locations);
-        Log.i(TAG, "Parsing complete. Found " + remoteLocations.size() + " remote entries");
+    public static void mergeAll(ContentResolver contentResolver, JsonArray keypairs, SyncResult syncResult) throws RemoteException, OperationApplicationException {
+        Log.i(TAG, "Parsing json into Keypair map");
+        SparseArray<KeypairSerializer.KeyPair> remoteKeypairs =
+                new KeypairSerializer().parseAll(keypairs);
+        Log.i(TAG, "Parsing complete. Found " + remoteKeypairs.size() + " remote entries");
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
         Log.i(TAG, "Fetching local entries for merge");
-        Uri uri = LocMessDBContract.Location.CONTENT_URI;
+        Uri uri = LocMessDBContract.KeyPair.CONTENT_URI;
         Cursor c = contentResolver.query(uri,
-                LocMessDBContract.Location.DEFAULT_PROJECTION,
+                LocMessDBContract.KeyPair.DEFAULT_PROJECTION,
                 null, null, null);
         assert c != null;
         Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
@@ -55,15 +53,15 @@ public class MergeLocation {
         while (c.moveToNext()) {
             syncResult.stats.numEntries++;
             serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
-            dbId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.Location._ID));
-            LocationSerializer.Location match = remoteLocations.get(serverId);
+            dbId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.KeyPair._ID));
+            KeypairSerializer.KeyPair match = remoteKeypairs.get(serverId);
             if (match != null) {
                 // entry exists. remove from remote locations map to prevent insert later
-                remoteLocations.remove(serverId);
+                remoteKeypairs.remove(serverId);
                 // we are not updating anything in the local entry
             } else {
                 // entry doesn't exist. remove it from the database
-                Uri deleteUri = ContentUris.withAppendedId(LocMessDBContract.Location.CONTENT_URI, dbId);
+                Uri deleteUri = ContentUris.withAppendedId(LocMessDBContract.KeyPair.CONTENT_URI, dbId);
                 Log.i(TAG, "Scheduling delete: " + deleteUri);
                 batch.add(ContentProviderOperation.newDelete(deleteUri).build());
                 syncResult.stats.numDeletes++;
@@ -72,16 +70,13 @@ public class MergeLocation {
         c.close();
 
         // add new items
-        for (int i = 0; i < remoteLocations.size(); i++) {
-            LocationSerializer.Location l = remoteLocations.valueAt(i);
-            Log.i(TAG, "Scheduling insert: server_id=" + l.getId());
-            batch.add(ContentProviderOperation.newInsert(LocMessDBContract.Location.CONTENT_URI)
-                    .withValue(LocMessDBContract.Location.COLUMN_NAME, l.getName())
-                    .withValue(LocMessDBContract.Location.COLUMN_AUTHOR, l.getAuthor())
-                    .withValue(LocMessDBContract.Location.COLUMN_DATE_CREATED,
-                            DateUtils.formatDateTimeLocaleToDb(l.getCreationDate()))
-                    .withValue(LocMessDBContract.Location.COLUMN_COORDINATES, l.getCoordinatesDbFormat())
-                    .withValue(LocMessDBContract.COLUMN_SERVER_ID, l.getId())
+        for (int i = 0; i < remoteKeypairs.size(); i++) {
+            KeypairSerializer.KeyPair k = remoteKeypairs.valueAt(i);
+            Log.i(TAG, "Scheduling insert: server_id=" + k.getId());
+            batch.add(ContentProviderOperation.newInsert(LocMessDBContract.KeyPair.CONTENT_URI)
+                    .withValue(LocMessDBContract.KeyPair.COLUMN_KEY, k.getKey())
+                    .withValue(LocMessDBContract.KeyPair.COLUMN_VALUE, k.getValue())
+                    .withValue(LocMessDBContract.COLUMN_SERVER_ID, k.getId())
                     .build());
             syncResult.stats.numInserts++;
         }
@@ -95,10 +90,10 @@ public class MergeLocation {
     }
 
     public static void fillInServerId(ContentResolver contentResolver, Uri databaseEntryUri, String result, SyncResult syncResult) {
-        @WebRequestResult.ReturnedObject String label = WebRequestResult.LOCATION;
+        @WebRequestResult.ReturnedObject String label = WebRequestResult.KEYPAIR;
         JsonObjectAPI jresult = new Gson().fromJson(result, JsonObjectAPI.class);
-        JsonObject jlocation = jresult.getData().getAsJsonObject(label);
-        LocationSerializer.Location location = new LocationSerializer().parse(jlocation);
+        JsonObject jkeypair = jresult.getData().getAsJsonObject(label);
+        KeypairSerializer.KeyPair location = new KeypairSerializer().parse(jkeypair);
         int serverId = location.getId();
 
         ContentValues values = new ContentValues();
@@ -108,6 +103,4 @@ public class MergeLocation {
 
         Log.i(TAG, "Filled server_id=" + serverId + " of entry " + databaseEntryUri);
     }
-
 }
-

@@ -28,6 +28,7 @@ import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
+import ist.meic.cmu.locmess_client.network.sync.merge.MergeKeypair;
 import ist.meic.cmu.locmess_client.network.sync.merge.MergeLocation;
 
 /**
@@ -117,7 +118,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         String json = extras.getString(SyncUtils.REQUEST_JSON);
         RequestData request = new RequestData(url, requestMethod, json);
         Uri databaseEntry = Uri.parse(extras.getString(SyncUtils.DB_ENTRY_URI, Uri.EMPTY.toString()));
-        @WebRequestResult.ReturnedObject String returnedObjLabel;
         @SyncUtils.PushWhat int pushWhat = extras.getInt(SyncUtils.PUSH_WHAT, SyncUtils.NO_PUSH);
 
         SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
@@ -125,20 +125,19 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         WebRequestResult response = new WebRequest(request, jwt).execute();
         switch (pushWhat) {
             case SyncUtils.CREATE_LOCATION:
-                returnedObjLabel = WebRequestResult.LOCATION;
                 MergeLocation.fillInServerId(mContentResolver,
                         databaseEntry,
                         response.getResult(),
-                        returnedObjLabel,
                         syncResult);
                 break;
             case SyncUtils.CREATE_MESSAGE:
-                returnedObjLabel = WebRequestResult.MESSAGE;
                 // TODO: 05/05/2017 fill server id
                 break;
             case SyncUtils.CREATE_KEYPAIR:
-                returnedObjLabel = null;// FIXME: 04/05/2017 define according to api
-                // TODO: 05/05/2017 fill server id
+                MergeKeypair.fillInServerId(mContentResolver,
+                        databaseEntry,
+                        response.getResult(),
+                        syncResult);
                 break;
             case SyncUtils.DELETE_MESSAGE:
             case SyncUtils.DELETE_KEYPAIR:
@@ -150,6 +149,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
+
     private void pull(Bundle extras, SyncResult syncResult) throws IOException, RemoteException, OperationApplicationException {
         String url = extras.getString(SyncUtils.REQUEST_URL);
         @RequestData.RequestMethod int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
@@ -157,7 +157,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         @SyncUtils.PullWhat int pullWhat = extras.getInt(SyncUtils.PULL_WHAT, SyncUtils.NO_PULL);
 
         if (pullWhat == SyncUtils.NO_PULL) {
-            Log.i(TAG, "Syncing without expecting a result from the server (pull failed)");
+            Log.i(TAG, "Sync request without PULL_WHAT specified. Pull returned without contacting the server.");
             return;
         }
 
@@ -166,17 +166,19 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
         WebRequestResult response = new WebRequest(request, jwt).execute();
         @WebRequestResult.ReturnedObject String returnedObjLabel;
+        JsonObjectAPI jresult = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
         switch (pullWhat) {
             case SyncUtils.PULL_LOCATIONS:
                 returnedObjLabel = WebRequestResult.LOCATIONS;
-                JsonObjectAPI jresult = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
                 JsonArray jlocations = jresult.getData().getAsJsonArray(returnedObjLabel);
                 Log.d(TAG, "Locations: " + jlocations.toString());
                 MergeLocation.mergeAll(mContentResolver, jlocations, syncResult);
                 break;
             case SyncUtils.PULL_KEYPAIRS:
-                // TODO: 04/05/2017
-//                returnedObj = WebRequestResult.KEYPAIRS;
+                returnedObjLabel = WebRequestResult.KEYPAIRS;
+                JsonArray jkeypairs = jresult.getData().getAsJsonArray(returnedObjLabel);
+                Log.d(TAG, "Keypairs: " + jkeypairs.toString());
+                MergeKeypair.mergeAll(mContentResolver, jkeypairs, syncResult);
                 break;
         }
     }

@@ -1,6 +1,7 @@
 package ist.meic.cmu.locmess_client.network.json.serializers;
 
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -9,7 +10,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,13 +30,13 @@ public class LocationSerializer {
         return gson.fromJson(location, Location.class);
     }
 
-    public HashMap<Integer, Location> parseAll(JsonArray locations) {
-        HashMap<Integer, Location> locationsHashMap = new HashMap<>();
+    public SparseArray<Location> parseAll(JsonArray locations) {
+        SparseArray<Location> locationsMap = new SparseArray<>();
         for (JsonElement element : locations) {
             Location location = gson.fromJson(element, Location.class);
-            locationsHashMap.put(location.getId(), location);
+            locationsMap.put(location.getId(), location);
         }
-        return locationsHashMap;
+        return locationsMap;
     }
 
     public class Location {

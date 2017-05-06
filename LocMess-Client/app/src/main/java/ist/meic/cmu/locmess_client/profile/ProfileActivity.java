@@ -26,6 +26,7 @@ import ist.meic.cmu.locmess_client.authentication.LoginActivity;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
+import ist.meic.cmu.locmess_client.network.request_builders.GenericDeleteRequestBuilder;
 import ist.meic.cmu.locmess_client.network.request_builders.create.NewKeypairRequestBuilder;
 import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
@@ -111,29 +112,35 @@ public class ProfileActivity extends BaseNavigationActivity
         }
     }
 
-    private void removeKeyPair(int id) {
+    private void removeKeyPair(int id, int serverID) {
         Uri uri = ContentUris.withAppendedId(LocMessDBContract.KeyPair.CONTENT_URI, id);
         int count = getContentResolver().delete(uri, null, null);
         Log.d(TAG, "Deleted " + count + " row(s)");
-        // TODO notify server
+        try {
+            RequestData data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_KEYPAIR, RequestData.DELETE);
+            SyncUtils.push(SyncUtils.DELETE_KEYPAIR, data, null);
+        } catch (MalformedURLException e) {
+            Log.wtf(TAG, "Malformed URL: ", e);
+        }
     }
 
     @Override
     public void onAttachToViewHolder(View itemView) {
         final Cursor cursor = mAdapter.getCursor();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.KeyPair._ID));
+        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
         final String key = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.KeyPair.COLUMN_KEY));
         final String value = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.KeyPair.COLUMN_VALUE));
         ImageButton removeBtn = (ImageButton)itemView.findViewById(R.id.remove_btn);
         removeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showRemoveDialog(key, value, id);
+                showRemoveDialog(key, value, id, serverID);
             }
         });
     }
 
-    private void showRemoveDialog(final String key, final String value, final int id) {
+    private void showRemoveDialog(final String key, final String value, final int id, final int serverID) {
         String dialogMessage = getString(R.string.remove_dialog_message_start) +
                 " \"" + key + ": " + value + "\"";
 
@@ -143,7 +150,7 @@ public class ProfileActivity extends BaseNavigationActivity
                 .setPositiveButton(R.string.remove_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        removeKeyPair(id);
+                        removeKeyPair(id, serverID);
                     }
                 }).setNegativeButton(R.string.cancel, null);
         builder.show();
@@ -153,7 +160,8 @@ public class ProfileActivity extends BaseNavigationActivity
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] queryCols = new String[] { LocMessDBContract.KeyPair._ID,
                 LocMessDBContract.KeyPair.COLUMN_KEY,
-                LocMessDBContract.KeyPair.COLUMN_VALUE};
+                LocMessDBContract.KeyPair.COLUMN_VALUE,
+                LocMessDBContract.COLUMN_SERVER_ID};
         return new CursorLoader(ProfileActivity.this,
                 LocMessDBContract.KeyPair.CONTENT_URI,
                 queryCols,          // the projection fields
