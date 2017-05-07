@@ -5,10 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.Message;
 
 /**
  * Created by Catarina on 31/03/2017.
@@ -16,6 +17,7 @@ import ist.meic.cmu.locmess_client.data.Message;
 
 public class ShowMessageActivity extends AppCompatActivity {
 
+    public static final String INTENT_MESSAGE = "message";
     Message mMessage;
 
     @Override
@@ -24,18 +26,20 @@ public class ShowMessageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_show_msg);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mMessage = getIntent().getParcelableExtra("message");
+        mMessage = (Message)getIntent().getSerializableExtra(INTENT_MESSAGE);
         TextView postAuthor = (TextView)findViewById(R.id.post_author);
         TextView postTitle = (TextView)findViewById(R.id.post_title);
         TextView postText = (TextView)findViewById(R.id.post_text);
         TextView postLocation = (TextView)findViewById(R.id.post_location);
         TextView postTime = (TextView)findViewById(R.id.post_time);
 
-        postAuthor.setText(mMessage.author);
-        postTitle.setText(mMessage.title);
-        postText.setText(mMessage.text);
-        postLocation.setText(mMessage.location);
-        postTime.setText(SimpleDateFormat.getInstance().format(mMessage.time));
+        if (mMessage != null) {
+            postAuthor.setText(mMessage.author);
+            postTitle.setText(mMessage.title);
+            postText.setText(mMessage.text);
+            postLocation.setText(mMessage.location);
+            postTime.setText(mMessage.time);
+        }
     }
 
     @Override
@@ -52,12 +56,28 @@ public class ShowMessageActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("message", mMessage);
+        outState.putSerializable(INTENT_MESSAGE, mMessage);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mMessage = savedInstanceState.getParcelable("message");
+        mMessage = (Message)savedInstanceState.getSerializable(INTENT_MESSAGE);
+    }
+
+    public static class Message implements Serializable {
+        public final String author;
+        public final String title;
+        public final String text;
+        public final String time;
+        public final String location;
+
+        public Message(String author, String title, String text, String time, String location) {
+            this.author = author;
+            this.title = title;
+            this.text = text;
+            this.time = time;
+            this.location = location;
+        }
     }
 }

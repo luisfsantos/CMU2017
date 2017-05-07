@@ -31,6 +31,8 @@ public class LocMessProvider extends ContentProvider {
     static final int POSTED_MESSAGES_ID = 6;
     static final int OPENED_MESSAGES = 7;
     static final int OPENED_MESSAGES_ID = 8;
+    static final int AVAILABLE_MESSAGES = 9;
+    static final int AVAILABLE_MESSAGES_ID = 10;
 
     private static final UriMatcher sUriMatcher;
     static {
@@ -43,6 +45,8 @@ public class LocMessProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, LocMessDBContract.PostedMessages.POSTED_MESSAGES_ID_PATH, POSTED_MESSAGES_ID);
         sUriMatcher.addURI(AUTHORITY, LocMessDBContract.OpenedMessages.OPENED_MESSAGES_PATH, OPENED_MESSAGES);
         sUriMatcher.addURI(AUTHORITY, LocMessDBContract.OpenedMessages.OPENED_MESSAGES_ID_PATH, OPENED_MESSAGES_ID);
+        sUriMatcher.addURI(AUTHORITY, LocMessDBContract.AvailableMessages.AVAILABLE_MESSAGES_PATH, AVAILABLE_MESSAGES);
+        sUriMatcher.addURI(AUTHORITY, LocMessDBContract.AvailableMessages.AVAILABLE_MESSAGES_ID_PATH, AVAILABLE_MESSAGES_ID);
     }
 
     @Override
@@ -100,6 +104,15 @@ public class LocMessProvider extends ContentProvider {
                         uri.getPathSegments().get(LocMessDBContract.OpenedMessages.ID_PATH_SEGMENT_INDEX)
                 );
                 break;
+            case AVAILABLE_MESSAGES:
+                qb.setTables(LocMessDBContract.AvailableMessages.TABLE_NAME);
+                break;
+            case AVAILABLE_MESSAGES_ID:
+                qb.setTables(LocMessDBContract.AvailableMessages.TABLE_NAME);
+                qb.appendWhere(LocMessDBContract.AvailableMessages._ID + " = " +
+                        uri.getPathSegments().get(LocMessDBContract.AvailableMessages.ID_PATH_SEGMENT_INDEX)
+                );
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -136,6 +149,12 @@ public class LocMessProvider extends ContentProvider {
                 rowId = database.insert(LocMessDBContract.OpenedMessages.TABLE_NAME, null, contentValues);
                 if (rowId > 0) {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.OpenedMessages.CONTENT_URI, rowId);
+                }
+                break;
+            case AVAILABLE_MESSAGES:
+                rowId = database.insert(LocMessDBContract.AvailableMessages.TABLE_NAME, null, contentValues);
+                if (rowId > 0) {
+                    rowUri = ContentUris.withAppendedId(LocMessDBContract.AvailableMessages.CONTENT_URI, rowId);
                 }
                 break;
         }
@@ -230,6 +249,22 @@ public class LocMessProvider extends ContentProvider {
                             .append(selection);
                 }
                 count = database.delete(LocMessDBContract.OpenedMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
+                break;
+            case AVAILABLE_MESSAGES:
+                count = database.delete(LocMessDBContract.AvailableMessages.TABLE_NAME, selection, selectionArgs);
+                break;
+            case AVAILABLE_MESSAGES_ID:
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.AvailableMessages._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.AvailableMessages.ID_PATH_SEGMENT_INDEX));
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.delete(LocMessDBContract.AvailableMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -331,6 +366,27 @@ public class LocMessProvider extends ContentProvider {
                 }
                 count = database.update(LocMessDBContract.OpenedMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
                 break;
+            case AVAILABLE_MESSAGES:
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.AvailableMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
+            case AVAILABLE_MESSAGES_ID:
+                finalSelection
+                        .append(" AND ")
+                        .append(LocMessDBContract.AvailableMessages._ID)
+                        .append(" = ")
+                        .append(uri.getPathSegments().get(LocMessDBContract.AvailableMessages.ID_PATH_SEGMENT_INDEX));
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.update(LocMessDBContract.AvailableMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -357,6 +413,10 @@ public class LocMessProvider extends ContentProvider {
                 return LocMessDBContract.OpenedMessages.OPENED_MESSAGES_TYPE;
             case OPENED_MESSAGES_ID:
                 return LocMessDBContract.OpenedMessages.OPENED_MESSAGES_ID_TYPE;
+            case AVAILABLE_MESSAGES:
+                return LocMessDBContract.AvailableMessages.AVAILABLE_MESSAGES_TYPE;
+            case AVAILABLE_MESSAGES_ID:
+                return LocMessDBContract.AvailableMessages.AVAILABLE_MESSAGES_ID_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }

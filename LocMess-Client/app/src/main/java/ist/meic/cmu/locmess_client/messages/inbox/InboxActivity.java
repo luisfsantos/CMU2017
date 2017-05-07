@@ -13,8 +13,6 @@ import android.view.View;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
-import ist.meic.cmu.locmess_client.messages.inbox.available.AvailableTabFragment;
-import ist.meic.cmu.locmess_client.messages.inbox.opened.OpenedTabFragment;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 
 public class InboxActivity extends BaseNavigationActivity {

@@ -30,6 +30,7 @@ import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.sync.merge.MergeKeypair;
 import ist.meic.cmu.locmess_client.network.sync.merge.MergeLocation;
+import ist.meic.cmu.locmess_client.network.sync.merge.MergeMessage;
 
 /**
  * Define a sync adapter for the app.
@@ -131,7 +132,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                         syncResult);
                 break;
             case SyncUtils.CREATE_MESSAGE:
-                // TODO: 05/05/2017 fill server id
+                MergeMessage.fillInServerId(mContentResolver,
+                        databaseEntry,
+                        response.getResult(),
+                        syncResult);
                 break;
             case SyncUtils.CREATE_KEYPAIR:
                 MergeKeypair.fillInServerId(mContentResolver,
@@ -165,18 +169,15 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
         WebRequestResult response = new WebRequest(request, jwt).execute();
-        @WebRequestResult.ReturnedObject String returnedObjLabel;
         JsonObjectAPI jresult = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
         switch (pullWhat) {
             case SyncUtils.PULL_LOCATIONS:
-                returnedObjLabel = WebRequestResult.LOCATIONS;
-                JsonArray jlocations = jresult.getData().getAsJsonArray(returnedObjLabel);
+                JsonArray jlocations = jresult.getData().getAsJsonArray(WebRequestResult.LOCATIONS);
                 Log.d(TAG, "Locations: " + jlocations.toString());
                 MergeLocation.mergeAll(mContentResolver, jlocations, syncResult);
                 break;
             case SyncUtils.PULL_KEYPAIRS:
-                returnedObjLabel = WebRequestResult.KEYPAIRS;
-                JsonArray jkeypairs = jresult.getData().getAsJsonArray(returnedObjLabel);
+                JsonArray jkeypairs = jresult.getData().getAsJsonArray(WebRequestResult.KEYPAIRS);
                 Log.d(TAG, "Keypairs: " + jkeypairs.toString());
                 MergeKeypair.mergeAll(mContentResolver, jkeypairs, syncResult);
                 break;

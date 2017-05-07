@@ -150,4 +150,47 @@ public class LocMessDBContract {
         };
     }
 
+    public static class AvailableMessages implements BaseColumns {
+        public static final String AVAILABLE_MESSAGES_PATH = "messages/available";
+        public static final String AVAILABLE_MESSAGES_ID_PATH = "messages/available/#";
+        public static final String AVAILABLE_MESSAGES_TYPE = "vnd.android.cursor.dir/vnd.locmess.provider.messages.available";
+        public static final String AVAILABLE_MESSAGES_ID_TYPE = "vnd.android.cursor.item/vnd.locmess.provider.messages.available";
+        public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+AVAILABLE_MESSAGES_PATH);
+        public static final int ID_PATH_SEGMENT_INDEX = 2;
+
+        public static final String TABLE_NAME = "available";
+        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_CONTENT = "content";
+        public static final String COLUMN_LOCATION = "location";
+        public static final String COLUMN_AUTHOR = "author";
+        public static final String COLUMN_DATE_POSTED = "date_posted";
+        public static final String COLUMN_READ = "read";
+
+        public static final int MESSAGE_READ = 1;
+        public static final int MESSAGE_NOT_READ = 0;
+
+        public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_TITLE + " TEXT, " +
+                COLUMN_CONTENT + " TEXT, " +
+                COLUMN_LOCATION + " TEXT, " +
+                COLUMN_AUTHOR + " TEXT, " +
+                COLUMN_DATE_POSTED + " TEXT, " +
+                COLUMN_READ + " BOOLEAN NOT NULL CHECK (" +
+                    COLUMN_READ + " IN (" + MESSAGE_READ + "," + MESSAGE_NOT_READ + ")), " +
+                COLUMN_SERVER_ID + " INTEGER, " +
+                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
+
+        public static final String[] DEFAULT_PROJECTION = new String[] {
+                LocMessDBContract.AvailableMessages._ID,
+                LocMessDBContract.AvailableMessages.COLUMN_TITLE,
+                LocMessDBContract.AvailableMessages.COLUMN_CONTENT,
+                LocMessDBContract.AvailableMessages.COLUMN_LOCATION,
+                LocMessDBContract.AvailableMessages.COLUMN_AUTHOR,
+                LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED,
+                LocMessDBContract.AvailableMessages.COLUMN_READ,
+                LocMessDBContract.COLUMN_SERVER_ID
+        };
+    }
 }

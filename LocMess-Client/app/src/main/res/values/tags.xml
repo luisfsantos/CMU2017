@@ -5,4 +5,5 @@
     <item name="active_messages_loader_id" type="id"/>
     <item name="archived_messages_loader_id" type="id"/>
     <item name="opened_messages_loader_id" type="id"/>
+    <item name="available_messages_loader_id" type="id"/>
 </resources>

@@ -9,6 +9,7 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -32,7 +33,7 @@ public class MergeLocation {
     private static final String TAG = "MergeLocation";
     private MergeLocation() {}
 
-    public static void mergeAll(ContentResolver contentResolver, JsonArray locations, SyncResult syncResult) throws RemoteException, OperationApplicationException {
+    public static void mergeAll(ContentResolver contentResolver, JsonArray locations, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
         Log.i(TAG, "Parsing json into Location map");
         SparseArray<LocationDeserializer.Location> remoteLocations =
                 new LocationDeserializer().parseAll(locations);
@@ -52,7 +53,9 @@ public class MergeLocation {
         int serverId;
         int dbId;
         while (c.moveToNext()) {
-            syncResult.stats.numEntries++;
+            if (syncResult != null) {
+                syncResult.stats.numEntries++;
+            }
             serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
             dbId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.Location._ID));
             LocationDeserializer.Location match = remoteLocations.get(serverId);
@@ -65,7 +68,9 @@ public class MergeLocation {
                 Uri deleteUri = ContentUris.withAppendedId(LocMessDBContract.Location.CONTENT_URI, dbId);
                 Log.i(TAG, "Scheduling delete: " + deleteUri);
                 batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-                syncResult.stats.numDeletes++;
+                if (syncResult != null) {
+                    syncResult.stats.numDeletes++;
+                }
             }
         }
         c.close();
@@ -82,7 +87,9 @@ public class MergeLocation {
                     .withValue(LocMessDBContract.Location.COLUMN_COORDINATES, l.getCoordinatesDbFormat())
                     .withValue(LocMessDBContract.COLUMN_SERVER_ID, l.getId())
                     .build());
-            syncResult.stats.numInserts++;
+            if (syncResult != null) {
+                syncResult.stats.numInserts++;
+            }
         }
 
         Log.i(TAG, "Merge solution ready. Applying batch update");
@@ -93,7 +100,7 @@ public class MergeLocation {
                 false);                                 // IMPORTANT: do not sync do network
     }
 
-    public static void fillInServerId(ContentResolver contentResolver, Uri databaseEntryUri, String result, SyncResult syncResult) {
+    public static void fillInServerId(ContentResolver contentResolver, Uri databaseEntryUri, String result, @Nullable SyncResult syncResult) {
         @WebRequestResult.ReturnedObject String label = WebRequestResult.LOCATION;
         JsonObjectAPI jresult = new Gson().fromJson(result, JsonObjectAPI.class);
         JsonObject jlocation = jresult.getData().getAsJsonObject(label);
@@ -103,7 +110,9 @@ public class MergeLocation {
         ContentValues values = new ContentValues();
         values.put(LocMessDBContract.COLUMN_SERVER_ID, serverId);
         contentResolver.update(databaseEntryUri, values, null, null);
-        syncResult.stats.numUpdates++;
+        if (syncResult != null) {
+            syncResult.stats.numUpdates++;
+        }
 
         Log.i(TAG, "Filled server_id=" + serverId + " of entry " + databaseEntryUri);
     }

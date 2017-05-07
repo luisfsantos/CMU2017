@@ -64,7 +64,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
 
         saveCurrentLocationAsPrevious(currentLocation);
-        // FIXME: (DISCUSS) 28/04/2017 i think for the case where the location has not changed but network is on, we should still fetch the messages
         Intent serviceIntent = new Intent(mContext, FetchLocationMessagesService.class);
         Bundle bundle = new Bundle();
         try {

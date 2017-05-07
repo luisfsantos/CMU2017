@@ -23,9 +23,9 @@ public class KeypairDeserializer {
         return gson.fromJson(keypair, KeyPair.class);
     }
 
-    public SparseArray<KeyPair> parseAll(JsonArray locations) {
+    public SparseArray<KeyPair> parseAll(JsonArray keypairs) {
         SparseArray<KeyPair> keypairsMap = new SparseArray<>();
-        for (JsonElement element : locations) {
+        for (JsonElement element : keypairs) {
             KeyPair keypair = gson.fromJson(element, KeyPair.class);
             keypairsMap.put(keypair.getId(), keypair);
         }

@@ -22,28 +22,30 @@ import java.util.ArrayList;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.json.deserializers.KeypairDeserializer;
+import ist.meic.cmu.locmess_client.network.json.deserializers.MessageDeserializer;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
+import ist.meic.cmu.locmess_client.utils.DateUtils;
 
 /**
  * Created by Catarina on 05/05/2017.
  */
 
-public class MergeKeypair {
+public class MergeMessage {
     private static final String TAG = "MergeKeypair";
-    private MergeKeypair() {}
+    private MergeMessage() {}
 
-    public static void mergeAll(ContentResolver contentResolver, JsonArray keypairs, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
-        Log.i(TAG, "Parsing json into Keypair map");
-        SparseArray<KeypairDeserializer.KeyPair> remoteKeypairs =
-                new KeypairDeserializer().parseAll(keypairs);
-        Log.i(TAG, "Parsing complete. Found " + remoteKeypairs.size() + " remote entries");
+    public static void mergeAllAvailable(ContentResolver contentResolver, JsonArray messages, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
+        Log.i(TAG, "Parsing json into Message map");
+        SparseArray<MessageDeserializer.Message> remoteMessages =
+                new MessageDeserializer().parseAll(messages);
+        Log.i(TAG, "Parsing complete. Found " + remoteMessages.size() + " remote entries");
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
         Log.i(TAG, "Fetching local entries for merge");
-        Uri uri = LocMessDBContract.KeyPair.CONTENT_URI;
+        Uri uri = LocMessDBContract.AvailableMessages.CONTENT_URI;
         Cursor c = contentResolver.query(uri,
-                LocMessDBContract.KeyPair.DEFAULT_PROJECTION,
+                LocMessDBContract.AvailableMessages.DEFAULT_PROJECTION,
                 null, null, null);
         assert c != null;
         Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
@@ -56,15 +58,15 @@ public class MergeKeypair {
                 syncResult.stats.numEntries++;
             }
             serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
-            dbId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.KeyPair._ID));
-            KeypairDeserializer.KeyPair match = remoteKeypairs.get(serverId);
+            dbId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages._ID));
+            MessageDeserializer.Message match = remoteMessages.get(serverId);
             if (match != null) {
-                // entry exists. remove from remote keypairs map to prevent insert later
-                remoteKeypairs.remove(serverId);
+                // entry exists. remove from remote messages map to prevent insert later
+                remoteMessages.remove(serverId);
                 // we are not updating anything in the local entry
             } else {
                 // entry doesn't exist. remove it from the database
-                Uri deleteUri = ContentUris.withAppendedId(LocMessDBContract.KeyPair.CONTENT_URI, dbId);
+                Uri deleteUri = ContentUris.withAppendedId(LocMessDBContract.AvailableMessages.CONTENT_URI, dbId);
                 Log.i(TAG, "Scheduling delete: " + deleteUri);
                 batch.add(ContentProviderOperation.newDelete(deleteUri).build());
                 if (syncResult != null) {
@@ -75,13 +77,22 @@ public class MergeKeypair {
         c.close();
 
         // add new items
-        for (int i = 0; i < remoteKeypairs.size(); i++) {
-            KeypairDeserializer.KeyPair k = remoteKeypairs.valueAt(i);
-            Log.i(TAG, "Scheduling insert: server_id=" + k.getId());
-            batch.add(ContentProviderOperation.newInsert(LocMessDBContract.KeyPair.CONTENT_URI)
-                    .withValue(LocMessDBContract.KeyPair.COLUMN_KEY, k.getKey())
-                    .withValue(LocMessDBContract.KeyPair.COLUMN_VALUE, k.getValue())
-                    .withValue(LocMessDBContract.COLUMN_SERVER_ID, k.getId())
+        for (int i = 0; i < remoteMessages.size(); i++) {
+            MessageDeserializer.Message m = remoteMessages.valueAt(i);
+            Log.i(TAG, "Scheduling insert: server_id=" + m.getId());
+            Log.d(TAG, String.format("title=%s text=%s author=%s date=%s location=%s read=%d",
+                    m.getTitle(), m.getText(), m.getAuthor(),
+                    DateUtils.formatDateTimeLocaleToDb(m.getFromDate()),
+                    m.getLocation().getName(),
+                    LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ));
+            batch.add(ContentProviderOperation.newInsert(LocMessDBContract.AvailableMessages.CONTENT_URI)
+                    .withValue(LocMessDBContract.AvailableMessages.COLUMN_TITLE, m.getTitle())
+                    .withValue(LocMessDBContract.AvailableMessages.COLUMN_CONTENT, m.getText())
+                    .withValue(LocMessDBContract.AvailableMessages.COLUMN_AUTHOR, m.getAuthor())
+                    .withValue(LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED, DateUtils.formatDateTimeLocaleToDb(m.getFromDate()))
+                    .withValue(LocMessDBContract.AvailableMessages.COLUMN_LOCATION, m.getLocation().getName())
+                    .withValue(LocMessDBContract.AvailableMessages.COLUMN_READ, LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ)
+                    .withValue(LocMessDBContract.COLUMN_SERVER_ID, m.getId())
                     .build());
             if (syncResult != null) {
                 syncResult.stats.numInserts++;
@@ -91,17 +102,17 @@ public class MergeKeypair {
         Log.i(TAG, "Merge solution ready. Applying batch update");
         contentResolver.applyBatch(LocMessDBContract.AUTHORITY, batch);
         contentResolver.notifyChange(
-                LocMessDBContract.KeyPair.CONTENT_URI, // URI where data was modified
+                LocMessDBContract.AvailableMessages.CONTENT_URI, // URI where data was modified
                 null,                                   // no local observer
                 false);                                 // IMPORTANT: do not sync do network
     }
 
     public static void fillInServerId(ContentResolver contentResolver, Uri databaseEntryUri, String result, @Nullable SyncResult syncResult) {
-        @WebRequestResult.ReturnedObject String label = WebRequestResult.KEYPAIR;
+        @WebRequestResult.ReturnedObject String label = WebRequestResult.MESSAGE;
         JsonObjectAPI jresult = new Gson().fromJson(result, JsonObjectAPI.class);
-        JsonObject jkeypair = jresult.getData().getAsJsonObject(label);
-        KeypairDeserializer.KeyPair keypair = new KeypairDeserializer().parse(jkeypair);
-        int serverId = keypair.getId();
+        JsonObject jmessage = jresult.getData().getAsJsonObject(label);
+        MessageDeserializer.Message me = new MessageDeserializer().parse(jmessage);
+        int serverId = me.getId();
 
         ContentValues values = new ContentValues();
         values.put(LocMessDBContract.COLUMN_SERVER_ID, serverId);

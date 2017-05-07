@@ -1,7 +1,9 @@
 package ist.meic.cmu.locmess_client.messages.posted;
 
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,6 +24,7 @@ import android.widget.TextView;
 import java.util.Date;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.messages.ShowMessageActivity;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
 import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
@@ -109,14 +112,29 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         mAdapter.setViewHolderCallback(this);
     }
 
-    private void onRecyclerCardClicked() {
-//        Intent intent = new Intent(getContext(), ShowMessageActivity.class);
-//        intent.putExtra("message", message);
-//        startActivity(intent);
-        /*TODO put title, content, location, author is irrelevant but maybe pass username
-        * TODO concat formatted From and To with line separator
-        */
+    private void onRecyclerCardClicked(int position) {
+        Cursor c = mAdapter.getCursor();
+        c.moveToPosition(position);
+
+        String title = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_TITLE));
+        String text = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_CONTENT));
+        String author = getContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+                .getString(getString(R.string.pref_username), getString(R.string.you));
+        String dateFrom = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM));
+        String dateTo = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_TO));
+        String location = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_LOCATION));
+
+        String timeInterval = getString(R.string.from_date_prompt) + ": " + DateUtils.formatDateTimeDbToLocale(dateFrom)
+                + "\n" + getString(R.string.to_date_prompt) + ": " + DateUtils.formatDateTimeDbToLocale(dateTo);
+
+        ShowMessageActivity.Message message = new ShowMessageActivity.Message(
+                author, title, text, timeInterval, location);
+
+        Intent intent = new Intent(getContext(), ShowMessageActivity.class);
+        intent.putExtra(ShowMessageActivity.INTENT_MESSAGE, message);
+        startActivity(intent);
     }
+
     private void removeMessage(int id) {
         Uri uri = ContentUris.withAppendedId(LocMessDBContract.PostedMessages.CONTENT_URI, id);
         int count = getContext().getContentResolver().delete(uri, null, null);
@@ -144,7 +162,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRecyclerCardClicked(/*TODO pass in params*/);
+                onRecyclerCardClicked(cursor.getPosition());
             }
         });
     }

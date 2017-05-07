@@ -1,7 +1,8 @@
-package ist.meic.cmu.locmess_client.messages.inbox.opened;
+package ist.meic.cmu.locmess_client.messages.inbox;
 
 import android.content.ContentUris;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,7 +21,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.messages.OnRecyclerCardClicked;
+import ist.meic.cmu.locmess_client.messages.ShowMessageActivity;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
 import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
@@ -32,7 +33,7 @@ import static android.content.ContentValues.TAG;
  * Created by Catarina on 30/03/2017.
  */
 
-public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked,
+public class OpenedTabFragment extends Fragment implements
     SimpleCursorRecyclerAdapter.CursorRecyclerAdapterCallback, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int OPENED_MESSAGES_LOADER_ID = R.id.opened_messages_loader_id;
@@ -49,7 +50,7 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
     public void onResume() {
         super.onResume();
         mRecyclerView.setAdapter(mAdapter);
-        getActivity().getSupportLoaderManager().restartLoader(OPENED_MESSAGES_LOADER_ID, null, this);
+        getActivity().getSupportLoaderManager().initLoader(OPENED_MESSAGES_LOADER_ID, null, this);
     }
 
     @Nullable
@@ -90,7 +91,7 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
 
     @Override
     public void onAttachToViewHolder(View itemView) {
-        Cursor cursor = mAdapter.getCursor();
+        final Cursor cursor = mAdapter.getCursor();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.OpenedMessages._ID));
         String dbDate = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.OpenedMessages.COLUMN_DATE_POSTED));
         ((TextView)itemView.findViewById(R.id.post_time))
@@ -102,6 +103,12 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
                         showRemoveDialog(id);
                     }
                 });
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onRecyclerCardClicked(cursor.getPosition());
+            }
+        });
     }
 
     private void showRemoveDialog(final int id) {
@@ -122,16 +129,25 @@ public class OpenedTabFragment extends Fragment implements OnRecyclerCardClicked
         Log.d(TAG, "Removed " + count + " row(s)");
     }
 
-    @Override
-    public void onRecyclerCardClicked(View view) {
-//        Intent intent = new Intent(getContext(), ShowMessageActivity.class);
-//        intent.putExtra("message", message);
-//        startActivity(intent);
-        // TODO: 17/04/2017
+    public void onRecyclerCardClicked(int position) {
+        Cursor c = mAdapter.getCursor();
+        c.moveToPosition(position);
+
+        String title = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.OpenedMessages.COLUMN_TITLE));
+        String text = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.OpenedMessages.COLUMN_CONTENT));
+        String author = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.OpenedMessages.COLUMN_AUTHOR));
+        String date = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.OpenedMessages.COLUMN_DATE_POSTED));
+        String location = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.OpenedMessages.COLUMN_LOCATION));
+
+        ShowMessageActivity.Message message = new ShowMessageActivity.Message(
+                author, title, text, DateUtils.formatDateTimeDbToLocale(date), location);
+        Intent intent = new Intent(getContext(), ShowMessageActivity.class);
+        intent.putExtra(ShowMessageActivity.INTENT_MESSAGE, message);
+        startActivity(intent);
     }
 
     @Override
-    public Loader onCreateLoader(int id, Bundle args) {
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "Loading opened messages. Loader ID: " + OPENED_MESSAGES_LOADER_ID);
         String[] queryCols = new String[] {
                 LocMessDBContract.OpenedMessages._ID,

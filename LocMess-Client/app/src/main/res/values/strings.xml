@@ -98,5 +98,6 @@
     <string name="pref_currLocationSsids">curr_location_ssids</string>
     <string name="pref_currLatitude">curr_latitude</string>
     <string name="pref_currLongitude">curr_longitude</string>
+    <string name="you">You</string>
 
 </resources>

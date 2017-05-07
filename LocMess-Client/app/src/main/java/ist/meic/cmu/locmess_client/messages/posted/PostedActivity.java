@@ -79,7 +79,7 @@ public class PostedActivity extends BaseNavigationActivity {
         getSupportFragmentManager().putFragment(outState, KEY_ARCHIVED_FRAG, pagerAdapter.mTabArchived);
     }
 
-    class PagerAdapter extends FragmentPagerAdapter {
+    private class PagerAdapter extends FragmentPagerAdapter {
 
         PostedTabFragment mTabActive;
         PostedTabFragment mTabArchived;
@@ -87,7 +87,7 @@ public class PostedActivity extends BaseNavigationActivity {
         String[] TAB_TITLES = {getString(R.string.tab_active_messages), getString(R.string.tab_archived_messages)};
         Context mContext;
 
-        public PagerAdapter(FragmentManager fm, Context context) {
+        PagerAdapter(FragmentManager fm, Context context) {
             super(fm);
             mContext = context;
         }
