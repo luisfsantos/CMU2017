@@ -131,17 +131,19 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Uri databaseEntry = Uri.parse(extras.getString(SyncUtils.DB_ENTRY_URI, Uri.EMPTY.toString()));
         @SyncUtils.PushWhat int pushWhat = extras.getInt(SyncUtils.PUSH_WHAT, SyncUtils.NO_PUSH);
 
-//        SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-//        String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
         String jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
-        WebRequestResult response = null;
+        WebRequestResult response = new WebRequest(request, jwt).execute();
         try {
-            response = new WebRequest(request, jwt).execute();
             response.assertValidJwtToken();
         } catch (WebRequestResult.JwtExpiredException e) {
             Log.e(TAG, e.getMessage());
-            jwt = refreshAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, jwt);
+            jwt = GenericAccountService.refreshAuthToken(getContext(), account,
+                    GenericAccountService.AUTH_TOKEN_TYPE, jwt);
             response = new WebRequest(request, jwt).execute();
+        }
+
+        if (response.getError() != null) {
+            throw new IOException(response.getErrorMessages());
         }
         switch (pushWhat) {
             case SyncUtils.CREATE_LOCATION:
@@ -188,16 +190,17 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         RequestData request = new RequestData(url, requestMethod, json);
-//        SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-//        String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
         String jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
         WebRequestResult response = new WebRequest(request, jwt).execute();
         try {
             response.assertValidJwtToken();
         } catch (WebRequestResult.JwtExpiredException e) {
             Log.e(TAG, e.getMessage());
-            jwt = refreshAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, jwt);
+            jwt = GenericAccountService.refreshAuthToken(getContext(), account, GenericAccountService.AUTH_TOKEN_TYPE, jwt);
             response = new WebRequest(request, jwt).execute();
+        }
+        if (response.getError() != null) {
+            throw new IOException(response.getErrorMessages());
         }
         JsonObjectAPI jresult = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
         switch (pullWhat) {
@@ -212,13 +215,5 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 MergeKeypair.mergeAll(mContentResolver, jkeypairs, syncResult);
                 break;
         }
-    }
-
-    public String refreshAuthToken(Account account, String authTokenType, String oldToken) throws AuthenticatorException, OperationCanceledException, IOException {
-        AccountManager am = AccountManager.get(getContext());
-        am.invalidateAuthToken(account.type, oldToken);
-        String authToken = am.blockingGetAuthToken(account, authTokenType, true);
-        am.setAuthToken(account, authTokenType, authToken);
-        return authToken;
     }
 }

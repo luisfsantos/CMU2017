@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
