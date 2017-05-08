@@ -5,7 +5,7 @@ android {
     buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "ist.meic.cmu.locmess_client"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -29,4 +29,11 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.google.android.gms:play-services-location:9.8.0'
+    compile(name:'Termite-WifiP2P-API', ext:'aar')
+}
+
+repositories{
+    flatDir{
+        dirs 'libs'
+    }
 }
