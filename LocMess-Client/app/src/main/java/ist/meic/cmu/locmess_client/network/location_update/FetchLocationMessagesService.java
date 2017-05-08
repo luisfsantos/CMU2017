@@ -59,19 +59,23 @@ public class FetchLocationMessagesService extends IntentService {
         String jwt;
         AccountManager am = AccountManager.get(getBaseContext());
         Account account = GenericAccountService.GetActiveAccount(am);
-        try {
-            jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
-        } catch (OperationCanceledException | IOException | AuthenticatorException e) {
-            Log.e(TAG, "Error getting auth token from Account Manager: ", e);
-            stopSelf();
-            return;
-        }
         Bundle bundle = intent.getBundleExtra(INTENT_BUNDLE);
-        RequestData request = (RequestData)bundle.getSerializable(INTENT_REQUEST);
+        RequestData request = (RequestData) bundle.getSerializable(INTENT_REQUEST);
+        assert request != null;
+
         int numNotRead = 0;
         int numNewMessages = 0;
+
         try {
+            jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
             WebRequestResult response = new WebRequest(request, jwt).execute();
+            try {
+                response.assertValidJwtToken();
+            } catch (WebRequestResult.JwtExpiredException e) {
+                Log.e(TAG, e.getMessage());
+                jwt = GenericAccountService.refreshAuthToken(getBaseContext(), account, GenericAccountService.AUTH_TOKEN_TYPE, jwt);
+                response = new WebRequest(request, jwt).execute();
+            }
             JsonObjectAPI result = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
             JsonArray messages = result.getData().getAsJsonArray(WebRequestResult.MESSAGES);
             numNewMessages = MergeMessage.mergeAllAvailable(getContentResolver(), messages, null);
@@ -81,15 +85,18 @@ public class FetchLocationMessagesService extends IntentService {
         } catch (RemoteException | OperationApplicationException e) {
             Log.e(TAG, "Error updating database: " + e.getMessage());
             return;
+        } catch (OperationCanceledException | AuthenticatorException e) {
+            Log.e(TAG, "Error getting auth token from Account Manager: ", e);
+            stopSelf();
         }
         if (numNewMessages > 0) {
             // we only show the notification when there are new messages since the last update,
             // but the notification displays how many messages are still not read in general
             Cursor c = getContentResolver().query(
                     LocMessDBContract.AvailableMessages.CONTENT_URI,
-                    new String[] { LocMessDBContract.AvailableMessages._ID},
+                    new String[]{LocMessDBContract.AvailableMessages._ID},
                     LocMessDBContract.AvailableMessages.COLUMN_READ + " = ?",
-                    new String[] { String.valueOf(LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ) },
+                    new String[]{String.valueOf(LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ)},
                     null
             );
             if (c != null) {

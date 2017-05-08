@@ -4,12 +4,15 @@ import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
+import android.accounts.AuthenticatorException;
 import android.accounts.NetworkErrorException;
+import android.accounts.OperationCanceledException;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -44,8 +47,19 @@ public class GenericAccountService extends Service {
             return accounts[0];
         } else {
             Log.e(TAG, "No accounts");
+//            am.addAccount()
             return null;
         }
+    }
+
+    public static String refreshAuthToken(@NonNull Context context, @NonNull Account account,
+                                          @NonNull String authTokenType, @NonNull String oldToken)
+            throws AuthenticatorException, OperationCanceledException, IOException {
+        AccountManager am = AccountManager.get(context);
+        am.invalidateAuthToken(account.type, oldToken);
+        String authToken = am.blockingGetAuthToken(account, authTokenType, true);
+        am.setAuthToken(account, authTokenType, authToken);
+        return authToken;
     }
 
     @Override
