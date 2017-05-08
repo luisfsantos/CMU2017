@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 

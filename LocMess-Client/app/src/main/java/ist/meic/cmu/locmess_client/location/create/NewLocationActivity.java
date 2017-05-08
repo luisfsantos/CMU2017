@@ -8,10 +8,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.Log;
@@ -47,9 +45,6 @@ public class NewLocationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_location);
-
-        // create account if necessary
-        SyncUtils.CreateSyncAccount(this);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Drawable close = AppCompatResources.getDrawable(this, R.drawable.ic_close);
@@ -191,7 +186,7 @@ public class NewLocationActivity extends AppCompatActivity {
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
         Uri uri = saveToDb(name, dbDate, coordinates);
-        SyncUtils.push(SyncUtils.CREATE_LOCATION, data, uri);
+        SyncUtils.push(getBaseContext(), SyncUtils.CREATE_LOCATION, data, uri);
     }
 
     private void createWifiLocation(String name, List<String> ssids) throws MalformedURLException {
@@ -207,7 +202,7 @@ public class NewLocationActivity extends AppCompatActivity {
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
         Uri uri = saveToDb(name, dbDate, ssidString);
-        SyncUtils.push(SyncUtils.CREATE_LOCATION, data, uri);
+        SyncUtils.push(getBaseContext(), SyncUtils.CREATE_LOCATION, data, uri);
     }
 
     private Uri saveToDb(String name, String date, String coordinates) {

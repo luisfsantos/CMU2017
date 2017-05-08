@@ -1,12 +1,14 @@
 package ist.meic.cmu.locmess_client.profile;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -22,7 +24,8 @@ import android.widget.TextView;
 import java.net.MalformedURLException;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.authentication.LoginActivity;
+import ist.meic.cmu.locmess_client.SplashScreen;
+import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
@@ -47,19 +50,22 @@ public class ProfileActivity extends BaseNavigationActivity
     private static final String TAG = "ProfileActivity";
     private static final int KEYPAIRS_LOADER_ID = R.id.keypairs_loader_id;
     SimpleCursorRecyclerAdapter mAdapter;
+    AccountManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_profile, frameLayout);
 
-        // create account if necessary
-        SyncUtils.CreateSyncAccount(this);
-
-        SharedPreferences pref = getSharedPreferences(getResources().getString(R.string.preference_file_key), MODE_PRIVATE);
-        String username = pref.getString(getResources().getString(R.string.pref_username), "username");
+        manager = AccountManager.get(getBaseContext());
+        Account account = GenericAccountService.GetActiveAccount(manager);
+        String username;
+        if (account != null) {
+            username = account.name;
+        } else {
+            username = "NoUsername";
+        }
         ((TextView)findViewById(R.id.login_username)).setText(username);
-
         LocMessRecyclerView mRecyclerView = (LocMessRecyclerView) findViewById(R.id.rv_key_pairs);
         TextView mEmptyView = (TextView)findViewById(R.id.empty_view);
         mRecyclerView.setEmptyView(mEmptyView);
@@ -85,7 +91,13 @@ public class ProfileActivity extends BaseNavigationActivity
     }
 
     public void onLogoutClicked(View view) {
-        Intent intent = new Intent(this, LoginActivity.class);
+        Account account = GenericAccountService.GetActiveAccount(manager);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            manager.removeAccountExplicitly(account);
+        } else {
+            manager.removeAccount(account, null, null);
+        }
+        Intent intent = new Intent(this, SplashScreen.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK|FLAG_ACTIVITY_CLEAR_TASK);
         getApplicationContext().startActivity(intent);
         finish();
@@ -106,7 +118,7 @@ public class ProfileActivity extends BaseNavigationActivity
 
         try {
             RequestData data = new NewKeypairRequestBuilder(key, value).build(LocMessURL.NEW_KEYPAIR, RequestData.POST);
-            SyncUtils.push(SyncUtils.CREATE_KEYPAIR, data, uri);
+            SyncUtils.push(getBaseContext(), SyncUtils.CREATE_KEYPAIR, data, uri);
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "URL is malformed", e);
         }
@@ -118,7 +130,7 @@ public class ProfileActivity extends BaseNavigationActivity
         Log.d(TAG, "Deleted " + count + " row(s)");
         try {
             RequestData data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_KEYPAIR, RequestData.DELETE);
-            SyncUtils.push(SyncUtils.DELETE_KEYPAIR, data, null);
+            SyncUtils.push(getBaseContext(), SyncUtils.DELETE_KEYPAIR, data, null);
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: ", e);
         }

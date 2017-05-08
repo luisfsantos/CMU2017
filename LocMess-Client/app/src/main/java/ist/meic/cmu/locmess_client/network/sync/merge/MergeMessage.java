@@ -21,7 +21,6 @@ import java.util.ArrayList;
 
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
-import ist.meic.cmu.locmess_client.network.json.deserializers.KeypairDeserializer;
 import ist.meic.cmu.locmess_client.network.json.deserializers.MessageDeserializer;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.DateUtils;

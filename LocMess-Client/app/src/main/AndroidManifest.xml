@@ -3,9 +3,16 @@
     package="ist.meic.cmu.locmess_client">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission
+        android:name="android.permission.MANAGE_ACCOUNTS"
+        android:maxSdkVersion="22" />
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
+    <uses-permission
+        android:name="android.permission.USE_CREDENTIALS"
+        android:maxSdkVersion="22" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
 
@@ -22,7 +29,7 @@
             android:exported="false"
             android:authorities="ist.meic.cmu.locmess_client.LocMessProvider" />
 
-        <service android:name=".network.sync.GenericAccountService">
+        <service android:name=".authentication.GenericAccountService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -53,16 +60,17 @@
             android:theme="@style/Theme.AppCompat.Dialog"/>
 
         <activity
-            android:name=".authentication.LoginActivity"
+            android:name=".SplashScreen"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".authentication.AuthenticatorActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".authentication.SignUpActivity"
+            android:name=".authentication.NewSignUpActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".messages.inbox.InboxActivity"

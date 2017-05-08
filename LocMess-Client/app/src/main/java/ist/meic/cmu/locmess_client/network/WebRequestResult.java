@@ -1,8 +1,10 @@
 package ist.meic.cmu.locmess_client.network;
 
 import android.support.annotation.StringDef;
+import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.lang.annotation.Retention;
@@ -60,6 +62,25 @@ public class WebRequestResult {
         return builder.toString();
     }
 
+    public void assertValidJwtToken() throws JwtExpiredException {
+        //todo check in result if jwt expired
+        Log.d("WebRequestResult", "Validating jwt token");
+        if (mError != null) {
+            JsonObject error = gson.fromJson(mError, JsonObject.class);
+            JsonElement detail = error.get("detail");
+            if (detail != null) {
+                throw new JwtExpiredException("JWT token has expired");
+            } else {
+                Log.d("WebRequestResult", error.toString());
+            }
+        }
+    }
+
+    public String getAuthToken() {
+        JsonObject data = gson.fromJson(mResult, JsonObject.class);
+        return data.get(RequestBuilder.TOKEN).getAsString();
+    }
+
     public void setError(String mError) {
         this.mError = mError;
     }
@@ -73,4 +94,12 @@ public class WebRequestResult {
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({LOCATION, LOCATIONS, MESSAGE, MESSAGES, KEYPAIR, KEYPAIRS})
     public @interface ReturnedObject {}
+
+    private static final int JWT_EXPIRED_STATUS_CODE = 11; //fixme
+    public class JwtExpiredException extends Exception {
+        public JwtExpiredException() { super(); }
+        public JwtExpiredException(String message) { super(message); }
+        public JwtExpiredException(String message, Throwable cause) { super(message, cause); }
+        public JwtExpiredException(Throwable cause) { super(cause); }
+    }
 }

@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
@@ -31,7 +30,6 @@ import android.widget.TimePicker;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -78,9 +76,6 @@ public class NewMessageActivity extends AppCompatActivity {
         mKeysList.add("Favourite food");
         mKeysList.add("Sport");
         mKeysList.add("Job");
-
-        // create account if necessary
-        SyncUtils.CreateSyncAccount(this);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Drawable close = AppCompatResources.getDrawable(this, R.drawable.ic_close);
@@ -273,7 +268,7 @@ public class NewMessageActivity extends AppCompatActivity {
         try {
             RequestData request = new NewMessageRequestBuilder(title, content, chosenFromDate.getTime(), chosenToDate.getTime(),
                     locationServerID, whitelist, blacklist).build(LocMessURL.NEW_MESSAGE, RequestData.POST);
-            SyncUtils.push(SyncUtils.CREATE_MESSAGE, request, uri);
+            SyncUtils.push(getBaseContext(), SyncUtils.CREATE_MESSAGE, request, uri);
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: ", e);
         }

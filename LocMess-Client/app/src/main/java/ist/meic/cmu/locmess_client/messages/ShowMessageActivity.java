@@ -6,8 +6,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import ist.meic.cmu.locmess_client.R;
 

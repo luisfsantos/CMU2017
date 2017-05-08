@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
@@ -51,6 +50,7 @@ public class LocationUpdateService extends Service implements LocationListener {
             if (ContextCompat.checkSelfPermission(LocationUpdateService.this,
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Registering request for location updates...");
+                sendBroadcast(getPermissionResultIntent(true));
                 requestLocationUpdates();
             } else {
                 Log.i(TAG, "Requesting permission to access fine location");
@@ -85,6 +85,8 @@ public class LocationUpdateService extends Service implements LocationListener {
                     .addApi(LocationServices.API)
                     .build();
             googleApiClient.connect();
+        } else {
+            sendBroadcast(getPermissionResultIntent(true));
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -126,8 +128,10 @@ public class LocationUpdateService extends Service implements LocationListener {
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode == RESULT_OK) {
                 if (resultData.getInt(KEY_RESULT) == PackageManager.PERMISSION_GRANTED) {
+                    sendBroadcast(getPermissionResultIntent(true));
                     requestLocationUpdates();
                 } else {
+                    sendBroadcast(getPermissionResultIntent(false));
                     Log.i(TAG, "No permission to access fine location");
                     stopSelf();
                 }
@@ -135,6 +139,17 @@ public class LocationUpdateService extends Service implements LocationListener {
                 Log.wtf(TAG, "Received wrong result from LocationPermissionActivity");
             }
         }
+    }
+
+    private Intent getPermissionResultIntent(boolean granted) {
+        Bundle bundle = new Bundle();
+        if (granted) {
+            bundle.putBoolean(KEY_RESULT, true);
+        }
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+        intent.setAction(getString(R.string.PERMISSION_GRANTED_ACTION));
+        return intent;
     }
 
 

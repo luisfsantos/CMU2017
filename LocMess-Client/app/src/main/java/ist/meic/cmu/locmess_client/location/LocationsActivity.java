@@ -7,12 +7,9 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -54,9 +51,6 @@ public class LocationsActivity extends BaseNavigationActivity implements
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_locations, frameLayout);
 
-        // create account if necessary
-        SyncUtils.CreateSyncAccount(this);
-
         LocMessRecyclerView mRecyclerView = (LocMessRecyclerView)findViewById(R.id.rv_card_list);
         TextView mEmptyView = (TextView)findViewById(R.id.empty_view);
         mRecyclerView.setEmptyView(mEmptyView);
@@ -71,7 +65,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
             @Override
             public void onRefresh() {
                 Log.i(TAG, "Refreshing Locations");
-                SyncUtils.pull(SyncUtils.PULL_LOCATIONS);
+                SyncUtils.pull(getBaseContext(), SyncUtils.PULL_LOCATIONS);
             }
         });
 
@@ -125,7 +119,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: ", e);
         }
-        SyncUtils.push(SyncUtils.DELETE_LOCATION, data, null);
+        SyncUtils.push(getBaseContext(), SyncUtils.DELETE_LOCATION, data, null);
     }
 
     @Override
