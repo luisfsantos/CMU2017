@@ -35,9 +35,7 @@ import android.widget.Toast;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.data.KeyPair;
@@ -78,9 +76,6 @@ public class NewMessageActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_message);
-
-        // create account if necessary
-        SyncUtils.CreateSyncAccount(this);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Drawable close = AppCompatResources.getDrawable(this, R.drawable.ic_close);
@@ -316,7 +311,7 @@ public class NewMessageActivity extends AppCompatActivity {
                     try {
                         RequestData request = new NewMessageRequestBuilder(title, content, chosenFromDate.getTime(), chosenToDate.getTime(),
                                 locationServerID, whitelist, blacklist).build(LocMessURL.NEW_MESSAGE, RequestData.POST);
-                        SyncUtils.push(SyncUtils.CREATE_MESSAGE, request, uri);
+                        SyncUtils.push(getBaseContext(), SyncUtils.CREATE_MESSAGE, request, uri);
                     } catch (MalformedURLException e) {
                         Log.wtf(TAG, "Malformed URL: ", e);
                     }

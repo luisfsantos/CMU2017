@@ -41,7 +41,7 @@ public class WebRequest {
         this.mAuth = auth;
     }
 
-    public WebRequestResult execute() throws IOException{
+    public WebRequestResult execute() throws IOException {
         InputStream in = null;
         HttpURLConnection connection = null;
         WebRequestResult result = null;

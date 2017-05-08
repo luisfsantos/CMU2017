@@ -54,9 +54,6 @@ public class LocationsActivity extends BaseNavigationActivity implements
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.activity_locations, frameLayout);
 
-        // create account if necessary
-        SyncUtils.CreateSyncAccount(this);
-
         LocMessRecyclerView mRecyclerView = (LocMessRecyclerView)findViewById(R.id.rv_card_list);
         TextView mEmptyView = (TextView)findViewById(R.id.empty_view);
         mRecyclerView.setEmptyView(mEmptyView);
@@ -71,7 +68,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
             @Override
             public void onRefresh() {
                 Log.i(TAG, "Refreshing Locations");
-                SyncUtils.pull(SyncUtils.PULL_LOCATIONS, LocMessURL.LIST_LOCATIONS);
+                SyncUtils.pull(getBaseContext(), SyncUtils.PULL_LOCATIONS, LocMessURL.LIST_LOCATIONS);
             }
         });
 
@@ -121,7 +118,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
         Log.d(TAG, "Deleted " + count + " row(s)");
         try {
             RequestData data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_LOCATION, RequestData.DELETE);
-            SyncUtils.push(SyncUtils.DELETE_LOCATION, data, null);
+            SyncUtils.push(getBaseContext(), SyncUtils.DELETE_LOCATION, data, null);
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: ", e);
         }

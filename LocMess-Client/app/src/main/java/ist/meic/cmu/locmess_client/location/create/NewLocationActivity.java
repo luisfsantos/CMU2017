@@ -48,9 +48,6 @@ public class NewLocationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_location);
 
-        // create account if necessary
-        SyncUtils.CreateSyncAccount(this);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Drawable close = AppCompatResources.getDrawable(this, R.drawable.ic_close);
         close.setColorFilter(ContextCompat.getColor(this, R.color.light_text), PorterDuff.Mode.SRC_IN);
@@ -195,7 +192,7 @@ public class NewLocationActivity extends AppCompatActivity {
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
         Uri uri = saveToDb(name, dbDate, coordinates);
-        SyncUtils.push(SyncUtils.CREATE_LOCATION, data, uri);
+        SyncUtils.push(getBaseContext(), SyncUtils.CREATE_LOCATION, data, uri);
     }
 
     private void createWifiLocation(String name, List<String> ssids) throws MalformedURLException {
@@ -211,7 +208,7 @@ public class NewLocationActivity extends AppCompatActivity {
         ).build(LocMessURL.NEW_LOCATION, RequestData.POST);
 
         Uri uri = saveToDb(name, dbDate, ssidString);
-        SyncUtils.push(SyncUtils.CREATE_LOCATION, data, uri);
+        SyncUtils.push(getBaseContext(), SyncUtils.CREATE_LOCATION, data, uri);
     }
 
     private Uri saveToDb(String name, String date, String coordinates) {

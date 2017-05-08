@@ -97,6 +97,7 @@
     <!-- STRINGS BELOW THIS POINT ARE LOCALE INDEPENDENT -->
     <string name="account_type">ist.meic.cmu.locmess_client.network.sync.basicsyncadapter</string>
     <string name="ALARM_ACTION">ist.meic.cmu.locmess_client.ALARM_ACTION</string>
+    <string name="PERMISSION_GRANTED_ACTION">ist.meic.cmu.locmess_client.PERMISSION_GRANTED_ACTION</string>
     <string name="locmess_email_suffix">\@locmess.com</string>
 
     <!-- SHARED PREFERENCES -->

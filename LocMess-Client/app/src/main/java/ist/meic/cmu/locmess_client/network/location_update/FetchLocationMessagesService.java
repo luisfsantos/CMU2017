@@ -1,13 +1,15 @@
 package ist.meic.cmu.locmess_client.network.location_update;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -20,6 +22,7 @@ import com.google.gson.JsonArray;
 import java.io.IOException;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
@@ -53,9 +56,16 @@ public class FetchLocationMessagesService extends IntentService {
         }
         Log.d(TAG, "Fetching messages from server...");
         // TODO: 28/04/2017 check for connectivity again, abort (return) if no connectivity? is this overkill?
-        Context context = getApplicationContext();
-        SharedPreferences pref = context.getSharedPreferences(context.getString(R.string.preference_file_key), MODE_PRIVATE);
-        String jwt = pref.getString(context.getString(R.string.pref_jwtAuthenticator), "No auth");
+        String jwt;
+        AccountManager am = AccountManager.get(getBaseContext());
+        Account account = GenericAccountService.GetActiveAccount(am);
+        try {
+            jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
+        } catch (OperationCanceledException | IOException | AuthenticatorException e) {
+            Log.e(TAG, "Error getting auth token from Account Manager: ", e);
+            stopSelf();
+            return;
+        }
         Bundle bundle = intent.getBundleExtra(INTENT_BUNDLE);
         RequestData request = (RequestData)bundle.getSerializable(INTENT_REQUEST);
         int numNotRead = 0;

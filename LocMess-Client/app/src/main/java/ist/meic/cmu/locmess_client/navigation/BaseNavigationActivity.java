@@ -1,14 +1,11 @@
 package ist.meic.cmu.locmess_client.navigation;
 
-import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -20,12 +17,12 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.location.LocationsActivity;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
 import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.messages.posted.PostedActivity;
-import ist.meic.cmu.locmess_client.network.location_update.LocationUpdateService;
 import ist.meic.cmu.locmess_client.profile.ProfileActivity;
 
 public class BaseNavigationActivity extends AppCompatActivity
@@ -56,29 +53,17 @@ public class BaseNavigationActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         View navigationHeader = navigationView.getHeaderView(0);
-        SharedPreferences pref = getSharedPreferences(getResources().getString(R.string.preference_file_key), MODE_PRIVATE);
-        String username = pref.getString(getResources().getString(R.string.pref_username), "username");
+        AccountManager manager = AccountManager.get(getBaseContext());
+        Account account = GenericAccountService.GetActiveAccount(manager);
+        String username;
+        if (account != null) {
+            username = account.name;
+        } else {
+            username = "NoUsername";
+        }
         ((TextView)navigationHeader.findViewById(R.id.nav_username)).setText(username);
         ((TextView)navigationHeader.findViewById(R.id.nav_email))
                 .setText(String.format("%s%s", username, getResources().getString(R.string.locmess_email_suffix)));
-
-        checkLocationPermissions();
-    }
-
-    private void checkLocationPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED){
-            Snackbar.make(frameLayout, "No permission to access location", Snackbar.LENGTH_INDEFINITE)
-                    .setActionTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
-                    .setAction("Allow", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(BaseNavigationActivity.this, LocationUpdateService.class);
-                            startService(intent);
-                        }
-                    })
-                    .show();
-        }
     }
 
     @Override
