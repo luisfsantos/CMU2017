@@ -91,7 +91,8 @@ public class OpenedTabFragment extends Fragment implements
 
     @Override
     public void onAttachToViewHolder(View itemView) {
-        final Cursor cursor = mAdapter.getCursor();
+        Cursor cursor = mAdapter.getCursor();
+        final int position = cursor.getPosition();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.OpenedMessages._ID));
         String dbDate = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.OpenedMessages.COLUMN_DATE_POSTED));
         ((TextView)itemView.findViewById(R.id.post_time))
@@ -106,7 +107,7 @@ public class OpenedTabFragment extends Fragment implements
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRecyclerCardClicked(cursor.getPosition());
+                onRecyclerCardClicked(position);
             }
         });
     }

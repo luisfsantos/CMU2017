@@ -92,7 +92,8 @@ public class AvailableTabFragment extends Fragment implements
 
     @Override
     public void onAttachToViewHolder(View itemView) {
-        final Cursor cursor = mAdapter.getCursor();
+        Cursor cursor = mAdapter.getCursor();
+        final int position = cursor.getPosition();
         String dbDate = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED));
         ((TextView)itemView.findViewById(R.id.post_time))
                 .setText(DateUtils.formatDateTimeDbToLocale(dbDate));
@@ -107,7 +108,7 @@ public class AvailableTabFragment extends Fragment implements
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRecyclerCardClicked(cursor.getPosition());
+                onRecyclerCardClicked(position);
             }
         });
     }

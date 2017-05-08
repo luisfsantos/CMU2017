@@ -90,7 +90,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
     public void onResume() {
         super.onResume();
         mRecyclerView.setAdapter(mAdapter);
-        getActivity().getSupportLoaderManager().restartLoader(MESSAGES_LOADER_ID, null, this);
+        getActivity().getSupportLoaderManager().initLoader(MESSAGES_LOADER_ID, null, this);
     }
 
     private void setupAdapter() {
@@ -144,7 +144,8 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
 
     @Override
     public void onAttachToViewHolder(View itemView) {
-        final Cursor cursor = mAdapter.getCursor();
+        Cursor cursor = mAdapter.getCursor();
+        final int position = cursor.getPosition();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages._ID));
         String dbFrom = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM));
         String dbTo = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_TO));
@@ -162,7 +163,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRecyclerCardClicked(cursor.getPosition());
+                onRecyclerCardClicked(position);
             }
         });
     }
