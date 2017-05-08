@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.data.KeyPair;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.request_builders.create.NewMessageRequestBuilder;
