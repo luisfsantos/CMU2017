@@ -139,7 +139,7 @@ public class LoginActivity extends AppCompatActivity implements WebRequestCallba
         // FIXME: 09/05/2017
         SyncUtils.CreateSyncAccount(this);
         SyncUtils.pull(SyncUtils.PULL_KEYS, LocMessURL.LIST_KEYS);
-
+        SyncUtils.pull(SyncUtils.PULL_KEYPAIRS, LocMessURL.LIST_KEYPAIRS);
         Intent intent = new Intent(this, InboxActivity.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
         getApplicationContext().startActivity(intent);

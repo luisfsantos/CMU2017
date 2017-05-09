@@ -8,10 +8,12 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
@@ -64,21 +66,16 @@ public class NewMessageActivity extends AppCompatActivity {
     private Calendar chosenToDate = Calendar.getInstance();
 
     private ViewGroup mFiltersGroup;
-    List<String> mKeysList;
 
     //HACK
     private List<FilterInfo> mFilterInfo = new ArrayList<>();
     private Cursor mLocationCursor;
+    private Cursor mKeysCursor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_message);
-        //FIXME: this is dummy data
-        mKeysList = new ArrayList<>();
-        mKeysList.add("Favourite food");
-        mKeysList.add("Sport");
-        mKeysList.add("Job");
 
         // create account if necessary
         SyncUtils.CreateSyncAccount(this);
@@ -128,6 +125,7 @@ public class NewMessageActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
 
         mLocationCursor = populateLocationSpinner();
+        mKeysCursor = initFiltersCursor();
         if (savedInstanceState == null) {
             initDateTimeSpinners();
             initLocationSpinner();
@@ -197,18 +195,16 @@ public class NewMessageActivity extends AppCompatActivity {
                 null,           // the selection args
                 LocMessDBContract.Location.COLUMN_NAME + " ASC" // the sort order
         );
+
         if (cursor == null || cursor.getCount() < 1) {
-            String[] obj = new String[] { getString(R.string.no_locations_spinner) };
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                    this,
-                    android.R.layout.simple_spinner_item,
-                    android.R.id.text1,
-                    obj
-            );
+            String[] obj = new String[] { getString(R.string.no_locations_spinner)};
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, obj);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mLocation.setAdapter(adapter);
             mLocation.setEnabled(false);
             return null;
         }
+
         String[] fromColumns = {LocMessDBContract.Location.COLUMN_NAME};
         int[] toViews = {android.R.id.text1};
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(
@@ -249,70 +245,88 @@ public class NewMessageActivity extends AppCompatActivity {
         if (mLocationCursor != null) {
             mLocationCursor.close();
         }
+        if (mKeysCursor != null) {
+            mKeysCursor.close();
+        }
         super.onDestroy();
     }
 
+
     private void postMessage() {
-        if (mLocationCursor == null || mLocationCursor.getCount() < 1 ) {
-            Toast.makeText(this, R.string.cannot_post_msg_no_locations, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Log.i(TAG, "Posting message");
-        mLocationCursor.moveToPosition(mLocation.getSelectedItemPosition());
-        String location = mLocationCursor.getString(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_NAME));
-        int locationServerID = mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
-        String title = mTitle.getText().toString().trim();
-        String content = mMessageContent.getText().toString().trim();
-        if (title.isEmpty()) {
-            mTitle.setError(getString(R.string.title_missing));
-            mTitle.requestFocus();
-            return;
-        }
-        if (content.isEmpty()) {
-            mMessageContent.setError(getString(R.string.msg_body_missing));
-            mMessageContent.requestFocus();
-            return;
-        }
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (mLocationCursor == null || mLocationCursor.getCount() < 1 ) {
+                    Toast.makeText(NewMessageActivity.this, R.string.cannot_post_msg_no_locations, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                mLocationCursor.moveToPosition(mLocation.getSelectedItemPosition());
+                String location = mLocationCursor.getString(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_NAME));
+                int locationServerID = mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
+                String title = mTitle.getText().toString().trim();
+                String content = mMessageContent.getText().toString().trim();
+                if (title.isEmpty()) {
+                    mTitle.setError(getString(R.string.title_missing));
+                    mTitle.requestFocus();
+                    return;
+                }
+                if (content.isEmpty()) {
+                    mMessageContent.setError(getString(R.string.msg_body_missing));
+                    mMessageContent.requestFocus();
+                    return;
+                }
 
-        saveFiltersState();
-        Map<String, String> blacklist = new HashMap<>();
-        Map<String, String> whitelist = new HashMap<>();
-        for (int i = 0; i < mFilterInfo.size(); i++){
-            FilterInfo info = mFilterInfo.get(i);
-            String value = info.editTextInput.trim();
-            if (value.isEmpty()) continue;
-            String key = mKeysList.get(info.spinnerSelectedItem);
-            if (info.switchChecked == BLACKLIST_CHECKED) {
-                blacklist.put(key, value);
-            } else {
-                whitelist.put(key, value);
+                saveFiltersState();
+                Map<String, String> blacklist = new HashMap<>();
+                Map<String, String> whitelist = new HashMap<>();
+                for (int i = 0; i < mFilterInfo.size(); i++){
+                    FilterInfo info = mFilterInfo.get(i);
+                    String value = info.editTextInput.trim();
+                    if (value.isEmpty()) continue;
+                    mKeysCursor.moveToPosition(info.spinnerSelectedItem);
+                    String key = mKeysCursor.getString(mKeysCursor.getColumnIndexOrThrow(LocMessDBContract.Keys.COLUMN_NAME));
+                    if (info.switchChecked == BLACKLIST_CHECKED) {
+                        blacklist.put(key, value);
+                    } else {
+                        whitelist.put(key, value);
+                    }
+                }
+
+                ContentValues values = new ContentValues();
+                values.put(LocMessDBContract.PostedMessages.COLUMN_TITLE, title);
+                values.put(LocMessDBContract.PostedMessages.COLUMN_CONTENT, content);
+                values.put(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM, DateUtils.formatDateTimeLocaleToDb(chosenFromDate));
+                values.put(LocMessDBContract.PostedMessages.COLUMN_DATE_TO, DateUtils.formatDateTimeLocaleToDb(chosenToDate));
+                values.put(LocMessDBContract.PostedMessages.COLUMN_LOCATION, location);
+                //FIXME possibly store blacklist & whitelist as well (because of p2p delivery)
+                Uri uri = getContentResolver().insert(LocMessDBContract.PostedMessages.CONTENT_URI, values);
+                Log.d(TAG, "New posted message uri is " + uri);
+                try {
+                    RequestData request = new NewMessageRequestBuilder(title, content, chosenFromDate.getTime(), chosenToDate.getTime(),
+                            locationServerID, whitelist, blacklist).build(LocMessURL.NEW_MESSAGE, RequestData.POST);
+                    SyncUtils.push(SyncUtils.CREATE_MESSAGE, request, uri);
+                } catch (MalformedURLException e) {
+                    Log.wtf(TAG, "Malformed URL: ", e);
+                }
+                finish();
             }
-        }
-
-        ContentValues values = new ContentValues();
-        values.put(LocMessDBContract.PostedMessages.COLUMN_TITLE, title);
-        values.put(LocMessDBContract.PostedMessages.COLUMN_CONTENT, content);
-        values.put(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM, DateUtils.formatDateTimeLocaleToDb(chosenFromDate));
-        values.put(LocMessDBContract.PostedMessages.COLUMN_DATE_TO, DateUtils.formatDateTimeLocaleToDb(chosenToDate));
-        values.put(LocMessDBContract.PostedMessages.COLUMN_LOCATION, location);
-        //FIXME possibly store blacklist & whitelist as well (because of p2p delivery)
-        Uri uri = getContentResolver().insert(LocMessDBContract.PostedMessages.CONTENT_URI, values);
-        Log.d(TAG, "New posted message uri is " + uri);
-        try {
-            RequestData request = new NewMessageRequestBuilder(title, content, chosenFromDate.getTime(), chosenToDate.getTime(),
-                    locationServerID, whitelist, blacklist).build(LocMessURL.NEW_MESSAGE, RequestData.POST);
-            SyncUtils.push(SyncUtils.CREATE_MESSAGE, request, uri);
-        } catch (MalformedURLException e) {
-            Log.wtf(TAG, "Malformed URL: ", e);
-        }
-        finish();
+        });
     }
 
     private ViewGroup inflateNewFilter() {
         ViewGroup viewGroup = (ViewGroup)getLayoutInflater().inflate(R.layout.item_filter, mFiltersGroup, false);
         mFiltersGroup.addView(viewGroup);
         Spinner spinner = (Spinner)viewGroup.getChildAt(1);
-        ArrayAdapter<String> keysAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, mKeysList);
+        String[] fromColumns = {LocMessDBContract.Keys.COLUMN_NAME};
+        int[] toViews = {android.R.id.text1};
+        SimpleCursorAdapter keysAdapter = new SimpleCursorAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                mKeysCursor,
+                fromColumns,
+                toViews,
+                0
+        );
         keysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(keysAdapter);
         return viewGroup;
@@ -356,7 +370,30 @@ public class NewMessageActivity extends AppCompatActivity {
         }
     }
 
+    private Cursor initFiltersCursor() {
+        Log.d(TAG, "Querying database for keys");
+        String[] projection = {
+                LocMessDBContract.Keys._ID,
+                LocMessDBContract.Keys.COLUMN_NAME
+        };
+        Cursor cursor = getContentResolver().query(
+                LocMessDBContract.Keys.CONTENT_URI,
+                projection,
+                null,           // the selection clause
+                null,           // the selection args
+                LocMessDBContract.Keys.COLUMN_NAME + " ASC" // the sort order
+        );
+        if (cursor == null || cursor.getCount() < 1) {
+            return null;
+        }
+        return cursor;
+    }
+
     public void onAddNewFilterClicked(View view) {
+        if (mKeysCursor == null || mKeysCursor.getCount() < 1) {
+            Toast.makeText(this, "Cannot add filters because there are no keys.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         inflateNewFilter();
     }
 
