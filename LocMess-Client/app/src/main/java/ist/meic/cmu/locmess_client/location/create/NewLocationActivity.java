@@ -162,7 +162,7 @@ public class NewLocationActivity extends AppCompatActivity {
                 break;
 
             case R.id.radio_wifi:
-                final List<String> ssids = mWifiFragment.mSsidsChecked;
+                final List<String> ssids = mWifiFragment.getmSsidsChecked();
                 if (ssids.isEmpty()) {
                     Toast.makeText(this, getResources().getString(R.string.pick_network), Toast.LENGTH_SHORT).show();
                     return;

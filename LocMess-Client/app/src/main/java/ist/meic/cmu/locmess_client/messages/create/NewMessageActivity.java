@@ -28,6 +28,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -129,18 +130,20 @@ public class NewMessageActivity extends AppCompatActivity {
         mLocationCursor = populateLocationSpinner();
         if (savedInstanceState == null) {
             initDateTimeSpinners();
-            int location_id = getIntent().getIntExtra(INTENT_LOCATION_ID, -1);
-            if (location_id > 0) {
-                Log.d(TAG, "location_id: " + location_id);
-                int index = 0;
-                for (int i = 0; i < mLocationCursor.getCount(); i++) {
-                    mLocationCursor.moveToPosition(i);
-                    if (mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID)) == location_id) {
-                        index = i;
-                        break;
+            if (mLocationCursor != null) {
+                int location_id = getIntent().getIntExtra(INTENT_LOCATION_ID, -1);
+                if (location_id > 0) {
+                    Log.d(TAG, "location_id: " + location_id);
+                    int index = 0;
+                    for (int i = 0; i < mLocationCursor.getCount(); i++) {
+                        mLocationCursor.moveToPosition(i);
+                        if (mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID)) == location_id) {
+                            index = i;
+                            break;
+                        }
                     }
+                    mLocation.setSelection(index);
                 }
-                mLocation.setSelection(index);
             }
         } else {
             int index = savedInstanceState.getInt("selected_location");
@@ -189,6 +192,18 @@ public class NewMessageActivity extends AppCompatActivity {
                 null,           // the selection args
                 LocMessDBContract.Location.COLUMN_NAME + " ASC" // the sort order
         );
+        if (cursor == null || cursor.getCount() < 1) {
+            String[] obj = new String[] { getString(R.string.no_locations_spinner) };
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    this,
+                    android.R.layout.simple_spinner_item,
+                    android.R.id.text1,
+                    obj
+            );
+            mLocation.setAdapter(adapter);
+            mLocation.setEnabled(false);
+            return null;
+        }
         String[] fromColumns = {LocMessDBContract.Location.COLUMN_NAME};
         int[] toViews = {android.R.id.text1};
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(
@@ -214,7 +229,6 @@ public class NewMessageActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.post:
-                Log.i(TAG, "Posting message");
                 postMessage();
                 return true;
             case android.R.id.home:
@@ -227,11 +241,18 @@ public class NewMessageActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        mLocationCursor.close();
+        if (mLocationCursor != null) {
+            mLocationCursor.close();
+        }
         super.onDestroy();
     }
 
     private void postMessage() {
+        if (mLocationCursor == null || mLocationCursor.getCount() < 1 ) {
+            Toast.makeText(this, R.string.cannot_post_msg_no_locations, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.i(TAG, "Posting message");
         mLocationCursor.moveToPosition(mLocation.getSelectedItemPosition());
         String location = mLocationCursor.getString(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_NAME));
         int locationServerID = mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
@@ -347,7 +368,7 @@ public class NewMessageActivity extends AppCompatActivity {
         mToTime.setText(DateUtils.formatTime(chosenToDate));
     }
 
-    class OnDateClickListener implements View.OnClickListener {
+    private class OnDateClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(final View view) {
@@ -406,7 +427,7 @@ public class NewMessageActivity extends AppCompatActivity {
         }
     }
 
-    class OnTimeClickListener implements View.OnClickListener {
+    private class OnTimeClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(final View view) {

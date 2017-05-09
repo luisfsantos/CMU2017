@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
@@ -25,8 +26,8 @@ public class NewWifiLocationFragment extends Fragment {
 
     private static final String TAG = "NewWifiLocationFragment";
 
-    LinearLayout mCheckBoxContainer;
-    List<String> mSsidsChecked = new ArrayList<>();
+    private LinearLayout mCheckBoxContainer;
+    private List<String> mSsidsChecked = new ArrayList<>();
     TextView mEmptyView;
     private static List<String> mSSIDS = new ArrayList<>();
 
@@ -34,6 +35,10 @@ public class NewWifiLocationFragment extends Fragment {
         mSSIDS.add("eduroam");
         mSSIDS.add("2cool4school");
         mSSIDS.add("some wifi");
+    }
+
+    public List<String> getmSsidsChecked() {
+        return Collections.unmodifiableList(mSsidsChecked);
     }
 
     public static NewWifiLocationFragment newInstance() {
