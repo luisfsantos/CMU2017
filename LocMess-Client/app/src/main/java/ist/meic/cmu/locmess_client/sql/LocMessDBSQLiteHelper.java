@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocMessDBSQLiteHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
     public static final String DATABASE_NAME = "locmess_database";
 
     public LocMessDBSQLiteHelper(Context context) {
@@ -24,6 +24,7 @@ public class LocMessDBSQLiteHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(LocMessDBContract.PostedMessages.CREATE_TABLE);
         sqLiteDatabase.execSQL(LocMessDBContract.OpenedMessages.CREATE_TABLE);
         sqLiteDatabase.execSQL(LocMessDBContract.AvailableMessages.CREATE_TABLE);
+        sqLiteDatabase.execSQL(LocMessDBContract.Keys.CREATE_TABLE);
     }
 
     @Override
@@ -34,6 +35,7 @@ public class LocMessDBSQLiteHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocMessDBContract.PostedMessages.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocMessDBContract.OpenedMessages.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocMessDBContract.AvailableMessages.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + LocMessDBContract.Keys.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

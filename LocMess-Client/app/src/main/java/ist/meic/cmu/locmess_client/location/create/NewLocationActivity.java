@@ -135,6 +135,7 @@ public class NewLocationActivity extends AppCompatActivity {
         String name = location.getText().toString().trim();
         if (name.isEmpty()) {
             location.setError(getResources().getString(R.string.name_missing));
+            location.requestFocus();
             return;
         }
         switch (mCoordinatesChoice.getCheckedRadioButtonId()) {
@@ -144,14 +145,17 @@ public class NewLocationActivity extends AppCompatActivity {
                 String radius = mGpsFragment.mRadius.getText().toString().trim();
                 if (latitude.isEmpty()) {
                     mGpsFragment.mLatitude.setError(getResources().getString(R.string.field_missing));
+                    mGpsFragment.mLatitude.requestFocus();
                     return;
                 }
                 if (longitude.isEmpty()) {
                     mGpsFragment.mLongitude.setError(getResources().getString(R.string.field_missing));
+                    mGpsFragment.mLongitude.requestFocus();
                     return;
                 }
                 if (radius.isEmpty()) {
                     mGpsFragment.mRadius.setError(getResources().getString(R.string.field_missing));
+                    mGpsFragment.mRadius.requestFocus();
                     return;
                 }
                 try {

@@ -15,9 +15,7 @@ import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
  */
 
 public class KeypairDeserializer {
-    private static Gson gson = new GsonBuilder()
-            .setDateFormat(RequestBuilder.DATE_FORMAT)
-            .create();
+    private static Gson gson = new Gson();
 
     public KeyPair parse(JsonObject keypair) {
         return gson.fromJson(keypair, KeyPair.class);

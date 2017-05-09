@@ -71,7 +71,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
             @Override
             public void onRefresh() {
                 Log.i(TAG, "Refreshing Locations");
-                SyncUtils.pull(SyncUtils.PULL_LOCATIONS);
+                SyncUtils.pull(SyncUtils.PULL_LOCATIONS, LocMessURL.LIST_LOCATIONS);
             }
         });
 

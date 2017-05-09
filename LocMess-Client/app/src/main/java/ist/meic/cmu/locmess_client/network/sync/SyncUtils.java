@@ -49,8 +49,9 @@ public class SyncUtils {
     public static final int NO_PULL = 0;
     public static final int PULL_LOCATIONS = 1;
     public static final int PULL_KEYPAIRS = 2;
+    public static final int PULL_KEYS = 3;
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({NO_PULL, PULL_LOCATIONS, PULL_KEYPAIRS})
+    @IntDef({NO_PULL, PULL_LOCATIONS, PULL_KEYPAIRS, PULL_KEYS})
     public @interface PullWhat {}
 
     static final String PUSH_WHAT = "push_what";
@@ -131,11 +132,11 @@ public class SyncUtils {
         triggerSync(bundle);
     }
 
-    public static void pull(@PullWhat int what) {
+    public static void pull(@PullWhat int what, @NonNull String url) {
         Bundle bundle = new Bundle();
         bundle.putInt(PULL_WHAT, what);
         bundle.putInt(SYNC_TYPE, SYNC_PULL);
-        bundle.putString(REQUEST_URL, LocMessURL.LIST_LOCATIONS);
+        bundle.putString(REQUEST_URL, url);
         bundle.putInt(REQUEST_METHOD, RequestData.GET);
         triggerSync(bundle);
     }

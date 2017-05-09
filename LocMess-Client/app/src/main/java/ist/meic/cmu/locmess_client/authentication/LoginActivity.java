@@ -21,6 +21,7 @@ import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequestCallback;
 import ist.meic.cmu.locmess_client.network.request_builders.GenericUserRequestBuilder;
+import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
@@ -135,6 +136,10 @@ public class LoginActivity extends AppCompatActivity implements WebRequestCallba
     @Override
     public void onWebRequestSuccessful(String message) {
         Log.d(TAG, message);
+        // FIXME: 09/05/2017
+        SyncUtils.CreateSyncAccount(this);
+        SyncUtils.pull(SyncUtils.PULL_KEYS, LocMessURL.LIST_KEYS);
+
         Intent intent = new Intent(this, InboxActivity.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
         getApplicationContext().startActivity(intent);

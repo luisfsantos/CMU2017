@@ -70,7 +70,8 @@ public class WebRequestResult {
     public static final String MESSAGES = "Messages";
     public static final String KEYPAIR = "Information";
     public static final String KEYPAIRS = "User Information";
+    public static final String KEYS = "Keys";
     @Retention(RetentionPolicy.SOURCE)
-    @StringDef({LOCATION, LOCATIONS, MESSAGE, MESSAGES, KEYPAIR, KEYPAIRS})
+    @StringDef({LOCATION, LOCATIONS, MESSAGE, MESSAGES, KEYPAIR, KEYPAIRS, KEYS})
     public @interface ReturnedObject {}
 }

@@ -21,4 +21,5 @@ public final class LocMessURL {
     public static final String NEW_MESSAGE = BASE_URL + "/api/message/create";
     public static final String DELETE_MESSAGE = BASE_URL + "/api/message/" + ID + "/delete";
     public static final String UPDATE_LOCATION = BASE_URL + "/api/messages/poll";
+    public static final String LIST_KEYS = BASE_URL + "/api/keys/list";
 }

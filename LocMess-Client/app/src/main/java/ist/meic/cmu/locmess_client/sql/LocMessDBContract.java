@@ -192,4 +192,29 @@ public class LocMessDBContract {
                 LocMessDBContract.COLUMN_SERVER_ID
         };
     }
+
+    public static class Keys implements BaseColumns {
+        public static final String KEYS_PATH = "keys";
+        public static final String KEYS_ID_PATH = "keys/#";
+        public static final String KEYS_TYPE = "vnd.android.cursor.dir/vnd.locmess.provider.keys";
+        public static final String KEYS_ID_TYPE = "vnd.android.cursor.item/vnd.locmess.provider.keys";
+        public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+KEYS_PATH);
+        public static final int ID_PATH_SEGMENT_INDEX = 1;
+
+        public static final String TABLE_NAME = "keys";
+        public static final String COLUMN_NAME = "name";
+
+        public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_NAME + " TEXT, " +
+                COLUMN_SERVER_ID + " INTEGER, " +
+                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
+
+        public static final String[] DEFAULT_PROJECTION = new String[] {
+                LocMessDBContract.Keys._ID,
+                LocMessDBContract.Keys.COLUMN_NAME,
+                LocMessDBContract.COLUMN_SERVER_ID
+        };
+    }
 }

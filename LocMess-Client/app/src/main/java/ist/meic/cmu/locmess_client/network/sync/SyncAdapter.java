@@ -28,6 +28,7 @@ import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
+import ist.meic.cmu.locmess_client.network.sync.merge.MergeKey;
 import ist.meic.cmu.locmess_client.network.sync.merge.MergeKeypair;
 import ist.meic.cmu.locmess_client.network.sync.merge.MergeLocation;
 import ist.meic.cmu.locmess_client.network.sync.merge.MergeMessage;
@@ -180,6 +181,11 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 JsonArray jkeypairs = jresult.getData().getAsJsonArray(WebRequestResult.KEYPAIRS);
                 Log.d(TAG, "Keypairs: " + jkeypairs.toString());
                 MergeKeypair.mergeAll(mContentResolver, jkeypairs, syncResult);
+                break;
+            case SyncUtils.PULL_KEYS:
+                JsonArray jkeys = jresult.getData().getAsJsonArray(WebRequestResult.KEYS);
+                Log.d(TAG, "Keys: " + jkeys.toString());
+                MergeKey.mergeAll(mContentResolver, jkeys, syncResult);
                 break;
         }
     }

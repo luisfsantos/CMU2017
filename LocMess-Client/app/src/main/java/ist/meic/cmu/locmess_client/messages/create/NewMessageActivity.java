@@ -130,21 +130,7 @@ public class NewMessageActivity extends AppCompatActivity {
         mLocationCursor = populateLocationSpinner();
         if (savedInstanceState == null) {
             initDateTimeSpinners();
-            if (mLocationCursor != null) {
-                int location_id = getIntent().getIntExtra(INTENT_LOCATION_ID, -1);
-                if (location_id > 0) {
-                    Log.d(TAG, "location_id: " + location_id);
-                    int index = 0;
-                    for (int i = 0; i < mLocationCursor.getCount(); i++) {
-                        mLocationCursor.moveToPosition(i);
-                        if (mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID)) == location_id) {
-                            index = i;
-                            break;
-                        }
-                    }
-                    mLocation.setSelection(index);
-                }
-            }
+            initLocationSpinner();
         } else {
             int index = savedInstanceState.getInt("selected_location");
             mLocation.setSelection(index);
@@ -176,6 +162,25 @@ public class NewMessageActivity extends AppCompatActivity {
 
         mFromTime.setText(nowTime);
         mToTime.setText(nowTimePlusOneHour);
+    }
+
+    private void initLocationSpinner() {
+        if (mLocationCursor == null || mLocationCursor.getCount() < 1) {
+            return;
+        }
+        int location_id = getIntent().getIntExtra(INTENT_LOCATION_ID, -1);
+        if (location_id > 0) {
+            Log.d(TAG, "location_id: " + location_id);
+            int index = 0;
+            for (int i = 0; i < mLocationCursor.getCount(); i++) {
+                mLocationCursor.moveToPosition(i);
+                if (mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID)) == location_id) {
+                    index = i;
+                    break;
+                }
+            }
+            mLocation.setSelection(index);
+        }
     }
 
     private Cursor populateLocationSpinner() {
@@ -260,10 +265,12 @@ public class NewMessageActivity extends AppCompatActivity {
         String content = mMessageContent.getText().toString().trim();
         if (title.isEmpty()) {
             mTitle.setError(getString(R.string.title_missing));
+            mTitle.requestFocus();
             return;
         }
         if (content.isEmpty()) {
             mMessageContent.setError(getString(R.string.msg_body_missing));
+            mMessageContent.requestFocus();
             return;
         }
 
