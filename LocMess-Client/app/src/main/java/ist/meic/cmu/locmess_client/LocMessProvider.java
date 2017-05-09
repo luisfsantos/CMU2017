@@ -66,12 +66,13 @@ public class LocMessProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
         switch (sUriMatcher.match(uri)){
             case KEYPAIRS:
+                qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
                 qb.setTables(LocMessDBContract.KeyPair.TABLE_NAME);
                 break;
             case KEYPAIRS_ID:
+                qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
                 qb.setTables(LocMessDBContract.KeyPair.TABLE_NAME);
                 qb.appendWhere(LocMessDBContract.KeyPair._ID + " = " +
                         uri.getPathSegments().get(LocMessDBContract.KeyPair.ID_PATH_SEGMENT_INDEX)
@@ -87,27 +88,33 @@ public class LocMessProvider extends ContentProvider {
                 );
                 break;
             case POSTED_MESSAGES:
+                qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
                 qb.setTables(LocMessDBContract.PostedMessages.TABLE_NAME);
                 break;
             case POSTED_MESSAGES_ID:
+                qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
                 qb.setTables(LocMessDBContract.PostedMessages.TABLE_NAME);
                 qb.appendWhere(LocMessDBContract.PostedMessages._ID + " = " +
                         uri.getPathSegments().get(LocMessDBContract.PostedMessages.ID_PATH_SEGMENT_INDEX)
                 );
                 break;
             case OPENED_MESSAGES:
+                qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
                 qb.setTables(LocMessDBContract.OpenedMessages.TABLE_NAME);
                 break;
             case OPENED_MESSAGES_ID:
+                qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
                 qb.setTables(LocMessDBContract.OpenedMessages.TABLE_NAME);
                 qb.appendWhere(LocMessDBContract.OpenedMessages._ID + " = " +
                         uri.getPathSegments().get(LocMessDBContract.OpenedMessages.ID_PATH_SEGMENT_INDEX)
                 );
                 break;
             case AVAILABLE_MESSAGES:
+                qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
                 qb.setTables(LocMessDBContract.AvailableMessages.TABLE_NAME);
                 break;
             case AVAILABLE_MESSAGES_ID:
+                qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
                 qb.setTables(LocMessDBContract.AvailableMessages.TABLE_NAME);
                 qb.appendWhere(LocMessDBContract.AvailableMessages._ID + " = " +
                         uri.getPathSegments().get(LocMessDBContract.AvailableMessages.ID_PATH_SEGMENT_INDEX)
@@ -123,11 +130,11 @@ public class LocMessProvider extends ContentProvider {
 
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues contentValues) {
-        contentValues.put(LocMessDBContract.COLUMN_ACCOUNT_HASH, getUsernameHash());
         Uri rowUri = Uri.EMPTY;
         long rowId;
         switch (sUriMatcher.match(uri)) {
             case KEYPAIRS:
+                contentValues.put(LocMessDBContract.COLUMN_ACCOUNT_HASH, getUsernameHash());
                 rowId = database.insert(LocMessDBContract.KeyPair.TABLE_NAME, null, contentValues);
                 if (rowId > 0) {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.KeyPair.CONTENT_URI, rowId);
@@ -140,18 +147,21 @@ public class LocMessProvider extends ContentProvider {
                 }
                 break;
             case POSTED_MESSAGES:
+                contentValues.put(LocMessDBContract.COLUMN_ACCOUNT_HASH, getUsernameHash());
                 rowId = database.insert(LocMessDBContract.PostedMessages.TABLE_NAME, null, contentValues);
                 if (rowId > 0) {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.PostedMessages.CONTENT_URI, rowId);
                 }
                 break;
             case OPENED_MESSAGES:
+                contentValues.put(LocMessDBContract.COLUMN_ACCOUNT_HASH, getUsernameHash());
                 rowId = database.insert(LocMessDBContract.OpenedMessages.TABLE_NAME, null, contentValues);
                 if (rowId > 0) {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.OpenedMessages.CONTENT_URI, rowId);
                 }
                 break;
             case AVAILABLE_MESSAGES:
+                contentValues.put(LocMessDBContract.COLUMN_ACCOUNT_HASH, getUsernameHash());
                 rowId = database.insert(LocMessDBContract.AvailableMessages.TABLE_NAME, null, contentValues);
                 if (rowId > 0) {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.AvailableMessages.CONTENT_URI, rowId);
@@ -166,12 +176,12 @@ public class LocMessProvider extends ContentProvider {
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         int count;
         StringBuilder finalSelection = new StringBuilder();
-        finalSelection
-                .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
-                .append(" = ")
-                .append(getUsernameHash());
         switch (sUriMatcher.match(uri)) {
             case KEYPAIRS:
+                finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash());
                 if (selection != null) {
                     finalSelection
                             .append(" AND ")
@@ -181,6 +191,9 @@ public class LocMessProvider extends ContentProvider {
                 break;
             case KEYPAIRS_ID:
                 finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash())
                         .append(" AND ")
                         .append(LocMessDBContract.KeyPair._ID)
                         .append(" = ")
@@ -193,16 +206,10 @@ public class LocMessProvider extends ContentProvider {
                 count = database.delete(LocMessDBContract.KeyPair.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case LOCATIONS:
-                if (selection != null) {
-                    finalSelection
-                            .append(" AND ")
-                            .append(selection);
-                }
-                count = database.delete(LocMessDBContract.Location.TABLE_NAME, finalSelection.toString(), selectionArgs);
+                count = database.delete(LocMessDBContract.Location.TABLE_NAME, selection, selectionArgs);
                 break;
             case LOCATIONS_ID:
                 finalSelection
-                        .append(" AND ")
                         .append(LocMessDBContract.Location._ID)
                         .append(" = ")
                         .append(uri.getPathSegments().get(LocMessDBContract.Location.ID_PATH_SEGMENT_INDEX));
@@ -214,6 +221,10 @@ public class LocMessProvider extends ContentProvider {
                 count = database.delete(LocMessDBContract.Location.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case POSTED_MESSAGES:
+                finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash());
                 if (selection != null) {
                     finalSelection
                             .append(" AND ")
@@ -223,6 +234,9 @@ public class LocMessProvider extends ContentProvider {
                 break;
             case POSTED_MESSAGES_ID:
                 finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash())
                         .append(" AND ")
                         .append(LocMessDBContract.PostedMessages._ID)
                         .append(" = ")
@@ -235,10 +249,22 @@ public class LocMessProvider extends ContentProvider {
                 count = database.delete(LocMessDBContract.PostedMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case OPENED_MESSAGES:
-                count = database.delete(LocMessDBContract.OpenedMessages.TABLE_NAME, selection, selectionArgs);
+                finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash());
+                if (selection != null) {
+                    finalSelection
+                            .append(" AND ")
+                            .append(selection);
+                }
+                count = database.delete(LocMessDBContract.OpenedMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case OPENED_MESSAGES_ID:
                 finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash())
                         .append(" AND ")
                         .append(LocMessDBContract.OpenedMessages._ID)
                         .append(" = ")
@@ -251,10 +277,17 @@ public class LocMessProvider extends ContentProvider {
                 count = database.delete(LocMessDBContract.OpenedMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case AVAILABLE_MESSAGES:
-                count = database.delete(LocMessDBContract.AvailableMessages.TABLE_NAME, selection, selectionArgs);
+                finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash());
+                count = database.delete(LocMessDBContract.AvailableMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
                 break;
             case AVAILABLE_MESSAGES_ID:
                 finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash())
                         .append(" AND ")
                         .append(LocMessDBContract.AvailableMessages._ID)
                         .append(" = ")
@@ -277,12 +310,12 @@ public class LocMessProvider extends ContentProvider {
     public int update(@NonNull Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
         int count;
         StringBuilder finalSelection = new StringBuilder();
-        finalSelection
-                .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
-                .append(" = ")
-                .append(getUsernameHash());
         switch (sUriMatcher.match(uri)) {
             case KEYPAIRS:
+                finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash());
                 if (selection != null) {
                     finalSelection
                             .append(" AND ")
@@ -292,6 +325,9 @@ public class LocMessProvider extends ContentProvider {
                 break;
             case KEYPAIRS_ID:
                 finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash())
                         .append(" AND ")
                         .append(LocMessDBContract.KeyPair._ID)
                         .append(" = ")
@@ -304,16 +340,10 @@ public class LocMessProvider extends ContentProvider {
                 count = database.update(LocMessDBContract.KeyPair.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
                 break;
             case LOCATIONS:
-                if (selection != null) {
-                    finalSelection
-                            .append(" AND ")
-                            .append(selection);
-                }
-                count = database.update(LocMessDBContract.Location.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                count = database.update(LocMessDBContract.Location.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             case LOCATIONS_ID:
                 finalSelection
-                        .append(" AND ")
                         .append(LocMessDBContract.Location._ID)
                         .append(" = ")
                         .append(uri.getPathSegments().get(LocMessDBContract.Location.ID_PATH_SEGMENT_INDEX));
@@ -325,6 +355,10 @@ public class LocMessProvider extends ContentProvider {
                 count = database.update(LocMessDBContract.Location.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
                 break;
             case POSTED_MESSAGES:
+                finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash());
                 if (selection != null) {
                     finalSelection
                             .append(" AND ")
@@ -334,6 +368,9 @@ public class LocMessProvider extends ContentProvider {
                 break;
             case POSTED_MESSAGES_ID:
                 finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash())
                         .append(" AND ")
                         .append(LocMessDBContract.PostedMessages._ID)
                         .append(" = ")
@@ -346,6 +383,10 @@ public class LocMessProvider extends ContentProvider {
                 count = database.update(LocMessDBContract.PostedMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
                 break;
             case OPENED_MESSAGES:
+                finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash());
                 if (selection != null) {
                     finalSelection
                             .append(" AND ")
@@ -355,6 +396,9 @@ public class LocMessProvider extends ContentProvider {
                 break;
             case OPENED_MESSAGES_ID:
                 finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash())
                         .append(" AND ")
                         .append(LocMessDBContract.OpenedMessages._ID)
                         .append(" = ")
@@ -367,6 +411,10 @@ public class LocMessProvider extends ContentProvider {
                 count = database.update(LocMessDBContract.OpenedMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
                 break;
             case AVAILABLE_MESSAGES:
+                finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash());
                 if (selection != null) {
                     finalSelection
                             .append(" AND ")
@@ -376,6 +424,9 @@ public class LocMessProvider extends ContentProvider {
                 break;
             case AVAILABLE_MESSAGES_ID:
                 finalSelection
+                        .append(LocMessDBContract.COLUMN_ACCOUNT_HASH)
+                        .append(" = ")
+                        .append(getUsernameHash())
                         .append(" AND ")
                         .append(LocMessDBContract.AvailableMessages._ID)
                         .append(" = ")

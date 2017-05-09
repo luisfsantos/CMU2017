@@ -65,8 +65,7 @@ public class LocMessDBContract {
                 COLUMN_AUTHOR + " TEXT, " +
                 COLUMN_DATE_CREATED + " TEXT, " +
                 COLUMN_COORDINATES + " TEXT, " +
-                COLUMN_SERVER_ID + " INTEGER, " +
-                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
+                COLUMN_SERVER_ID + " INTEGER " + ")";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.Location._ID,
