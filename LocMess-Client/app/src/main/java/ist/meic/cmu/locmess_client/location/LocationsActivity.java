@@ -119,13 +119,12 @@ public class LocationsActivity extends BaseNavigationActivity implements
         Uri uri = ContentUris.withAppendedId(LocMessDBContract.Location.CONTENT_URI, id);
         int count = getContentResolver().delete(uri, null, null);
         Log.d(TAG, "Deleted " + count + " row(s)");
-        RequestData data = null;
         try {
-            data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_LOCATION, RequestData.DELETE);
+            RequestData data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_LOCATION, RequestData.DELETE);
+            SyncUtils.push(SyncUtils.DELETE_LOCATION, data, null);
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: ", e);
         }
-        SyncUtils.push(SyncUtils.DELETE_LOCATION, data, null);
     }
 
     @Override

@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -107,15 +109,7 @@ public class SyncUtils {
     }
 
     /**
-     * Helper method to trigger an immediate sync ("refresh").
-     *
-     * <p>This should only be used when we need to preempt the normal sync schedule. Typically, this
-     * means the user has pressed the "refresh" button.
-     *
-     * Note that SYNC_EXTRAS_MANUAL will cause an immediate sync, without any optimization to
-     * preserve battery life. If you know new data is available (perhaps via a GCM notification),
-     * but the user is not actively waiting for that data, you should omit this flag; this will give
-     * the OS additional freedom in scheduling your sync request.
+     * Helper method to trigger an immediate sync.
      */
     private static void triggerSync(Bundle bundle) {
         // Disable sync backoff and ignore sync preferences. In other words...perform sync NOW!
@@ -126,7 +120,7 @@ public class SyncUtils {
                 bundle);                                 // Extras
     }
 
-    public static void push(@PushWhat int what, RequestData data, Uri databaseEntry) {
+    public static void push(@PushWhat int what, @NonNull RequestData data, @Nullable Uri databaseEntry) {
         Bundle bundle = new Bundle();
         bundle.putInt(PUSH_WHAT, what);
         bundle.putInt(SYNC_TYPE, SYNC_PUSH);

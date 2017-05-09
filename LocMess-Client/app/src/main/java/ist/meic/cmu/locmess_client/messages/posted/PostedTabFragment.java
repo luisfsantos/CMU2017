@@ -21,10 +21,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.net.MalformedURLException;
 import java.util.Date;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.messages.ShowMessageActivity;
+import ist.meic.cmu.locmess_client.network.LocMessURL;
+import ist.meic.cmu.locmess_client.network.RequestData;
+import ist.meic.cmu.locmess_client.network.request_builders.GenericDeleteRequestBuilder;
+import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
 import ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView;
@@ -135,11 +140,16 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         startActivity(intent);
     }
 
-    private void removeMessage(int id) {
+    private void removeMessage(int id, int serverID) {
         Uri uri = ContentUris.withAppendedId(LocMessDBContract.PostedMessages.CONTENT_URI, id);
         int count = getContext().getContentResolver().delete(uri, null, null);
         Log.d(TAG, "Deleted " + count + " row(s)");
-        //TODO unpost message from server
+        try {
+            RequestData data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_MESSAGE, RequestData.DELETE);
+            SyncUtils.push(SyncUtils.DELETE_MESSAGE, data, null);
+        } catch (MalformedURLException e) {
+            Log.wtf(TAG, "Malformed URL: ", e);
+        }
     }
 
     @Override
@@ -147,6 +157,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         Cursor cursor = mAdapter.getCursor();
         final int position = cursor.getPosition();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages._ID));
+        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
         String dbFrom = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM));
         String dbTo = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_TO));
         ((TextView)itemView.findViewById(R.id.date_from))
@@ -157,7 +168,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        showRemoveDialog(id);
+                        showRemoveDialog(id, serverID);
                     }
                 });
         itemView.setOnClickListener(new View.OnClickListener() {
@@ -168,14 +179,14 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         });
     }
 
-    private void showRemoveDialog(final int id) {
+    private void showRemoveDialog(final int id, final int serverID) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(R.string.remove_message)
                 .setMessage(R.string.unpost_message_info)
                 .setPositiveButton(R.string.remove_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        removeMessage(id);
+                        removeMessage(id, serverID);
                     }
                 }).setNegativeButton(R.string.cancel, null);
         builder.show();
@@ -190,7 +201,8 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
                 LocMessDBContract.PostedMessages.COLUMN_CONTENT,
                 LocMessDBContract.PostedMessages.COLUMN_LOCATION,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_FROM,
-                LocMessDBContract.PostedMessages.COLUMN_DATE_TO
+                LocMessDBContract.PostedMessages.COLUMN_DATE_TO,
+                LocMessDBContract.COLUMN_SERVER_ID
         };
         String[] selectionArgs = { DateUtils.formatDateTimeLocaleToDb(new Date()) };
         return new CursorLoader(getContext(),
