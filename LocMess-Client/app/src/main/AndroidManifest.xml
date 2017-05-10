@@ -54,6 +54,10 @@
         <activity android:name=".network.location_update.LocationPermissionsActivity"
             android:theme="@style/Theme.AppCompat.Dialog"/>
 
+        <!--TERMITE SERVICE-->
+        <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
+
+
         <activity
             android:name=".authentication.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar">

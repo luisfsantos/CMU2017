@@ -51,7 +51,7 @@ public class FetchLocationMessagesService extends IntentService {
             Log.wtf(TAG, "Intent was null");
             return;
         }
-        Log.d(TAG, "I received an intent!");
+        Log.d(TAG, "Fetching messages from server...");
         // TODO: 28/04/2017 check for connectivity again, abort (return) if no connectivity? is this overkill?
         Context context = getApplicationContext();
         SharedPreferences pref = context.getSharedPreferences(context.getString(R.string.preference_file_key), MODE_PRIVATE);

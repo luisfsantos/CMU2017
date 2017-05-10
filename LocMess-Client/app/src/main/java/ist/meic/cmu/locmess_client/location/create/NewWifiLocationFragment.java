@@ -1,6 +1,12 @@
 package ist.meic.cmu.locmess_client.location.create;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -17,12 +23,16 @@ import java.util.Collections;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
+import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
+import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
+import pt.inesc.termite.wifidirect.SimWifiP2pManager;
+import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 
 /**
  * Created by Catarina on 05/04/2017.
  */
 
-public class NewWifiLocationFragment extends Fragment {
+public class NewWifiLocationFragment extends Fragment implements SimWifiP2pManager.PeerListListener{
 
     private static final String TAG = "NewWifiLocationFragment";
 
@@ -31,20 +41,12 @@ public class NewWifiLocationFragment extends Fragment {
     TextView mEmptyView;
     private static List<String> mSSIDS = new ArrayList<>();
 
-    static {
-        mSSIDS.add("eduroam");
-        mSSIDS.add("2cool4school");
-        mSSIDS.add("some wifi");
-    }
-
     public List<String> getmSsidsChecked() {
         return Collections.unmodifiableList(mSsidsChecked);
     }
 
     public static NewWifiLocationFragment newInstance() {
-
         Bundle args = new Bundle();
-        
         NewWifiLocationFragment fragment = new NewWifiLocationFragment();
         fragment.setArguments(args);
         return fragment;
@@ -80,7 +82,7 @@ public class NewWifiLocationFragment extends Fragment {
         mEmptyView = (TextView) rootView.findViewById(R.id.empty_view);
         mCheckBoxContainer = (LinearLayout)rootView.findViewById(R.id.checkbox_group_wifi);
         inflateCheckBoxes();
-        rootView.findViewById(R.id.refresh).setOnClickListener(new OnRefreshClicked());
+        rootView.findViewById(R.id.refresh).setOnClickListener(mOnRefreshClicked);
         return rootView;
     }
 
@@ -102,7 +104,7 @@ public class NewWifiLocationFragment extends Fragment {
             checkBox.setText(ssid);
             checkBox.setMaxLines(1);
             checkBox.setEllipsize(TextUtils.TruncateAt.END);
-            checkBox.setOnClickListener(new OnCheckBoxClicked());
+            checkBox.setOnClickListener(mOnCheckBoxClicked);
             if (mSsidsChecked.contains(ssid)) {
                 checkBox.setChecked(true);
             }
@@ -110,7 +112,7 @@ public class NewWifiLocationFragment extends Fragment {
         }
     }
 
-    private class OnCheckBoxClicked implements View.OnClickListener {
+    private View.OnClickListener mOnCheckBoxClicked = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             if (((CheckBox) view).isChecked()) {
@@ -118,19 +120,79 @@ public class NewWifiLocationFragment extends Fragment {
             } else {
                 mSsidsChecked.remove(((CheckBox) view).getText().toString());
             }
-            Log.d(TAG, TextUtils.join(", ", mSsidsChecked));
+            Log.d(TAG, "ssids_checked: " + TextUtils.join(", ", mSsidsChecked));
         }
-    }
+    };
 
-    private class OnRefreshClicked implements View.OnClickListener {
+    private View.OnClickListener mOnRefreshClicked = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             //TODO
             Log.d(TAG, "refresh clicked");
-//        mSsidsChecked.clear();
-//        mCheckBoxContainer.removeAllViews();
-//        do something to mSSIDS
-//        inflateCheckBoxes();
+            if (mBound) {
+                mManager.requestPeers(mChannel, NewWifiLocationFragment.this);
+            } else {
+                Log.d(TAG, "Service not bound");
+            }
         }
+    };
+
+    /*
+    * TERMITE SETUP AND CALLBACKS
+    * */
+
+    private SimWifiP2pManager mManager = null;
+    private SimWifiP2pManager.Channel mChannel = null;
+    private boolean mBound = false;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mManager = new SimWifiP2pManager(new Messenger(service));
+            mChannel = mManager.initialize(getActivity().getApplication(), getContext().getMainLooper(), null);
+            mBound = true;
+
+            mManager.requestPeers(mChannel, NewWifiLocationFragment.this);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mManager = null;
+            mChannel = null;
+            mBound = false;
+        }
+    };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "Binding to WifiP2pService");
+        Intent intent = new Intent(getContext(), SimWifiP2pService.class);
+        getContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        mBound = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mBound) {
+            Log.d(TAG, "Unbinding from WifiP2pService");
+            getContext().unbindService(mConnection);
+            mBound = false;
+        }
+    }
+
+
+    @Override
+    public void onPeersAvailable(SimWifiP2pDeviceList peers) {
+        // FIXME: 11/05/2017 issue: if we "move" two devices together in the Termite-Cli (cmd) before the service is bound, peer list is empty
+        Log.d(TAG, "#peers=" + peers.getDeviceList().size());
+        mSsidsChecked.clear();
+        mSSIDS.clear();
+        mCheckBoxContainer.removeAllViews();
+        for (SimWifiP2pDevice device : peers.getDeviceList()) {
+            mSSIDS.add(device.deviceName);
+        }
+        inflateCheckBoxes();
     }
 }
