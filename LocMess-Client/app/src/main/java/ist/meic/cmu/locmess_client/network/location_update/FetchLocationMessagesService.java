@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
@@ -25,6 +26,7 @@ import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.sync.merge.MergeMessage;
+import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 
 /**
  * Created by Catarina on 28/04/2017.
@@ -56,12 +58,13 @@ public class FetchLocationMessagesService extends IntentService {
         String jwt = pref.getString(context.getString(R.string.pref_jwtAuthenticator), "No auth");
         Bundle bundle = intent.getBundleExtra(INTENT_BUNDLE);
         RequestData request = (RequestData)bundle.getSerializable(INTENT_REQUEST);
-        int count = 0;
+        int numNotRead = 0;
+        int numNewMessages = 0;
         try {
             WebRequestResult response = new WebRequest(request, jwt).execute();
             JsonObjectAPI result = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
             JsonArray messages = result.getData().getAsJsonArray(WebRequestResult.MESSAGES);
-            count = MergeMessage.mergeAllAvailable(getContentResolver(), messages, null);
+            numNewMessages = MergeMessage.mergeAllAvailable(getContentResolver(), messages, null);
         } catch (IOException e) {
             Log.e(TAG, "Error reading from network: " + e.toString());
             return;
@@ -69,7 +72,20 @@ public class FetchLocationMessagesService extends IntentService {
             Log.e(TAG, "Error updating database: " + e.getMessage());
             return;
         }
-        if (count > 0) {
+        if (numNewMessages > 0) {
+            // we only show the notification when there are new messages since the last update,
+            // but the notification displays how many messages are still not read in general
+            Cursor c = getContentResolver().query(
+                    LocMessDBContract.AvailableMessages.CONTENT_URI,
+                    new String[] { LocMessDBContract.AvailableMessages._ID},
+                    LocMessDBContract.AvailableMessages.COLUMN_READ + " = ?",
+                    new String[] { String.valueOf(LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ) },
+                    null
+            );
+            if (c != null) {
+                numNotRead = c.getCount();
+                c.close();
+            }
             Intent inboxIntent = new Intent(this, InboxActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     this,
@@ -77,9 +93,9 @@ public class FetchLocationMessagesService extends IntentService {
                     inboxIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT
             );
-            String messageSingOrPlural = (count > 1 ?
+            String messageSingOrPlural = (numNotRead > 1 ?
                     getString(R.string.message_plural) : getString(R.string.message_singular));
-            String contentText = getString(R.string.new_messages_notif_text, count, messageSingOrPlural);
+            String contentText = getString(R.string.new_messages_notif_text, numNotRead, messageSingOrPlural);
             Notification notif = new NotificationCompat.Builder(getBaseContext())
                     .setSmallIcon(R.drawable.ic_message_black_24dp)
                     .setContentTitle(getString(R.string.new_messages_notif_title))
