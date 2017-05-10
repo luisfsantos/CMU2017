@@ -141,8 +141,7 @@ public class ProfileActivity extends BaseNavigationActivity
     }
 
     private void showRemoveDialog(final String key, final String value, final int id, final int serverID) {
-        String dialogMessage = getString(R.string.remove_dialog_message_start) +
-                " \"" + key + ": " + value + "\"";
+        String dialogMessage = getString(R.string.remove_dialog_message_start, key + ": " + value);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.remove_keypair)

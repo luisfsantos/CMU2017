@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.net.MalformedURLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +24,7 @@ import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.request_builders.UpdateLocationRequestBuilder;
+import ist.meic.cmu.locmess_client.utils.DateUtils;
 
 /**
  * Created by Catarina on 27/04/2017.
@@ -66,13 +68,15 @@ public class AlarmReceiver extends BroadcastReceiver {
         saveCurrentLocationAsPrevious(currentLocation);
         Intent serviceIntent = new Intent(mContext, FetchLocationMessagesService.class);
         Bundle bundle = new Bundle();
+        Date now = new Date();
+        saveLastUpdatedDate(now);
         try {
             bundle.putSerializable(FetchLocationMessagesService.INTENT_REQUEST,
                     new UpdateLocationRequestBuilder(
                             currentLocation.getLatitude(),
                             currentLocation.getLongitude(),
                             currentLocation.getSsids(),
-                            new Date()
+                            now
                     ).build(LocMessURL.UPDATE_LOCATION, RequestData.POST));
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: " + LocMessURL.UPDATE_LOCATION, e);
@@ -118,6 +122,13 @@ public class AlarmReceiver extends BroadcastReceiver {
                 mContext.getString(R.string.pref_prevLocationSsids), location.getSsids()); // put ssids
         putDouble(editor, mContext.getString(R.string.pref_prevLatitude), location.getLatitude()); // put latitude
         putDouble(editor, mContext.getString(R.string.pref_prevLongitude), location.getLongitude()); // put longitude
+        editor.apply();
+    }
+
+    private void saveLastUpdatedDate(Date date) {
+        SharedPreferences.Editor editor = mContext.getSharedPreferences(
+                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE).edit();
+        editor.putString(mContext.getString(R.string.pref_time_last_updated_msg), DateUtils.formatDateTime(date));
         editor.apply();
     }
 
@@ -192,7 +203,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
 
         public Set<String> getSsids() {
-            return ssids;
+            return Collections.unmodifiableSet(ssids);
         }
 
         public Location getCoordinates() {

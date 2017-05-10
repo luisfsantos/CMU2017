@@ -28,7 +28,7 @@ public class MergeKey {
     private static final String TAG = "MergeKey";
     private MergeKey() {}
 
-    public static void mergeAll(ContentResolver contentResolver, JsonArray keys, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
+    public static int mergeAll(ContentResolver contentResolver, JsonArray keys, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
         Log.i(TAG, "Parsing json into Keypair map");
         SparseArray<KeyDeserializer.Key> remoteKeys =
                 new KeyDeserializer().parseAll(keys);
@@ -71,6 +71,7 @@ public class MergeKey {
         c.close();
 
         // add new items
+        int newKeysCount = remoteKeys.size();
         for (int i = 0; i < remoteKeys.size(); i++) {
             KeyDeserializer.Key k = remoteKeys.valueAt(i);
             Log.i(TAG, "Scheduling insert: server_id=" + k.getId());
@@ -89,5 +90,6 @@ public class MergeKey {
                 LocMessDBContract.Keys.CONTENT_URI, // URI where data was modified
                 null,                                   // no local observer
                 false);                                 // IMPORTANT: do not sync do network
+        return newKeysCount;
     }
 }

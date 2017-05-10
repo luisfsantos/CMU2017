@@ -1,13 +1,11 @@
 package ist.meic.cmu.locmess_client.network.request_builders;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.net.MalformedURLException;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import ist.meic.cmu.locmess_client.network.RequestData;

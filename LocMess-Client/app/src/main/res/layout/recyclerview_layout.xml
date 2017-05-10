@@ -3,11 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView
-        android:id="@+id/rv_card_list"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical" />
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/last_updated"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:gravity="center_horizontal"
+                android:visibility="gone"/>
+
+            <ist.meic.cmu.locmess_client.utils.recycler.LocMessRecyclerView
+                android:id="@+id/rv_card_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"
+                android:layout_below="@id/last_updated"/>
+        </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
     <TextView
         android:id="@+id/empty_view"
         android:layout_width="match_parent"
@@ -15,5 +32,4 @@
         android:gravity="center"
         android:visibility="gone"
         android:text="@string/nothing_to_show"/>
-
 </RelativeLayout>

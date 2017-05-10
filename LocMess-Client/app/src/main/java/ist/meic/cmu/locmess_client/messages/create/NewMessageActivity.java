@@ -13,7 +13,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
@@ -34,7 +33,6 @@ import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -391,7 +389,7 @@ public class NewMessageActivity extends AppCompatActivity {
 
     public void onAddNewFilterClicked(View view) {
         if (mKeysCursor == null || mKeysCursor.getCount() < 1) {
-            Toast.makeText(this, "Cannot add filters because there are no keys.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.no_keys_filter, Toast.LENGTH_SHORT).show();
             return;
         }
         inflateNewFilter();

@@ -3,12 +3,9 @@ package ist.meic.cmu.locmess_client.network.json.deserializers;
 import android.util.SparseArray;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
 /**
  * Created by Catarina on 05/05/2017.

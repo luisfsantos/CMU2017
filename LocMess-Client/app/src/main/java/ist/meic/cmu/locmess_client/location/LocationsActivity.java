@@ -160,8 +160,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
     private void showRemoveDialog(final String name, final int id, final int serverID) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.remove_location)
-                .setMessage(getString(R.string.remove_dialog_message_start) +
-                        " \"" + name + "\"")
+                .setMessage(getString(R.string.remove_dialog_message_start, name))
                 .setPositiveButton(R.string.remove_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {

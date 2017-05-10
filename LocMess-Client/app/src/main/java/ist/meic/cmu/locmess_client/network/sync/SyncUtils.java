@@ -20,7 +20,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 

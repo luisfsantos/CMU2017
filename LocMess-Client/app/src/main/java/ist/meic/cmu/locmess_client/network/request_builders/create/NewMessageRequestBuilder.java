@@ -3,7 +3,6 @@ package ist.meic.cmu.locmess_client.network.request_builders.create;
 import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 

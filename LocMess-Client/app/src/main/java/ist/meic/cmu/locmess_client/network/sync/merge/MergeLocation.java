@@ -33,7 +33,7 @@ public class MergeLocation {
     private static final String TAG = "MergeLocation";
     private MergeLocation() {}
 
-    public static void mergeAll(ContentResolver contentResolver, JsonArray locations, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
+    public static int mergeAll(ContentResolver contentResolver, JsonArray locations, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
         Log.i(TAG, "Parsing json into Location map");
         SparseArray<LocationDeserializer.Location> remoteLocations =
                 new LocationDeserializer().parseAll(locations);
@@ -76,6 +76,7 @@ public class MergeLocation {
         c.close();
 
         // add new items
+        int newLocationCount = remoteLocations.size();
         for (int i = 0; i < remoteLocations.size(); i++) {
             LocationDeserializer.Location l = remoteLocations.valueAt(i);
             Log.i(TAG, "Scheduling insert: server_id=" + l.getId());
@@ -98,6 +99,7 @@ public class MergeLocation {
                 LocMessDBContract.Location.CONTENT_URI, // URI where data was modified
                 null,                                   // no local observer
                 false);                                 // IMPORTANT: do not sync do network
+        return newLocationCount;
     }
 
     public static void fillInServerId(ContentResolver contentResolver, Uri databaseEntryUri, String result, @Nullable SyncResult syncResult) {

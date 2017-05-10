@@ -21,7 +21,6 @@ import java.util.ArrayList;
 
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
-import ist.meic.cmu.locmess_client.network.json.deserializers.KeypairDeserializer;
 import ist.meic.cmu.locmess_client.network.json.deserializers.MessageDeserializer;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
@@ -34,7 +33,7 @@ public class MergeMessage {
     private static final String TAG = "MergeKeypair";
     private MergeMessage() {}
 
-    public static void mergeAllAvailable(ContentResolver contentResolver, JsonArray messages, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
+    public static int mergeAllAvailable(ContentResolver contentResolver, JsonArray messages, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
         Log.i(TAG, "Parsing json into Message map");
         SparseArray<MessageDeserializer.Message> remoteMessages =
                 new MessageDeserializer().parseAll(messages);
@@ -77,14 +76,10 @@ public class MergeMessage {
         c.close();
 
         // add new items
+        int newMessageCount = remoteMessages.size();
         for (int i = 0; i < remoteMessages.size(); i++) {
             MessageDeserializer.Message m = remoteMessages.valueAt(i);
             Log.i(TAG, "Scheduling insert: server_id=" + m.getId());
-            Log.d(TAG, String.format("title=%s text=%s author=%s date=%s location=%s read=%d",
-                    m.getTitle(), m.getText(), m.getAuthor(),
-                    DateUtils.formatDateTimeLocaleToDb(m.getFromDate()),
-                    m.getLocation().getName(),
-                    LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ));
             batch.add(ContentProviderOperation.newInsert(LocMessDBContract.AvailableMessages.CONTENT_URI)
                     .withValue(LocMessDBContract.AvailableMessages.COLUMN_TITLE, m.getTitle())
                     .withValue(LocMessDBContract.AvailableMessages.COLUMN_CONTENT, m.getText())
@@ -105,6 +100,7 @@ public class MergeMessage {
                 LocMessDBContract.AvailableMessages.CONTENT_URI, // URI where data was modified
                 null,                                   // no local observer
                 false);                                 // IMPORTANT: do not sync do network
+        return newMessageCount;
     }
 
     public static void fillInServerId(ContentResolver contentResolver, Uri databaseEntryUri, String result, @Nullable SyncResult syncResult) {

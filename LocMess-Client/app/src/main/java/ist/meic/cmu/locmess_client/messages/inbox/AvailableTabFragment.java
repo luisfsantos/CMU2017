@@ -4,6 +4,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -39,7 +40,8 @@ public class AvailableTabFragment extends Fragment implements
     private static final int AVAILABLE_MESSAGES_LOADER_ID = R.id.available_messages_loader_id;
     SimpleCursorRecyclerAdapter mAdapter;
     LocMessRecyclerView mRecyclerView;
-
+    TextView mUpdatedTime;
+ 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +70,7 @@ public class AvailableTabFragment extends Fragment implements
         mRecyclerView.setLayoutManager(mLayoutManager);
         setupAdapter();
         mRecyclerView.setAdapter(mAdapter);
+        mUpdatedTime = (TextView) rootView.findViewById(R.id.last_updated);
         return rootView;
     }
 
@@ -210,6 +213,12 @@ public class AvailableTabFragment extends Fragment implements
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.changeCursor(cursor);
         mRecyclerView.setAdapter(mAdapter);
+        SharedPreferences pref = getContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        String date = pref.getString(getString(R.string.pref_time_last_updated_msg), null);
+        if (date != null) {
+            mUpdatedTime.setText(getString(R.string.time_last_updated_inbox, date));
+            mUpdatedTime.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

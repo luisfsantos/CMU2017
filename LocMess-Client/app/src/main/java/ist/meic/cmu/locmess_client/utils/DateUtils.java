@@ -27,6 +27,10 @@ public class DateUtils {
         return SimpleDateFormat.getDateInstance().format(calendar.getTime());
     }
 
+    public static String formatDateTime(Date date) {
+        return SimpleDateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT).format(date);
+    }
+
     public static String formatTime(Date date) {
         return SimpleDateFormat.getTimeInstance(DateFormat.SHORT).format(date);
     }
@@ -51,7 +55,7 @@ public class DateUtils {
         try {
             localeDate = new SimpleDateFormat(LocMessDBContract.SIMPLE_DATE_FORMAT).parse(dbDate);
         } catch (ParseException e) { e.printStackTrace(); }
-        return SimpleDateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT).format(localeDate);
+        return formatDateTime(localeDate);
     }
 
     @SuppressLint("SimpleDateFormat")

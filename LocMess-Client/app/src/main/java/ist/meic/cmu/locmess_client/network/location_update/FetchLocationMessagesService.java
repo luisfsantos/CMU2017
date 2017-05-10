@@ -1,12 +1,16 @@
 package ist.meic.cmu.locmess_client.network.location_update;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -15,6 +19,7 @@ import com.google.gson.JsonArray;
 import java.io.IOException;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
@@ -51,17 +56,40 @@ public class FetchLocationMessagesService extends IntentService {
         String jwt = pref.getString(context.getString(R.string.pref_jwtAuthenticator), "No auth");
         Bundle bundle = intent.getBundleExtra(INTENT_BUNDLE);
         RequestData request = (RequestData)bundle.getSerializable(INTENT_REQUEST);
+        int count = 0;
         try {
             WebRequestResult response = new WebRequest(request, jwt).execute();
             JsonObjectAPI result = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
             JsonArray messages = result.getData().getAsJsonArray(WebRequestResult.MESSAGES);
-            MergeMessage.mergeAllAvailable(getContentResolver(), messages, null);
+            count = MergeMessage.mergeAllAvailable(getContentResolver(), messages, null);
         } catch (IOException e) {
             Log.e(TAG, "Error reading from network: " + e.toString());
             return;
         } catch (RemoteException | OperationApplicationException e) {
             Log.e(TAG, "Error updating database: " + e.getMessage());
+            return;
         }
-        // TODO: 28/04/2017 fire notification
+        if (count > 0) {
+            Intent inboxIntent = new Intent(this, InboxActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    this,
+                    0,
+                    inboxIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            );
+            String messageSingOrPlural = (count > 1 ?
+                    getString(R.string.message_plural) : getString(R.string.message_singular));
+            String contentText = getString(R.string.new_messages_notif_text, count, messageSingOrPlural);
+            Notification notif = new NotificationCompat.Builder(getBaseContext())
+                    .setSmallIcon(R.drawable.ic_message_black_24dp)
+                    .setContentTitle(getString(R.string.new_messages_notif_title))
+                    .setContentText(contentText)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .build();
+            NotificationManager mNotifManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            mNotifManager.notify(R.id.new_message_notification_id, notif);
+        }
     }
 }

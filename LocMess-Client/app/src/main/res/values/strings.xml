@@ -40,7 +40,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
-    <string name="remove_dialog_message_start">You will remove</string>
+    <string name="remove_dialog_message_start">You will remove \"%1$s\"</string>
     <string name="title_activity_locations">Locations</string>
     <string name="longitude_abrev">Long</string>
     <string name="latitude_abrev">Lat</string>
@@ -81,6 +81,18 @@
     <string name="something_went_wrong">Something went wrong. Please try again.</string>
     <string name="error_login_after_signup">Your account was created but there was a problem while logging in. Please try to log in from the login screen.</string>
     <string name="pick_network">Pick at least one network.</string>
+    <string name="you">You</string>
+    <string name="cannot_post_msg_no_locations">Cannot post message because there are no locations.</string>
+    <string name="no_locations_spinner">There are no locations</string>
+    <string name="no_keys_filter">Cannot add filters because there are no keys.</string>
+
+    <string name="new_messages_notif_title">New location messages</string>
+    <!-- %1$d will be replaced by message count, %2$s will be replaced by
+    @string/message_singular or @string/message_plural depending on message count-->
+    <string name="new_messages_notif_text">You have %1$d %2$s to read</string>
+    <string name="message_singular">message</string>
+    <string name="message_plural">messages</string>
+    <string name="time_last_updated_inbox">Last updated on %1$s</string>
 
     <!-- STRINGS BELOW THIS POINT ARE LOCALE INDEPENDENT -->
     <string name="account_type">ist.meic.cmu.locmess_client.network.sync.basicsyncadapter</string>
@@ -98,8 +110,6 @@
     <string name="pref_currLocationSsids">curr_location_ssids</string>
     <string name="pref_currLatitude">curr_latitude</string>
     <string name="pref_currLongitude">curr_longitude</string>
-    <string name="you">You</string>
-    <string name="cannot_post_msg_no_locations">Cannot post message because there are no locations.</string>
-    <string name="no_locations_spinner">There are no locations</string>
+    <string name="pref_time_last_updated_msg">time_last_updated_msg</string>
 
 </resources>
