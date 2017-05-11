@@ -1,8 +1,10 @@
 package ist.meic.cmu.locmess_client.location.create;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -23,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
+import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
 import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
@@ -39,7 +42,7 @@ public class NewWifiLocationFragment extends Fragment implements SimWifiP2pManag
     private LinearLayout mCheckBoxContainer;
     private List<String> mSsidsChecked = new ArrayList<>();
     TextView mEmptyView;
-    private static List<String> mSSIDS = new ArrayList<>();
+    private List<String> mSSIDS = new ArrayList<>();
 
     public List<String> getmSsidsChecked() {
         return Collections.unmodifiableList(mSsidsChecked);
@@ -82,7 +85,6 @@ public class NewWifiLocationFragment extends Fragment implements SimWifiP2pManag
         mEmptyView = (TextView) rootView.findViewById(R.id.empty_view);
         mCheckBoxContainer = (LinearLayout)rootView.findViewById(R.id.checkbox_group_wifi);
         inflateCheckBoxes();
-        rootView.findViewById(R.id.refresh).setOnClickListener(mOnRefreshClicked);
         return rootView;
     }
 
@@ -124,19 +126,6 @@ public class NewWifiLocationFragment extends Fragment implements SimWifiP2pManag
         }
     };
 
-    private View.OnClickListener mOnRefreshClicked = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            //TODO
-            Log.d(TAG, "refresh clicked");
-            if (mBound) {
-                mManager.requestPeers(mChannel, NewWifiLocationFragment.this);
-            } else {
-                Log.d(TAG, "Service not bound");
-            }
-        }
-    };
-
     /*
     * TERMITE SETUP AND CALLBACKS
     * */
@@ -151,8 +140,6 @@ public class NewWifiLocationFragment extends Fragment implements SimWifiP2pManag
             mManager = new SimWifiP2pManager(new Messenger(service));
             mChannel = mManager.initialize(getActivity().getApplication(), getContext().getMainLooper(), null);
             mBound = true;
-
-            mManager.requestPeers(mChannel, NewWifiLocationFragment.this);
         }
 
         @Override
@@ -170,29 +157,47 @@ public class NewWifiLocationFragment extends Fragment implements SimWifiP2pManag
         Intent intent = new Intent(getContext(), SimWifiP2pService.class);
         getContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         mBound = true;
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
+        getContext().registerReceiver(mOnRefreshPeers, filter);
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
         if (mBound) {
             Log.d(TAG, "Unbinding from WifiP2pService");
             getContext().unbindService(mConnection);
             mBound = false;
         }
+        getContext().unregisterReceiver(mOnRefreshPeers);
     }
 
+    private BroadcastReceiver mOnRefreshPeers = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
+                if (mBound) {
+                    mManager.requestPeers(mChannel, NewWifiLocationFragment.this);
+                } else {
+                    Log.i(TAG, "Service not bound");
+                }
+            }
+        }
+    };
 
     @Override
     public void onPeersAvailable(SimWifiP2pDeviceList peers) {
-        // FIXME: 11/05/2017 issue: if we "move" two devices together in the Termite-Cli (cmd) before the service is bound, peer list is empty
+        // issue: if we "move" two devices together in the Termite-Cli (cmd) before the service is bound, peer list is empty
+        // ^ this is the expected behaviour !!
         Log.d(TAG, "#peers=" + peers.getDeviceList().size());
-        mSsidsChecked.clear();
         mSSIDS.clear();
         mCheckBoxContainer.removeAllViews();
         for (SimWifiP2pDevice device : peers.getDeviceList()) {
             mSSIDS.add(device.deviceName);
         }
+        mSsidsChecked.retainAll(mSSIDS);
         inflateCheckBoxes();
     }
 }
