@@ -103,7 +103,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     private LocationWrapper getCurrentLocation(){
         SharedPreferences pref = mContext.getSharedPreferences(
                 mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        Set<String> ssids = pref.getStringSet(mContext.getString(R.string.pref_currLocationSsids), new HashSet<String>()); //FIXME get ssids from Termite
+        Set<String> ssids = pref.getStringSet(mContext.getString(R.string.pref_currLocationSsids), new HashSet<String>());
         double latitude = getDouble(pref, mContext.getString(R.string.pref_currLatitude), LocationWrapper.NO_LATITUDE);
         double longitude = getDouble(pref, mContext.getString(R.string.pref_currLongitude), LocationWrapper.NO_LONGITUDE);
         Location location = new Location("");
@@ -194,31 +194,31 @@ public class AlarmReceiver extends BroadcastReceiver {
         private static final double NO_LATITUDE = 0.0;
         private static final double NO_LONGITUDE = 0.0;
 
-        final Set<String> ssids;
-        final Location coordinates;
+        private final Set<String> ssids;
+        private final Location coordinates;
 
         LocationWrapper(Set<String> ssids, Location coordinates) {
             this.ssids = ssids;
             this.coordinates = coordinates;
         }
 
-        public Set<String> getSsids() {
+        Set<String> getSsids() {
             return Collections.unmodifiableSet(ssids);
         }
 
-        public Location getCoordinates() {
+        Location getCoordinates() {
             return coordinates;
         }
 
-        public double getLatitude() {
+        double getLatitude() {
             return coordinates.getLatitude();
         }
 
-        public double getLongitude() {
+        double getLongitude() {
             return coordinates.getLongitude();
         }
 
-        public boolean equals(LocationWrapper location) {
+        boolean equals(LocationWrapper location) {
             if (location == this) return true;
             if (location == null) return false;
 
@@ -229,13 +229,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             float distance = this.getCoordinates().distanceTo(location.getCoordinates());
             Log.d(TAG, "distance = " + distance);
             // if distance is within the tolerance distance, then we consider the GPS locations to be equal
-            if (distance < MAX_TOLERANCE_DISTANCE) {
-                return true;
-            }
-            return false;
+            return distance < MAX_TOLERANCE_DISTANCE;
         }
 
-        public boolean isEmpty() {
+        boolean isEmpty() {
             return ssids.isEmpty() && getLatitude() == NO_LATITUDE && getLongitude() == NO_LONGITUDE;
         }
 
