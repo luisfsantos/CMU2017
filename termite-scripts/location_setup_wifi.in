@@ -1,0 +1,8 @@
+newdevice A
+newdevice eduroam
+newdevice tecnico-guest
+newdevice NOS-AG52
+newdevice SantanderWifi
+list emus
+assignaddr e1
+binddevice A e1

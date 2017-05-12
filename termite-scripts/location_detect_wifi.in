@@ -1,0 +1,6 @@
+move eduroam (A)
+move tecnico-guest (A)
+move NOS-AG52 (A)
+move SantanderWifi (A)
+commit
+ls n
