@@ -151,8 +151,8 @@ public class NewWifiLocationFragment extends Fragment implements SimWifiP2pManag
     };
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         Log.d(TAG, "Binding to WifiP2pService");
         Intent intent = new Intent(getContext(), SimWifiP2pService.class);
         getContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);

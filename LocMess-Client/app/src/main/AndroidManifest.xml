@@ -41,7 +41,7 @@
                 android:resource="@xml/sync_adapter"/>
         </service>
 
-        <receiver android:name=".network.location_update.AlarmReceiver">
+        <receiver android:name=".network.location_update.UpdateLocationAlarmReceiver">
             <intent-filter>
                 <action android:name="@string/ALARM_ACTION" />
             </intent-filter>

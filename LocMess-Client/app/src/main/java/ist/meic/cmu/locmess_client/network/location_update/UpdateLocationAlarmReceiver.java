@@ -30,25 +30,29 @@ import ist.meic.cmu.locmess_client.utils.DateUtils;
  * Created by Catarina on 27/04/2017.
  */
 
-public class AlarmReceiver extends BroadcastReceiver {
-    private static final String TAG = "AlarmReceiver";
+public class UpdateLocationAlarmReceiver extends BroadcastReceiver {
+    private static final String TAG = "UpdateLocationAlarm";
     public static int REPEAT_INTERVAL = 60 * 1000; // 1 minute
     private static int MAX_REPEAT_INTERVAL = 5 * 60 * 1000; // 5 minutes
-    private static float MAX_TOLERANCE_DISTANCE = 10; // 10 meters? FIXME
+    private static float MAX_TOLERANCE_DISTANCE = 10; // 10 meters? FIXME?
     private Context mContext;
+    private SharedPreferences pref;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "Alarm received");
         mContext = context;
+        pref = mContext.getSharedPreferences(mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
         boolean networkOn = isNetworkOn();
+        Intent updateIntent = new Intent(mContext, LocationUpdateService.class);
         if (!networkOn) {
-            Intent serviceIntent = new Intent(mContext, LocationUpdateService.class);
-            context.stopService(serviceIntent);
+            context.stopService(updateIntent);
             doubleAlarmInterval();
             return;
+        } else {
+            context.startService(updateIntent);
         }
-
         LocationWrapper previousLocation = getPreviousLocation();
         LocationWrapper  currentLocation = getCurrentLocation();
         if (previousLocation.isEmpty() && currentLocation.isEmpty()) {
@@ -87,8 +91,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     private LocationWrapper getPreviousLocation(){
-        SharedPreferences pref = mContext.getSharedPreferences(
-                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         Set<String> ssids = pref.getStringSet(mContext.getString(R.string.pref_prevLocationSsids), new HashSet<String>());
         double latitude = getDouble(pref, mContext.getString(R.string.pref_prevLatitude), LocationWrapper.NO_LATITUDE);
         double longitude = getDouble(pref, mContext.getString(R.string.pref_prevLongitude), LocationWrapper.NO_LONGITUDE);
@@ -101,8 +103,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     private LocationWrapper getCurrentLocation(){
-        SharedPreferences pref = mContext.getSharedPreferences(
-                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         Set<String> ssids = pref.getStringSet(mContext.getString(R.string.pref_currLocationSsids), new HashSet<String>());
         double latitude = getDouble(pref, mContext.getString(R.string.pref_currLatitude), LocationWrapper.NO_LATITUDE);
         double longitude = getDouble(pref, mContext.getString(R.string.pref_currLongitude), LocationWrapper.NO_LONGITUDE);
@@ -115,8 +115,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     private void saveCurrentLocationAsPrevious(LocationWrapper location){
-        SharedPreferences pref = mContext.getSharedPreferences(
-                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putStringSet(
                 mContext.getString(R.string.pref_prevLocationSsids), location.getSsids()); // put ssids
@@ -126,8 +124,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     private void saveLastUpdatedDate(Date date) {
-        SharedPreferences.Editor editor = mContext.getSharedPreferences(
-                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = pref.edit();
         editor.putString(mContext.getString(R.string.pref_time_last_updated_msg), DateUtils.formatDateTime(date));
         editor.apply();
     }
@@ -137,13 +134,9 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     private int getCurrentAlarmInterval() {
-        SharedPreferences pref = mContext.getSharedPreferences(
-                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         return pref.getInt(mContext.getString(R.string.pref_currentAlarmInterval), REPEAT_INTERVAL);
     }
     private void saveCurrentAlarmInterval(int intervalMillis) {
-        SharedPreferences pref = mContext.getSharedPreferences(
-                mContext.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putInt(mContext.getString(R.string.pref_currentAlarmInterval), intervalMillis);
         editor.apply();
@@ -164,7 +157,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
         Log.i(TAG, "Setting alarm interval to " + intervalMillis);
         AlarmManager manager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(mContext, AlarmReceiver.class);
+        Intent intent = new Intent(mContext, UpdateLocationAlarmReceiver.class);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         manager.cancel(alarmIntent);
         manager.setInexactRepeating(

@@ -17,7 +17,7 @@ import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestCallback;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
-import ist.meic.cmu.locmess_client.network.location_update.AlarmReceiver;
+import ist.meic.cmu.locmess_client.network.location_update.UpdateLocationAlarmReceiver;
 import ist.meic.cmu.locmess_client.network.location_update.LocationUpdateService;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
@@ -108,16 +108,16 @@ public class LoginTask extends BaseWebTask {
         private void setupLocationUpdates(SharedPreferences pref) {
             Context context = mCallback.getContext();
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+            Intent alarmIntent = new Intent(context, UpdateLocationAlarmReceiver.class);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
             alarmManager.cancel(pendingIntent);
 
             // inexact repeating to reduce battery drain
             alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000, //trigger in 5 seconds (forced by Android 5+)
-                    AlarmReceiver.REPEAT_INTERVAL, pendingIntent);
+                    UpdateLocationAlarmReceiver.REPEAT_INTERVAL, pendingIntent);
 
             SharedPreferences.Editor editor = pref.edit();
-            editor.putInt(context.getString(R.string.pref_currentAlarmInterval), AlarmReceiver.REPEAT_INTERVAL);
+            editor.putInt(context.getString(R.string.pref_currentAlarmInterval), UpdateLocationAlarmReceiver.REPEAT_INTERVAL);
             editor.apply();
 
             Intent serviceIntent = new Intent(context, LocationUpdateService.class);
