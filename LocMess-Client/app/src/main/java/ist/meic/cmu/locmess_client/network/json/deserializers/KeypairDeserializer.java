@@ -7,6 +7,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import ist.meic.cmu.locmess_client.data.KeyPair;
+
 /**
  * Created by Catarina on 05/05/2017.
  */
@@ -25,24 +27,5 @@ public class KeypairDeserializer {
             keypairsMap.put(keypair.getId(), keypair);
         }
         return keypairsMap;
-    }
-
-    public class KeyPair {
-        int id;
-
-        public int getId() {
-            return id;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        String key;
-        String value;
     }
 }

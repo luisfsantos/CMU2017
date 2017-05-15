@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 
+import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.json.deserializers.MessageDeserializer;
@@ -35,7 +36,7 @@ public class MergeMessage {
 
     public static int mergeAllAvailable(ContentResolver contentResolver, JsonArray messages, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
         Log.i(TAG, "Parsing json into Message map");
-        SparseArray<MessageDeserializer.Message> remoteMessages =
+        SparseArray<Message> remoteMessages =
                 new MessageDeserializer().parseAll(messages);
         Log.i(TAG, "Parsing complete. Found " + remoteMessages.size() + " remote entries");
 
@@ -56,9 +57,9 @@ public class MergeMessage {
             if (syncResult != null) {
                 syncResult.stats.numEntries++;
             }
-            serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
+            serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages.COLUMN_SERVER_ID));
             dbId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages._ID));
-            MessageDeserializer.Message match = remoteMessages.get(serverId);
+            Message match = remoteMessages.get(serverId);
             if (match != null) {
                 // entry exists. remove from remote messages map to prevent insert later
                 remoteMessages.remove(serverId);
@@ -78,7 +79,7 @@ public class MergeMessage {
         // add new items
         int newMessageCount = remoteMessages.size();
         for (int i = 0; i < remoteMessages.size(); i++) {
-            MessageDeserializer.Message m = remoteMessages.valueAt(i);
+            Message m = remoteMessages.valueAt(i);
             Log.i(TAG, "Scheduling insert: server_id=" + m.getId());
             batch.add(ContentProviderOperation.newInsert(LocMessDBContract.AvailableMessages.CONTENT_URI)
                     .withValue(LocMessDBContract.AvailableMessages.COLUMN_TITLE, m.getTitle())
@@ -87,7 +88,7 @@ public class MergeMessage {
                     .withValue(LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED, DateUtils.formatDateTimeLocaleToDb(m.getFromDate()))
                     .withValue(LocMessDBContract.AvailableMessages.COLUMN_LOCATION, m.getLocation().getName())
                     .withValue(LocMessDBContract.AvailableMessages.COLUMN_READ, LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ)
-                    .withValue(LocMessDBContract.COLUMN_SERVER_ID, m.getId())
+                    .withValue(LocMessDBContract.AvailableMessages.COLUMN_SERVER_ID, m.getId())
                     .build());
             if (syncResult != null) {
                 syncResult.stats.numInserts++;
@@ -107,11 +108,11 @@ public class MergeMessage {
         @WebRequestResult.ReturnedObject String label = WebRequestResult.MESSAGE;
         JsonObjectAPI jresult = new Gson().fromJson(result, JsonObjectAPI.class);
         JsonObject jmessage = jresult.getData().getAsJsonObject(label);
-        MessageDeserializer.Message me = new MessageDeserializer().parse(jmessage);
+        Message me = new MessageDeserializer().parse(jmessage);
         int serverId = me.getId();
 
         ContentValues values = new ContentValues();
-        values.put(LocMessDBContract.COLUMN_SERVER_ID, serverId);
+        values.put(LocMessDBContract.PostedMessages.COLUMN_SERVER_ID, serverId);
         contentResolver.update(databaseEntryUri, values, null, null);
         if (syncResult != null) {
             syncResult.stats.numUpdates++;

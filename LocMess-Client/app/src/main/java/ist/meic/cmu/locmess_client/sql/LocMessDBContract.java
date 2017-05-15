@@ -12,7 +12,7 @@ public class LocMessDBContract {
     public static final String SIMPLE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static final String COLUMN_ACCOUNT_HASH = "account_hash";
-    public static final String COLUMN_SERVER_ID = "server_id";
+//    public static final String COLUMN_SERVER_ID = "server_id";
     private LocMessDBContract(){
 
     }
@@ -25,14 +25,15 @@ public class LocMessDBContract {
         public static final int ID_PATH_SEGMENT_INDEX = 1;
 
         public static final String TABLE_NAME = "keypair";
-        public static final String COLUMN_KEY = "key";
-        public static final String COLUMN_VALUE = "value";
+        public static final String COLUMN_KEY = TABLE_NAME + "_key";
+        public static final String COLUMN_VALUE = TABLE_NAME + "_value";
+        public static final String COLUMN_SERVER_ID = TABLE_NAME + "_server_id";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.KeyPair._ID,
                 LocMessDBContract.KeyPair.COLUMN_KEY,
                 LocMessDBContract.KeyPair.COLUMN_VALUE,
-                LocMessDBContract.COLUMN_SERVER_ID
+                LocMessDBContract.KeyPair.COLUMN_SERVER_ID
         };
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
@@ -53,10 +54,11 @@ public class LocMessDBContract {
         public static final int ID_PATH_SEGMENT_INDEX = 1;
 
         public static final String TABLE_NAME = "location";
-        public static final String COLUMN_NAME = "name";
-        public static final String COLUMN_AUTHOR = "author";
-        public static final String COLUMN_DATE_CREATED = "date_created";
-        public static final String COLUMN_COORDINATES = "coordinates";
+        public static final String COLUMN_NAME = TABLE_NAME + "_name";
+        public static final String COLUMN_AUTHOR = TABLE_NAME  + "_author";
+        public static final String COLUMN_DATE_CREATED = TABLE_NAME + "_date_created";
+        public static final String COLUMN_COORDINATES = TABLE_NAME + "_coordinates";
+        public static final String COLUMN_SERVER_ID = TABLE_NAME + "_server_id";
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
@@ -65,7 +67,7 @@ public class LocMessDBContract {
                 COLUMN_AUTHOR + " TEXT, " +
                 COLUMN_DATE_CREATED + " TEXT, " +
                 COLUMN_COORDINATES + " TEXT, " +
-                COLUMN_SERVER_ID + " INTEGER " + ")";
+                COLUMN_SERVER_ID + " INTEGER UNIQUE " + ")";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.Location._ID,
@@ -73,7 +75,7 @@ public class LocMessDBContract {
                 LocMessDBContract.Location.COLUMN_AUTHOR,
                 LocMessDBContract.Location.COLUMN_DATE_CREATED,
                 LocMessDBContract.Location.COLUMN_COORDINATES,
-                LocMessDBContract.COLUMN_SERVER_ID
+                LocMessDBContract.Location.COLUMN_SERVER_ID
         };
     }
 
@@ -86,11 +88,19 @@ public class LocMessDBContract {
         public static final int ID_PATH_SEGMENT_INDEX = 2;
 
         public static final String TABLE_NAME = "posted";
-        public static final String COLUMN_TITLE = "title";
-        public static final String COLUMN_CONTENT = "content";
-        public static final String COLUMN_LOCATION = "location";
-        public static final String COLUMN_DATE_FROM = "date_from";
-        public static final String COLUMN_DATE_TO = "date_to";
+        public static final String COLUMN_TITLE = TABLE_NAME + "_title";
+        public static final String COLUMN_CONTENT = TABLE_NAME + "_content";
+        public static final String COLUMN_LOCATION = TABLE_NAME + "_location";
+        public static final String COLUMN_DATE_FROM = TABLE_NAME + "_date_from";
+        public static final String COLUMN_DATE_TO = TABLE_NAME + "_date_to";
+        public static final String COLUMN_SERVER_ID = TABLE_NAME + "_server_id";
+        public static final String COLUMN_LOCATION_SERVER_ID = TABLE_NAME + "_location_server_id";
+        public static final String COLUMN_POLICY = TABLE_NAME + "_policy";
+        public static final String COLUMN_WHITELIST = TABLE_NAME + "_whitelist";
+        public static final String COLUMN_BLACKLIST = TABLE_NAME + "_blacklist";
+
+        public static final int POLICY_P2P = 1;
+        public static final int POLICY_CENTRALIZED = 2;
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
@@ -101,7 +111,14 @@ public class LocMessDBContract {
                 COLUMN_DATE_FROM + " TEXT, " +
                 COLUMN_DATE_TO + " TEXT, " +
                 COLUMN_SERVER_ID + " INTEGER, " +
-                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
+                COLUMN_ACCOUNT_HASH + " INTEGER, " +
+                COLUMN_LOCATION_SERVER_ID + " INTEGER, " +
+                COLUMN_POLICY + " INTEGER NOT NULL CHECK (" +
+                    COLUMN_POLICY + " IN (" + POLICY_P2P + "," + POLICY_CENTRALIZED + ")), " +
+                COLUMN_WHITELIST + " TEXT, " +
+                COLUMN_BLACKLIST + " TEXT, " +
+                "FOREIGN KEY (" + COLUMN_LOCATION_SERVER_ID + ") REFERENCES "
+                    + Location.TABLE_NAME + "(" + Location.COLUMN_SERVER_ID + ") ON DELETE CASCADE" + ")";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.PostedMessages._ID,
@@ -110,7 +127,7 @@ public class LocMessDBContract {
                 LocMessDBContract.PostedMessages.COLUMN_LOCATION,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_FROM,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_TO,
-                LocMessDBContract.COLUMN_SERVER_ID
+                LocMessDBContract.PostedMessages.COLUMN_SERVER_ID
         };
     }
 
@@ -123,11 +140,11 @@ public class LocMessDBContract {
         public static final int ID_PATH_SEGMENT_INDEX = 2;
 
         public static final String TABLE_NAME = "opened";
-        public static final String COLUMN_TITLE = "title";
-        public static final String COLUMN_CONTENT = "content";
-        public static final String COLUMN_LOCATION = "location";
-        public static final String COLUMN_AUTHOR = "author";
-        public static final String COLUMN_DATE_POSTED = "date_posted";
+        public static final String COLUMN_TITLE = TABLE_NAME + "_title";
+        public static final String COLUMN_CONTENT = TABLE_NAME + "_content";
+        public static final String COLUMN_LOCATION = TABLE_NAME + "_location";
+        public static final String COLUMN_AUTHOR = TABLE_NAME + "_author";
+        public static final String COLUMN_DATE_POSTED = TABLE_NAME + "_date_posted";
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
@@ -158,12 +175,13 @@ public class LocMessDBContract {
         public static final int ID_PATH_SEGMENT_INDEX = 2;
 
         public static final String TABLE_NAME = "available";
-        public static final String COLUMN_TITLE = "title";
-        public static final String COLUMN_CONTENT = "content";
-        public static final String COLUMN_LOCATION = "location";
-        public static final String COLUMN_AUTHOR = "author";
-        public static final String COLUMN_DATE_POSTED = "date_posted";
-        public static final String COLUMN_READ = "read";
+        public static final String COLUMN_TITLE = TABLE_NAME + "_title";
+        public static final String COLUMN_CONTENT = TABLE_NAME + "_content";
+        public static final String COLUMN_LOCATION = TABLE_NAME + "_location";
+        public static final String COLUMN_AUTHOR = TABLE_NAME + "_author";
+        public static final String COLUMN_DATE_POSTED = TABLE_NAME + "_date_posted";
+        public static final String COLUMN_READ = TABLE_NAME + "_read";
+        public static final String COLUMN_SERVER_ID = TABLE_NAME + "_server_id";
 
         public static final int MESSAGE_READ = 1;
         public static final int MESSAGE_NOT_READ = 0;
@@ -189,7 +207,7 @@ public class LocMessDBContract {
                 LocMessDBContract.AvailableMessages.COLUMN_AUTHOR,
                 LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED,
                 LocMessDBContract.AvailableMessages.COLUMN_READ,
-                LocMessDBContract.COLUMN_SERVER_ID
+                LocMessDBContract.AvailableMessages.COLUMN_SERVER_ID
         };
     }
 
@@ -202,7 +220,8 @@ public class LocMessDBContract {
         public static final int ID_PATH_SEGMENT_INDEX = 1;
 
         public static final String TABLE_NAME = "keys";
-        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_NAME = TABLE_NAME + "_name";
+        public static final String COLUMN_SERVER_ID = TABLE_NAME + "_server_id";
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
@@ -214,7 +233,7 @@ public class LocMessDBContract {
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.Keys._ID,
                 LocMessDBContract.Keys.COLUMN_NAME,
-                LocMessDBContract.COLUMN_SERVER_ID
+                LocMessDBContract.Keys.COLUMN_SERVER_ID
         };
     }
 }

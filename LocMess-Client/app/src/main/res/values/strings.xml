@@ -25,7 +25,6 @@
     <string name="remove_message">Remove message?</string>
     <string name="remove_ok">Remove</string>
     <string name="cancel">Cancel</string>
-    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
     <string name="nothing_to_show">Nothing to show.</string>
     <string name="logout">Log out</string>
     <string name="title_activity_profile">Profile</string>
@@ -61,14 +60,12 @@
     <string name="radius_with_unit">Radius (meters)</string>
     <string name="field_missing">Please fill in</string>
     <string name="title_activity_posted">Posted</string>
-    <string name="location_prompt">Locations</string>
-    <string name="chose_location_prompt">Location</string>
+    <string name="location_label">Location</string>
     <string name="title_prompt">Title</string>
     <string name="message_prompt">Message</string>
     <string name="from_date_prompt">From</string>
     <string name="menu_item_post">Post</string>
     <string name="to_date_prompt">To</string>
-    <string name="choose_location_prompt">Choose a location</string>
     <string name="title_missing">Please insert title</string>
     <string name="msg_body_missing">Please insert message body</string>
     <string name="filters_prompt">Filters</string>
@@ -85,6 +82,9 @@
     <string name="cannot_post_msg_no_locations">Cannot post message because there are no locations.</string>
     <string name="no_locations_spinner">There are no locations</string>
     <string name="no_keys_filter">Cannot add filters because there are no keys.</string>
+    <string name="policy_label">Posting policy</string>
+    <string name="policy_centralized">Centralized</string>
+    <string name="policy_p2p">Decentralized (P2P)</string>
 
     <string name="new_messages_notif_title">New location messages</string>
     <!-- %1$d will be replaced by message count, %2$s will be replaced by

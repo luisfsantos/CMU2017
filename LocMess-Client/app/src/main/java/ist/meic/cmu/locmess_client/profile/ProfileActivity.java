@@ -128,7 +128,7 @@ public class ProfileActivity extends BaseNavigationActivity
     public void onAttachToViewHolder(View itemView) {
         final Cursor cursor = mAdapter.getCursor();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.KeyPair._ID));
-        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
+        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.KeyPair.COLUMN_SERVER_ID));
         final String key = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.KeyPair.COLUMN_KEY));
         final String value = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.KeyPair.COLUMN_VALUE));
         ImageButton removeBtn = (ImageButton)itemView.findViewById(R.id.remove_btn);
@@ -160,7 +160,7 @@ public class ProfileActivity extends BaseNavigationActivity
         String[] queryCols = new String[] { LocMessDBContract.KeyPair._ID,
                 LocMessDBContract.KeyPair.COLUMN_KEY,
                 LocMessDBContract.KeyPair.COLUMN_VALUE,
-                LocMessDBContract.COLUMN_SERVER_ID};
+                LocMessDBContract.KeyPair.COLUMN_SERVER_ID};
         return new CursorLoader(ProfileActivity.this,
                 LocMessDBContract.KeyPair.CONTENT_URI,
                 queryCols,          // the projection fields

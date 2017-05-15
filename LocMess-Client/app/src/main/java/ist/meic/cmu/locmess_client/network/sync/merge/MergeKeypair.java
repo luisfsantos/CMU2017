@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 
+import ist.meic.cmu.locmess_client.data.KeyPair;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.json.deserializers.KeypairDeserializer;
@@ -34,7 +35,7 @@ public class MergeKeypair {
 
     public static int mergeAll(ContentResolver contentResolver, JsonArray keypairs, @Nullable SyncResult syncResult) throws RemoteException, OperationApplicationException {
         Log.i(TAG, "Parsing json into Keypair map");
-        SparseArray<KeypairDeserializer.KeyPair> remoteKeypairs =
+        SparseArray<KeyPair> remoteKeypairs =
                 new KeypairDeserializer().parseAll(keypairs);
         Log.i(TAG, "Parsing complete. Found " + remoteKeypairs.size() + " remote entries");
 
@@ -55,9 +56,9 @@ public class MergeKeypair {
             if (syncResult != null) {
                 syncResult.stats.numEntries++;
             }
-            serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
+            serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.KeyPair.COLUMN_SERVER_ID));
             dbId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.KeyPair._ID));
-            KeypairDeserializer.KeyPair match = remoteKeypairs.get(serverId);
+            KeyPair match = remoteKeypairs.get(serverId);
             if (match != null) {
                 // entry exists. remove from remote keypairs map to prevent insert later
                 remoteKeypairs.remove(serverId);
@@ -77,12 +78,12 @@ public class MergeKeypair {
         // add new items
         int newKeypairsCount = remoteKeypairs.size();
         for (int i = 0; i < remoteKeypairs.size(); i++) {
-            KeypairDeserializer.KeyPair k = remoteKeypairs.valueAt(i);
+            KeyPair k = remoteKeypairs.valueAt(i);
             Log.i(TAG, "Scheduling insert: server_id=" + k.getId());
             batch.add(ContentProviderOperation.newInsert(LocMessDBContract.KeyPair.CONTENT_URI)
                     .withValue(LocMessDBContract.KeyPair.COLUMN_KEY, k.getKey())
                     .withValue(LocMessDBContract.KeyPair.COLUMN_VALUE, k.getValue())
-                    .withValue(LocMessDBContract.COLUMN_SERVER_ID, k.getId())
+                    .withValue(LocMessDBContract.KeyPair.COLUMN_SERVER_ID, k.getId())
                     .build());
             if (syncResult != null) {
                 syncResult.stats.numInserts++;
@@ -102,11 +103,11 @@ public class MergeKeypair {
         @WebRequestResult.ReturnedObject String label = WebRequestResult.KEYPAIR;
         JsonObjectAPI jresult = new Gson().fromJson(result, JsonObjectAPI.class);
         JsonObject jkeypair = jresult.getData().getAsJsonObject(label);
-        KeypairDeserializer.KeyPair keypair = new KeypairDeserializer().parse(jkeypair);
+        KeyPair keypair = new KeypairDeserializer().parse(jkeypair);
         int serverId = keypair.getId();
 
         ContentValues values = new ContentValues();
-        values.put(LocMessDBContract.COLUMN_SERVER_ID, serverId);
+        values.put(LocMessDBContract.KeyPair.COLUMN_SERVER_ID, serverId);
         contentResolver.update(databaseEntryUri, values, null, null);
         if (syncResult != null) {
             syncResult.stats.numUpdates++;

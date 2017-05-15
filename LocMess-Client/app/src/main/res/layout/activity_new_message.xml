@@ -15,13 +15,40 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/chose_location_prompt"
+            android:text="@string/policy_label"
+            style="@style/AppTheme.Title" />
+
+        <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/policy_choice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/small_margin">
+            <RadioButton
+                android:id="@+id/policy_centralized"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/policy_centralized"
+                android:checked="true" />
+            <RadioButton
+                android:id="@+id/policy_p2p"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginStart="@dimen/small_margin"
+                android:text="@string/policy_p2p" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/location_label"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
             style="@style/AppTheme.Title" />
         <Spinner
             android:id="@+id/spinner_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:prompt="@string/chose_location_prompt"
             android:layout_marginTop="@dimen/small_margin" />
 
         <TextView

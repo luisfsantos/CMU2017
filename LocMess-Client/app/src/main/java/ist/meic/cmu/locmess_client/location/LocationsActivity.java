@@ -131,7 +131,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
     public void onAttachToViewHolder(View itemView) {
         Cursor cursor = mAdapter.getCursor();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.Location._ID));
-        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
+        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_SERVER_ID));
         final String name = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_NAME));
         final String dbDate = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_DATE_CREATED));
         bindCoordinates(itemView, cursor);
@@ -198,7 +198,7 @@ public class LocationsActivity extends BaseNavigationActivity implements
                 LocMessDBContract.Location.COLUMN_AUTHOR,
                 LocMessDBContract.Location.COLUMN_DATE_CREATED,
                 LocMessDBContract.Location.COLUMN_COORDINATES,
-                LocMessDBContract.COLUMN_SERVER_ID
+                LocMessDBContract.Location.COLUMN_SERVER_ID
         };
         return new CursorLoader(LocationsActivity.this,
                 LocMessDBContract.Location.CONTENT_URI,

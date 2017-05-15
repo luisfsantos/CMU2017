@@ -51,7 +51,7 @@ public class MergeKey {
             if (syncResult != null) {
                 syncResult.stats.numEntries++;
             }
-            serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
+            serverId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.Keys.COLUMN_SERVER_ID));
             dbId = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.Keys._ID));
             KeyDeserializer.Key match = remoteKeys.get(serverId);
             if (match != null) {
@@ -77,7 +77,7 @@ public class MergeKey {
             Log.i(TAG, "Scheduling insert: server_id=" + k.getId());
             batch.add(ContentProviderOperation.newInsert(LocMessDBContract.Keys.CONTENT_URI)
                     .withValue(LocMessDBContract.Keys.COLUMN_NAME, k.getName())
-                    .withValue(LocMessDBContract.COLUMN_SERVER_ID, k.getId())
+                    .withValue(LocMessDBContract.Keys.COLUMN_SERVER_ID, k.getId())
                     .build());
             if (syncResult != null) {
                 syncResult.stats.numInserts++;

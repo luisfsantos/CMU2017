@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -39,12 +40,14 @@ import java.util.List;
 import java.util.Map;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.data.KeyPair;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.request_builders.create.NewMessageRequestBuilder;
 import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.utils.DateUtils;
+import ist.meic.cmu.locmess_client.utils.WhiteBlackListUtils;
 
 public class NewMessageActivity extends AppCompatActivity {
 
@@ -64,6 +67,7 @@ public class NewMessageActivity extends AppCompatActivity {
     private Calendar chosenToDate = Calendar.getInstance();
 
     private ViewGroup mFiltersGroup;
+    private RadioGroup mPolicyChoice;
 
     //HACK
     private List<FilterInfo> mFilterInfo = new ArrayList<>();
@@ -91,6 +95,7 @@ public class NewMessageActivity extends AppCompatActivity {
         mToTime = (TextView)findViewById(R.id.spinner_to_time);
         mLocation = (Spinner)findViewById(R.id.spinner_location);
         mFiltersGroup = (LinearLayout) findViewById(R.id.filters_group);
+        mPolicyChoice = (RadioGroup) findViewById(R.id.policy_choice);
     }
 
     @Override
@@ -184,7 +189,7 @@ public class NewMessageActivity extends AppCompatActivity {
         String[] projection = {
                 LocMessDBContract.Location._ID,
                 LocMessDBContract.Location.COLUMN_NAME,
-                LocMessDBContract.COLUMN_SERVER_ID
+                LocMessDBContract.Location.COLUMN_SERVER_ID
         };
         Cursor cursor = getContentResolver().query(
                 LocMessDBContract.Location.CONTENT_URI,
@@ -260,7 +265,7 @@ public class NewMessageActivity extends AppCompatActivity {
                 }
                 mLocationCursor.moveToPosition(mLocation.getSelectedItemPosition());
                 String location = mLocationCursor.getString(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_NAME));
-                int locationServerID = mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
+                int locationServerID = mLocationCursor.getInt(mLocationCursor.getColumnIndexOrThrow(LocMessDBContract.Location.COLUMN_SERVER_ID));
                 String title = mTitle.getText().toString().trim();
                 String content = mMessageContent.getText().toString().trim();
                 if (title.isEmpty()) {
@@ -275,8 +280,8 @@ public class NewMessageActivity extends AppCompatActivity {
                 }
 
                 saveFiltersState();
-                Map<String, String> blacklist = new HashMap<>();
-                Map<String, String> whitelist = new HashMap<>();
+                List<KeyPair> blacklist = new ArrayList<>();
+                List<KeyPair> whitelist = new ArrayList<>();
                 for (int i = 0; i < mFilterInfo.size(); i++){
                     FilterInfo info = mFilterInfo.get(i);
                     String value = info.editTextInput.trim();
@@ -284,27 +289,37 @@ public class NewMessageActivity extends AppCompatActivity {
                     mKeysCursor.moveToPosition(info.spinnerSelectedItem);
                     String key = mKeysCursor.getString(mKeysCursor.getColumnIndexOrThrow(LocMessDBContract.Keys.COLUMN_NAME));
                     if (info.switchChecked == BLACKLIST_CHECKED) {
-                        blacklist.put(key, value);
+                        blacklist.add(new KeyPair(key, value));
                     } else {
-                        whitelist.put(key, value);
+                        whitelist.add(new KeyPair(key, value));
                     }
                 }
-
+                int policy = -1;
+                if (mPolicyChoice.getCheckedRadioButtonId() == R.id.policy_centralized) {
+                    policy = LocMessDBContract.PostedMessages.POLICY_CENTRALIZED;
+                } else if (mPolicyChoice.getCheckedRadioButtonId() == R.id.policy_p2p) {
+                    policy = LocMessDBContract.PostedMessages.POLICY_P2P;
+                }
                 ContentValues values = new ContentValues();
                 values.put(LocMessDBContract.PostedMessages.COLUMN_TITLE, title);
                 values.put(LocMessDBContract.PostedMessages.COLUMN_CONTENT, content);
                 values.put(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM, DateUtils.formatDateTimeLocaleToDb(chosenFromDate));
                 values.put(LocMessDBContract.PostedMessages.COLUMN_DATE_TO, DateUtils.formatDateTimeLocaleToDb(chosenToDate));
                 values.put(LocMessDBContract.PostedMessages.COLUMN_LOCATION, location);
-                //FIXME possibly store blacklist & whitelist as well (because of p2p delivery)
+                values.put(LocMessDBContract.PostedMessages.COLUMN_LOCATION_SERVER_ID, locationServerID);
+                values.put(LocMessDBContract.PostedMessages.COLUMN_POLICY, policy);
+                values.put(LocMessDBContract.PostedMessages.COLUMN_WHITELIST, WhiteBlackListUtils.serializeToDbFormat(whitelist));
+                values.put(LocMessDBContract.PostedMessages.COLUMN_BLACKLIST, WhiteBlackListUtils.serializeToDbFormat(blacklist));
                 Uri uri = getContentResolver().insert(LocMessDBContract.PostedMessages.CONTENT_URI, values);
                 Log.d(TAG, "New posted message uri is " + uri);
-                try {
-                    RequestData request = new NewMessageRequestBuilder(title, content, chosenFromDate.getTime(), chosenToDate.getTime(),
-                            locationServerID, whitelist, blacklist).build(LocMessURL.NEW_MESSAGE, RequestData.POST);
-                    SyncUtils.push(SyncUtils.CREATE_MESSAGE, request, uri);
-                } catch (MalformedURLException e) {
-                    Log.wtf(TAG, "Malformed URL: ", e);
+                if (policy == LocMessDBContract.PostedMessages.POLICY_CENTRALIZED) {
+                    try {
+                        RequestData request = new NewMessageRequestBuilder(title, content, chosenFromDate.getTime(), chosenToDate.getTime(),
+                                locationServerID, whitelist, blacklist).build(LocMessURL.NEW_MESSAGE, RequestData.POST);
+                        SyncUtils.push(SyncUtils.CREATE_MESSAGE, request, uri);
+                    } catch (MalformedURLException e) {
+                        Log.wtf(TAG, "Malformed URL: ", e);
+                    }
                 }
                 finish();
             }

@@ -8,8 +8,10 @@ import com.google.gson.JsonObject;
 
 import java.net.MalformedURLException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
+import ist.meic.cmu.locmess_client.data.KeyPair;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
@@ -25,12 +27,12 @@ public class NewMessageRequestBuilder implements RequestBuilder {
     private final Date fromDate;
     private final Date toDate;
     private final int locationID;
-    private final Map<String, String> whitelist;
-    private final Map<String, String> blacklist;
+    private final List<KeyPair> whitelist;
+    private final List<KeyPair> blacklist;
     private Gson gson;
 
     public NewMessageRequestBuilder(String title, String text, Date fromDate, Date toDate,
-                                    int locationID, Map<String, String> whitelist, Map<String, String> blacklist) {
+                                    int locationID, List<KeyPair> whitelist, List<KeyPair> blacklist) {
         this.title = title;
         this.text = text;
         this.fromDate = fromDate;
@@ -60,7 +62,7 @@ public class NewMessageRequestBuilder implements RequestBuilder {
         data.add(LOCATION, location);
 
         JsonArray jwhitelist = new JsonArray();
-        for (Map.Entry<String, String> entry : whitelist.entrySet()) {
+        for (KeyPair entry : whitelist) {
             JsonObject element = new JsonObject();
             element.addProperty(KEY, entry.getKey());
             element.addProperty(VALUE, entry.getValue());
@@ -69,7 +71,7 @@ public class NewMessageRequestBuilder implements RequestBuilder {
         data.add(WHITELIST, jwhitelist);
 
         JsonArray jblacklist = new JsonArray();
-        for (Map.Entry<String, String> entry : blacklist.entrySet()) {
+        for (KeyPair entry : blacklist) {
             JsonObject element = new JsonObject();
             element.addProperty(KEY, entry.getKey());
             element.addProperty(VALUE, entry.getValue());

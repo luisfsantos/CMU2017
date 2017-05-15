@@ -18,7 +18,7 @@ import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestCallback;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
 import ist.meic.cmu.locmess_client.network.location_update.UpdateLocationAlarmReceiver;
-import ist.meic.cmu.locmess_client.network.location_update.LocationUpdateService;
+import ist.meic.cmu.locmess_client.network.p2p.P2pDeliveryAlarmReceiver;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
 /**
@@ -83,6 +83,7 @@ public class LoginTask extends BaseWebTask {
         public void run() {
             setupLocationUpdates(pref);
             storeJwtAuth(pref, result.getResult());
+            P2pDeliveryAlarmReceiver.scheduleAlarm(mCallback.getContext());
         }
 
         private void storeJwtAuth(SharedPreferences pref, String result) {
@@ -120,8 +121,8 @@ public class LoginTask extends BaseWebTask {
             editor.putInt(context.getString(R.string.pref_currentAlarmInterval), UpdateLocationAlarmReceiver.REPEAT_INTERVAL);
             editor.apply();
 
-            Intent serviceIntent = new Intent(context, LocationUpdateService.class);
-            context.startService(serviceIntent);
+//            Intent serviceIntent = new Intent(context, LocationUpdateService.class);
+//            context.startService(serviceIntent);
         }
     }
 }

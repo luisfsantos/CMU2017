@@ -198,7 +198,7 @@ public class AvailableTabFragment extends Fragment implements
                 LocMessDBContract.AvailableMessages.COLUMN_AUTHOR,
                 LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED,
                 LocMessDBContract.AvailableMessages.COLUMN_READ,
-                LocMessDBContract.COLUMN_SERVER_ID
+                LocMessDBContract.AvailableMessages.COLUMN_SERVER_ID
         };
         return new CursorLoader(getContext(),
                 LocMessDBContract.AvailableMessages.CONTENT_URI,

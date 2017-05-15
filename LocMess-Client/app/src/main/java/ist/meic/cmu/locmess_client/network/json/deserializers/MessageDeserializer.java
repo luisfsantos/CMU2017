@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import java.util.Date;
 
+import ist.meic.cmu.locmess_client.data.Message;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
 /**
@@ -33,44 +34,5 @@ public class MessageDeserializer {
             messagesMap.put(message.getId(), message);
         }
         return messagesMap;
-    }
-
-    public class Message {
-        int id;
-        String title;
-        String text;
-        Date fromDate;
-        Date toDate;
-        LocationDeserializer.Location location;
-        String author;
-
-        public int getId() {
-            return id;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-
-        public String getAuthor() {
-            return author;
-        }
-
-        public LocationDeserializer.Location getLocation() {
-            return location;
-        }
-
-        public Date getFromDate() {
-            return fromDate;
-        }
-
-        public Date getToDate() {
-            return toDate;
-        }
     }
 }

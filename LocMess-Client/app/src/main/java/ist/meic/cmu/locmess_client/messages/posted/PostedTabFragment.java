@@ -157,7 +157,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         Cursor cursor = mAdapter.getCursor();
         final int position = cursor.getPosition();
         final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages._ID));
-        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.COLUMN_SERVER_ID));
+        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_SERVER_ID));
         String dbFrom = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM));
         String dbTo = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_TO));
         ((TextView)itemView.findViewById(R.id.date_from))
@@ -202,7 +202,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
                 LocMessDBContract.PostedMessages.COLUMN_LOCATION,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_FROM,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_TO,
-                LocMessDBContract.COLUMN_SERVER_ID
+                LocMessDBContract.PostedMessages.COLUMN_SERVER_ID
         };
         String[] selectionArgs = { DateUtils.formatDateTimeLocaleToDb(new Date()) };
         return new CursorLoader(getContext(),

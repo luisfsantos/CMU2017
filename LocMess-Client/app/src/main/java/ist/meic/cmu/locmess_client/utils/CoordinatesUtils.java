@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
 
@@ -91,12 +92,12 @@ public class CoordinatesUtils {
         }
     }
     public class WifiCoordinates extends Coordinates {
-        public String[] ssids;
+        public List<String> ssids;
 
         private WifiCoordinates() {}
 
         private WifiCoordinates(String... ssids) {
-            this.ssids = ssids;
+            this.ssids = Arrays.asList(ssids);
         }
 
         @Override

@@ -74,4 +74,15 @@ public class DateUtils {
     public static String formatDateTimeISO8601(Date date) {
         return new SimpleDateFormat(RequestBuilder.DATE_FORMAT, Locale.getDefault()).format(date);
     }
+
+    @SuppressLint("SimpleDateFormat")
+    public static Date parsetDateDbToLocale(String dbDate) {
+        Date localeDate = null;
+        try {
+            localeDate = new SimpleDateFormat(LocMessDBContract.SIMPLE_DATE_FORMAT).parse(dbDate);
+        } catch (ParseException e) { e.printStackTrace(); }
+        return localeDate;
+    }
+
+
 }

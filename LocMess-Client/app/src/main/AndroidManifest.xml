@@ -47,6 +47,8 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".network.p2p.P2pDeliveryAlarmReceiver"/>
+
         <service android:name=".network.location_update.LocationUpdateService"
             android:exported="false"/>
         <service android:name=".network.location_update.FetchLocationMessagesService"
@@ -57,6 +59,12 @@
         <!--TERMITE SERVICE-->
         <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
 
+        <service android:name=".network.p2p.P2pMessageScannerService"
+            android:exported="false"/>
+        <service android:name=".network.p2p.P2pMessageSenderService"
+            android:exported="false"/>
+        <service android:name=".network.p2p.P2pMessageReceiverService"
+            android:exported="false"/>
 
         <activity
             android:name=".authentication.LoginActivity"
