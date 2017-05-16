@@ -262,8 +262,8 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
 
                 Set<String> messageSsids = new HashSet<>(((CoordinatesUtils.WifiCoordinates)messageLocation).ssids);
                 Set<String> currentSsids = preferences.getStringSet(getString(R.string.pref_currLocationSsids), new HashSet<String>());
-                Log.d(TAG, "messageSsids=" + TextUtils.join(",", messageSsids));
-                Log.d(TAG, "currentSsids=" + TextUtils.join(",", currentSsids));
+//                Log.d(TAG, "messageSsids=" + TextUtils.join(",", messageSsids));
+//                Log.d(TAG, "currentSsids=" + TextUtils.join(",", currentSsids));
                 currentSsids.retainAll(messageSsids); // only elements in both sets are kept in currentSsids
                 return !currentSsids.isEmpty(); // if it's not empty then there was at least one match
 

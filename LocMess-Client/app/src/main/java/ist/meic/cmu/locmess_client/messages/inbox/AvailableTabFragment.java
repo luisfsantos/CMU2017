@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,7 +53,7 @@ public class AvailableTabFragment extends Fragment implements
     public void onResume() {
         super.onResume();
         mRecyclerView.setAdapter(mAdapter);
-        getActivity().getSupportLoaderManager().initLoader(AVAILABLE_MESSAGES_LOADER_ID, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(AVAILABLE_MESSAGES_LOADER_ID, null, this);
     }
 
 
@@ -120,22 +121,20 @@ public class AvailableTabFragment extends Fragment implements
         final Cursor c = mAdapter.getCursor();
         c.moveToPosition(position);
 
-        int localID = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages._ID));
-        String title = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages.COLUMN_TITLE));
-        String text = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages.COLUMN_CONTENT));
-        String author = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages.COLUMN_AUTHOR));
-        String datePosted = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED));
-        String location = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages.COLUMN_LOCATION));
-        boolean isRead = c.getInt(c.getColumnIndexOrThrow(LocMessDBContract.AvailableMessages.COLUMN_READ))
-                == LocMessDBContract.AvailableMessages.MESSAGE_READ;
+        ContentValues values = new ContentValues();
+        DatabaseUtils.cursorRowToContentValues(c, values);
 
         Handler handler = new Handler();
-        OpenMessageRunnable runnable = new OpenMessageRunnable(getContext(),
-                localID, title, text, author, datePosted, location, isRead);
+        OpenMessageRunnable runnable = new OpenMessageRunnable(getContext(), values);
         handler.post(runnable);
 
         ShowMessageActivity.Message message = new ShowMessageActivity.Message(
-                author, title, text, DateUtils.formatDateTimeDbToLocale(datePosted), location);
+                values.getAsString(LocMessDBContract.AvailableMessages.COLUMN_AUTHOR),
+                values.getAsString(LocMessDBContract.AvailableMessages.COLUMN_TITLE),
+                values.getAsString(LocMessDBContract.AvailableMessages.COLUMN_CONTENT),
+                DateUtils.formatDateTimeDbToLocale(
+                        values.getAsString(LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED)),
+                values.getAsString(LocMessDBContract.AvailableMessages.COLUMN_LOCATION));
         Intent intent = new Intent(getContext(), ShowMessageActivity.class);
 
         intent.putExtra(ShowMessageActivity.INTENT_MESSAGE, message);
@@ -144,28 +143,24 @@ public class AvailableTabFragment extends Fragment implements
 
     private class OpenMessageRunnable implements Runnable {
         private Context mContext;
-        final int localID;
-        final String title;
-        final String text;
-        final String author;
-        final String datePosted;
-        final String location;
-        final boolean isRead;
+         ContentValues message;
 
-        public OpenMessageRunnable(Context mContext, int localID, String title, String text,
-                                   String author, String datePosted, String location, boolean isRead) {
+        public OpenMessageRunnable(Context mContext, ContentValues values) {
             this.mContext = mContext;
-            this.localID = localID;
-            this.title = title;
-            this.text = text;
-            this.author = author;
-            this.datePosted = datePosted;
-            this.location = location;
-            this.isRead = isRead;
+            this.message = values;
         }
 
         @Override
         public void run() {
+
+            int localID = message.getAsInteger(LocMessDBContract.AvailableMessages._ID);
+            String title = message.getAsString(LocMessDBContract.AvailableMessages.COLUMN_TITLE);
+            String text = message.getAsString(LocMessDBContract.AvailableMessages.COLUMN_CONTENT);
+            String author = message.getAsString(LocMessDBContract.AvailableMessages.COLUMN_AUTHOR);
+            String datePosted = message.getAsString(LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED);
+            String location = message.getAsString(LocMessDBContract.AvailableMessages.COLUMN_LOCATION);
+            boolean isRead = message.getAsInteger(LocMessDBContract.AvailableMessages.COLUMN_READ)
+                    == LocMessDBContract.AvailableMessages.MESSAGE_READ;
 
             if (!isRead) {
                 // if message is not read, then we store it in Opened Messages table
@@ -180,9 +175,17 @@ public class AvailableTabFragment extends Fragment implements
             }
 
             // register the selected available message as Read
-            Uri uri = ContentUris.withAppendedId(LocMessDBContract.AvailableMessages.CONTENT_URI, localID);
+            boolean isP2p = message.get(LocMessDBContract.AvailableP2pMessages.COLUMN_P2P_ID) != null;
+            boolean isCentralized = message.get(LocMessDBContract.AvailableMessages.COLUMN_SERVER_ID) != null;
             ContentValues values = new ContentValues();
-            values.put(LocMessDBContract.AvailableMessages.COLUMN_READ, LocMessDBContract.AvailableMessages.MESSAGE_READ);
+            Uri uri = Uri.EMPTY;
+            if (isCentralized && !isP2p) {
+                uri = ContentUris.withAppendedId(LocMessDBContract.AvailableMessages.CONTENT_URI, localID);
+                values.put(LocMessDBContract.AvailableMessages.COLUMN_READ, LocMessDBContract.AvailableMessages.MESSAGE_READ);
+            } else if (isP2p && !isCentralized) {
+                uri = ContentUris.withAppendedId(LocMessDBContract.AvailableP2pMessages.CONTENT_URI, localID);
+                values.put(LocMessDBContract.AvailableP2pMessages.COLUMN_READ, LocMessDBContract.AvailableP2pMessages.MESSAGE_READ);
+            }
             mContext.getContentResolver().update(uri, values, null, null);
         }
     }
@@ -190,23 +193,13 @@ public class AvailableTabFragment extends Fragment implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "Loading available messages. Loader ID: " + AVAILABLE_MESSAGES_LOADER_ID);
-        String[] queryCols = new String[] {
-                LocMessDBContract.AvailableMessages._ID,
-                LocMessDBContract.AvailableMessages.COLUMN_TITLE,
-                LocMessDBContract.AvailableMessages.COLUMN_CONTENT,
-                LocMessDBContract.AvailableMessages.COLUMN_LOCATION,
-                LocMessDBContract.AvailableMessages.COLUMN_AUTHOR,
-                LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED,
-                LocMessDBContract.AvailableMessages.COLUMN_READ,
-                LocMessDBContract.AvailableMessages.COLUMN_SERVER_ID
-        };
-        return new CursorLoader(getContext(),
-                LocMessDBContract.AvailableMessages.CONTENT_URI,
-                queryCols,                  // the projection fields
-                null,                       // the selection criteria
-                null,                       // the selection args
-                LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED + " DESC"   // the sort order
-        );
+        return new CursorLoader(
+                getContext(),
+                LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P,
+                null,
+                null,
+                null,
+                LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED + " DESC");
     }
 
     @Override

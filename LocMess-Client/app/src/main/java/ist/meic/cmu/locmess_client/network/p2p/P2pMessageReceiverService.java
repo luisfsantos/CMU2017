@@ -142,6 +142,7 @@ public class P2pMessageReceiverService extends Service {
                     Type type = new TypeToken<List<P2pMatchDataElement>>(){}.getType();
                     List<P2pMatchDataElement> data = gson.fromJson(jdata, type);
                     for (P2pMatchDataElement p2pData : data) {
+                        //TODO check if already received that message using the unique p2p id - if so add false
                         boolean match = validatePolicy(myKeypairs, p2pData.getWhitelist(), p2pData.getBlacklist());
                         response.add(new P2pMatchResponseElement(p2pData.getId(), match));
                     }
@@ -152,13 +153,13 @@ public class P2pMessageReceiverService extends Service {
                     new DatabaseWriterTask(messageList).execute();
                     break;
             }
-            return "";
+            return "ACK";
         }
 
         private boolean validatePolicy(List<KeyPair> myKeypairs, List<KeyPair> whitelist, List<KeyPair> blacklist) {
             List<KeyPair> whitelistIntersect = new ArrayList<>(whitelist);
             whitelistIntersect.retainAll(myKeypairs);
-            boolean inWhitelist = whitelist.size() == 0 || !whitelist.isEmpty();
+            boolean inWhitelist = whitelist.size() == 0 || !whitelistIntersect.isEmpty();
             if (!inWhitelist) {
                 return false;
             }
@@ -199,22 +200,22 @@ public class P2pMessageReceiverService extends Service {
                 ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
                 for (ist.meic.cmu.locmess_client.data.Message m : messages) {
-                    batch.add(ContentProviderOperation.newInsert(LocMessDBContract.AvailableMessages.CONTENT_URI)
-                            .withValue(LocMessDBContract.AvailableMessages.COLUMN_TITLE, m.getTitle())
-                            .withValue(LocMessDBContract.AvailableMessages.COLUMN_CONTENT, m.getText())
-                            .withValue(LocMessDBContract.AvailableMessages.COLUMN_AUTHOR, m.getAuthor())
-                            .withValue(LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED, DateUtils.formatDateTimeLocaleToDb(m.getFromDate()))
-                            .withValue(LocMessDBContract.AvailableMessages.COLUMN_LOCATION, m.getLocation().getName())
-                            .withValue(LocMessDBContract.AvailableMessages.COLUMN_READ, LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ)
-//                                .withValue(LocMessDBContract.AvailableMessages.COLUMN_SERVER_ID, m.getId()) FIXME unique P"P id
+                    batch.add(ContentProviderOperation.newInsert(LocMessDBContract.AvailableP2pMessages.CONTENT_URI)
+                            .withValue(LocMessDBContract.AvailableP2pMessages.COLUMN_TITLE, m.getTitle())
+                            .withValue(LocMessDBContract.AvailableP2pMessages.COLUMN_CONTENT, m.getText())
+                            .withValue(LocMessDBContract.AvailableP2pMessages.COLUMN_AUTHOR, m.getAuthor())
+                            .withValue(LocMessDBContract.AvailableP2pMessages.COLUMN_DATE_POSTED, DateUtils.formatDateTimeLocaleToDb(m.getFromDate()))
+                            .withValue(LocMessDBContract.AvailableP2pMessages.COLUMN_LOCATION, m.getLocation().getName())
+                            .withValue(LocMessDBContract.AvailableP2pMessages.COLUMN_READ, LocMessDBContract.AvailableP2pMessages.MESSAGE_NOT_READ)
+                            .withValue(LocMessDBContract.AvailableP2pMessages.COLUMN_P2P_ID, m.getId())
                             .build());
                 }
                 try {
                     ContentResolver contentResolver = getContentResolver();
                     contentResolver.applyBatch(LocMessDBContract.AUTHORITY, batch);
                     contentResolver.notifyChange(
-                            LocMessDBContract.AvailableMessages.CONTENT_URI, // URI where data was modified
-                            null,                                   // no local observer
+                            LocMessDBContract.AvailableMessages.CONTENT_URI, // HACK
+                            null,                                            // no local observer
                             false);
                 } catch (RemoteException | OperationApplicationException e) {
                     Log.e(TAG, "Error updating database: " + e.getMessage());

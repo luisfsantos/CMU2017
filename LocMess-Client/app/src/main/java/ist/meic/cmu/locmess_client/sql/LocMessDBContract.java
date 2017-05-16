@@ -175,17 +175,17 @@ public class LocMessDBContract {
         public static final int ID_PATH_SEGMENT_INDEX = 2;
 
         public static final String TABLE_NAME = "available";
-        public static final String COLUMN_TITLE = TABLE_NAME + "_title";
-        public static final String COLUMN_CONTENT = TABLE_NAME + "_content";
-        public static final String COLUMN_LOCATION = TABLE_NAME + "_location";
-        public static final String COLUMN_AUTHOR = TABLE_NAME + "_author";
-        public static final String COLUMN_DATE_POSTED = TABLE_NAME + "_date_posted";
-        public static final String COLUMN_READ = TABLE_NAME + "_read";
-        public static final String COLUMN_SERVER_ID = TABLE_NAME + "_server_id";
 
+        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_CONTENT = "content";
+        public static final String COLUMN_LOCATION = "location";
+        public static final String COLUMN_AUTHOR = "author";
+        public static final String COLUMN_DATE_POSTED = "date_posted";
+        public static final String COLUMN_READ = "read";
+        public static final String COLUMN_SERVER_ID = "server_id";
         public static final int MESSAGE_READ = 1;
-        public static final int MESSAGE_NOT_READ = 0;
 
+        public static final int MESSAGE_NOT_READ = 0;
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -208,6 +208,82 @@ public class LocMessDBContract {
                 LocMessDBContract.AvailableMessages.COLUMN_DATE_POSTED,
                 LocMessDBContract.AvailableMessages.COLUMN_READ,
                 LocMessDBContract.AvailableMessages.COLUMN_SERVER_ID
+        };
+        /* for the view */
+        public static final String AVAILABLE_WITH_P2P_PATH = "messages/join_available";
+        public static final Uri CONTENT_URI_WITH_P2P = Uri.parse("content://" + AUTHORITY + "/" + AVAILABLE_WITH_P2P_PATH);
+        private static String select1 = "SELECT " +
+                AvailableMessages._ID +
+                ", " + AvailableMessages.COLUMN_TITLE +
+                ", " + AvailableMessages.COLUMN_CONTENT +
+                ", " + AvailableMessages.COLUMN_AUTHOR +
+                ", " + AvailableMessages.COLUMN_LOCATION +
+                ", " + AvailableMessages.COLUMN_DATE_POSTED +
+                ", " + AvailableMessages.COLUMN_READ +
+                ", " + AvailableMessages.COLUMN_SERVER_ID +
+                ", null AS " + LocMessDBContract.AvailableP2pMessages.COLUMN_P2P_ID +
+                ", " + COLUMN_ACCOUNT_HASH +
+                " FROM " + LocMessDBContract.AvailableMessages.TABLE_NAME;
+        private static String select2 = "SELECT " +
+                AvailableP2pMessages._ID +
+                ", " + AvailableP2pMessages.COLUMN_TITLE +
+                ", " + AvailableP2pMessages.COLUMN_CONTENT +
+                ", " + AvailableP2pMessages.COLUMN_AUTHOR +
+                ", " + AvailableP2pMessages.COLUMN_LOCATION +
+                ", " + AvailableP2pMessages.COLUMN_DATE_POSTED +
+                ", " + AvailableP2pMessages.COLUMN_READ +
+                ", null AS " + AvailableMessages.COLUMN_SERVER_ID +
+                ", " + AvailableP2pMessages.COLUMN_P2P_ID +
+                ", " + COLUMN_ACCOUNT_HASH +
+                " FROM " + LocMessDBContract.AvailableP2pMessages.TABLE_NAME;
+        private static String query = select1 + " UNION ALL " + select2 + ";";
+        public static final String VIEW_NAME = "all_available_messages";
+        public static final String CREATE_VIEW = "CREATE VIEW IF NOT EXISTS " + VIEW_NAME +
+                " AS " + query;
+    }
+
+    public static class AvailableP2pMessages implements BaseColumns {
+        public static final String AVAILABLE_P2P_MESSAGES_PATH = "messages/available_p2p";
+        public static final String AVAILABLE_P2P_MESSAGES_ID_PATH = "messages/available_p2p/#";
+        public static final String AVAILABLE_P2P_MESSAGES_TYPE = "vnd.android.cursor.dir/vnd.locmess.provider.messages.available_p2p";
+        public static final String AVAILABLE_P2P_MESSAGES_ID_TYPE = "vnd.android.cursor.item/vnd.locmess.provider.messages.available_p2p";
+        public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+AVAILABLE_P2P_MESSAGES_PATH);
+        public static final int ID_PATH_SEGMENT_INDEX = 2;
+
+        public static final String TABLE_NAME = "available_p2p";
+        public static final String COLUMN_TITLE = AvailableMessages.COLUMN_TITLE;
+        public static final String COLUMN_CONTENT = AvailableMessages.COLUMN_CONTENT;
+        public static final String COLUMN_LOCATION = AvailableMessages.COLUMN_LOCATION;
+        public static final String COLUMN_AUTHOR = AvailableMessages.COLUMN_AUTHOR;
+        public static final String COLUMN_DATE_POSTED = AvailableMessages.COLUMN_DATE_POSTED;
+        public static final String COLUMN_READ = AvailableMessages.COLUMN_READ;
+        public static final String COLUMN_P2P_ID = "p2p_id";
+
+        public static final int MESSAGE_READ = 1;
+        public static final int MESSAGE_NOT_READ = 0;
+
+        public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_TITLE + " TEXT, " +
+                COLUMN_CONTENT + " TEXT, " +
+                COLUMN_LOCATION + " TEXT, " +
+                COLUMN_AUTHOR + " TEXT, " +
+                COLUMN_DATE_POSTED + " TEXT, " +
+                COLUMN_READ + " BOOLEAN NOT NULL CHECK (" +
+                COLUMN_READ + " IN (" + MESSAGE_READ + "," + MESSAGE_NOT_READ + ")), " +
+                COLUMN_P2P_ID + " TEXT, " +
+                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
+
+        public static final String[] DEFAULT_PROJECTION = new String[] {
+                LocMessDBContract.AvailableP2pMessages._ID,
+                LocMessDBContract.AvailableP2pMessages.COLUMN_TITLE,
+                LocMessDBContract.AvailableP2pMessages.COLUMN_CONTENT,
+                LocMessDBContract.AvailableP2pMessages.COLUMN_LOCATION,
+                LocMessDBContract.AvailableP2pMessages.COLUMN_AUTHOR,
+                LocMessDBContract.AvailableP2pMessages.COLUMN_DATE_POSTED,
+                LocMessDBContract.AvailableP2pMessages.COLUMN_READ,
+                LocMessDBContract.AvailableP2pMessages.COLUMN_P2P_ID
         };
     }
 
