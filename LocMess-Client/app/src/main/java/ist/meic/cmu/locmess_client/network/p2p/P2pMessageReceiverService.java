@@ -29,7 +29,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ist.meic.cmu.locmess_client.data.KeyPair;
 import ist.meic.cmu.locmess_client.network.p2p.json.P2pMatchDataElement;
@@ -141,6 +144,7 @@ public class P2pMessageReceiverService extends Service {
             Gson gson = new GsonBuilder().setDateFormat(RequestBuilder.DATE_FORMAT).create();
             P2pRequest request = gson.fromJson(jrequest, P2pRequest.class);
             JsonElement jdata = request.getData();
+            Set<Integer> receivedP2pMsgIDs = queryReceivedP2p();
             switch (request.getType()) {
                 case P2pRequest.TYPE_MATCH:
                     List<P2pMatchResponseElement> response = new ArrayList<>();
@@ -148,7 +152,11 @@ public class P2pMessageReceiverService extends Service {
                     Type type = new TypeToken<List<P2pMatchDataElement>>(){}.getType();
                     List<P2pMatchDataElement> data = gson.fromJson(jdata, type);
                     for (P2pMatchDataElement p2pData : data) {
-                        //TODO check if already received that message using the unique p2p id - if so add false
+                        if (receivedP2pMsgIDs.contains(p2pData.getId())) {
+                            // avoid receiving repeated messages
+                            response.add(new P2pMatchResponseElement(p2pData.getId(), false));
+                            continue;
+                        }
                         boolean match = validatePolicy(myKeypairs, p2pData.getWhitelist(), p2pData.getBlacklist());
                         response.add(new P2pMatchResponseElement(p2pData.getId(), match));
                     }
@@ -160,6 +168,24 @@ public class P2pMessageReceiverService extends Service {
                     break;
             }
             return "ACK";
+        }
+
+        private Set<Integer> queryReceivedP2p() {
+            Cursor cursor = getContentResolver().query(
+                    LocMessDBContract.AvailableP2pMessages.CONTENT_URI,
+                    new String[] {LocMessDBContract.AvailableP2pMessages.COLUMN_P2P_ID },
+                    null,
+                    null,
+                    null
+            );
+            Set<Integer> set = new HashSet<>();
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    set.add(cursor.getInt(cursor.getColumnIndexOrThrow(
+                            LocMessDBContract.AvailableP2pMessages.COLUMN_P2P_ID)));
+                }
+            }
+            return Collections.unmodifiableSet(set);
         }
 
         private boolean validatePolicy(List<KeyPair> myKeypairs, List<KeyPair> whitelist, List<KeyPair> blacklist) {

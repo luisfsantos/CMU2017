@@ -4,7 +4,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -100,7 +99,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
     public void onResume() {
         super.onResume();
         mRecyclerView.setAdapter(mAdapter);
-        getActivity().getSupportLoaderManager().initLoader(MESSAGES_LOADER_ID, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(MESSAGES_LOADER_ID, null, this);
     }
 
     private void setupAdapter() {
@@ -161,7 +160,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
 
         if (values.getAsInteger(LocMessDBContract.PostedMessages.COLUMN_POLICY)
                 == LocMessDBContract.PostedMessages.POLICY_CENTRALIZED) {
-            final int serverID = values.getAsInteger(LocMessDBContract.PostedMessages.COLUMN_SERVER_ID);
+            final int serverID = values.getAsInteger(LocMessDBContract.PostedMessages.COLUMN_UNIVERSAL_ID);
             try {
                 RequestData data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_MESSAGE, RequestData.DELETE);
                 SyncUtils.push(getActivity().getBaseContext(), SyncUtils.DELETE_MESSAGE, data, null);
@@ -222,7 +221,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
                 LocMessDBContract.PostedMessages.COLUMN_LOCATION,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_FROM,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_TO,
-                LocMessDBContract.PostedMessages.COLUMN_SERVER_ID,
+                LocMessDBContract.PostedMessages.COLUMN_UNIVERSAL_ID,
                 LocMessDBContract.PostedMessages.COLUMN_POLICY
         };
         String[] selectionArgs = { DateUtils.formatDateTimeLocaleToDb(new Date()) };

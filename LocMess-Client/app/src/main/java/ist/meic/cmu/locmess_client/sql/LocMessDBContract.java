@@ -12,7 +12,7 @@ public class LocMessDBContract {
     public static final String SIMPLE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static final String COLUMN_ACCOUNT_HASH = "account_hash";
-//    public static final String COLUMN_SERVER_ID = "server_id";
+//    public static final String COLUMN_UNIVERSAL_ID = "server_id";
     private LocMessDBContract(){
 
     }
@@ -93,7 +93,7 @@ public class LocMessDBContract {
         public static final String COLUMN_LOCATION = TABLE_NAME + "_location";
         public static final String COLUMN_DATE_FROM = TABLE_NAME + "_date_from";
         public static final String COLUMN_DATE_TO = TABLE_NAME + "_date_to";
-        public static final String COLUMN_SERVER_ID = TABLE_NAME + "_server_id";
+        public static final String COLUMN_UNIVERSAL_ID = TABLE_NAME + "_univ_id";
         public static final String COLUMN_LOCATION_SERVER_ID = TABLE_NAME + "_location_server_id";
         public static final String COLUMN_POLICY = TABLE_NAME + "_policy";
         public static final String COLUMN_WHITELIST = TABLE_NAME + "_whitelist";
@@ -110,7 +110,7 @@ public class LocMessDBContract {
                 COLUMN_LOCATION + " TEXT, " +
                 COLUMN_DATE_FROM + " TEXT, " +
                 COLUMN_DATE_TO + " TEXT, " +
-                COLUMN_SERVER_ID + " INTEGER, " +
+                COLUMN_UNIVERSAL_ID + " INTEGER, " +
                 COLUMN_ACCOUNT_HASH + " INTEGER, " +
                 COLUMN_LOCATION_SERVER_ID + " INTEGER, " +
                 COLUMN_POLICY + " INTEGER NOT NULL CHECK (" +
@@ -127,7 +127,7 @@ public class LocMessDBContract {
                 LocMessDBContract.PostedMessages.COLUMN_LOCATION,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_FROM,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_TO,
-                LocMessDBContract.PostedMessages.COLUMN_SERVER_ID
+                LocMessDBContract.PostedMessages.COLUMN_UNIVERSAL_ID
         };
     }
 

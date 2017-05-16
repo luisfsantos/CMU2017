@@ -204,7 +204,7 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
             do {
                 ContentValues row = new ContentValues();
                 DatabaseUtils.cursorRowToContentValues(cursor, row);
-                values.put(row.getAsInteger(LocMessDBContract.PostedMessages._ID), row);
+                values.put(generateP2pId(getBaseContext(),row.getAsInteger(LocMessDBContract.PostedMessages._ID)), row);
             } while (cursor.moveToNext());
             return values;
         }
@@ -215,7 +215,7 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
             for (int i = 0; i < messages.size(); i++) {
                 ContentValues values = messages.valueAt(i);
                 P2pMatchDataElement element = new P2pMatchDataElement();
-                element.setId(values.getAsInteger(LocMessDBContract.PostedMessages._ID));
+                element.setId(messages.keyAt(i)); // the unique p2p id
                 List<KeyPair> whitelist = WhiteBlackListUtils.deserializeFromDbFormat(
                         values.getAsString(LocMessDBContract.PostedMessages.COLUMN_WHITELIST));
                 List<KeyPair> blacklist = WhiteBlackListUtils.deserializeFromDbFormat(
@@ -396,6 +396,7 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
                 AccountManager manager = AccountManager.get(getBaseContext());
                 Account account = GenericAccountService.GetActiveAccount(manager);
                 assert account != null;
+                String author = account.name;
 
                 Gson gson = new GsonBuilder().setDateFormat(RequestBuilder.DATE_FORMAT).create();
                 Type type = new TypeToken<List<P2pMatchResponseElement>>(){}.getType();
@@ -405,8 +406,8 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
                     if (element.isSend()) {
                         ContentValues values = messages.get(element.getId());
                         ist.meic.cmu.locmess_client.data.Message message = new ist.meic.cmu.locmess_client.data.Message();
-                        message.setId(1234); // FIXME unique per p2p message id
-                        message.setAuthor(account.name);
+                        message.setId(element.getId()); // unique p2p id
+                        message.setAuthor(author);
                         message.setText(values.getAsString(LocMessDBContract.PostedMessages.COLUMN_CONTENT));
                         message.setTitle(values.getAsString(LocMessDBContract.PostedMessages.COLUMN_TITLE));
                         message.setFromDate(DateUtils.parsetDateDbToLocale(values.getAsString(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM)));
@@ -437,5 +438,16 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
                 startService(intent);
             }
         }
+    }
+
+    private static int generateP2pId(String author, int id) {
+        return (String.valueOf(id).concat(author)).hashCode();
+    }
+
+    private static int generateP2pId(Context context, int id) {
+        AccountManager am = AccountManager.get(context);
+        Account account = GenericAccountService.GetActiveAccount(am);
+        assert account != null;
+        return generateP2pId(account.name, id);
     }
 }

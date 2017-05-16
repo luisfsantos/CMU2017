@@ -112,7 +112,7 @@ public class MergeMessage {
         int serverId = me.getId();
 
         ContentValues values = new ContentValues();
-        values.put(LocMessDBContract.PostedMessages.COLUMN_SERVER_ID, serverId);
+        values.put(LocMessDBContract.PostedMessages.COLUMN_UNIVERSAL_ID, serverId);
         contentResolver.update(databaseEntryUri, values, null, null);
         if (syncResult != null) {
             syncResult.stats.numUpdates++;
