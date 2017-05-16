@@ -1,5 +1,7 @@
 package ist.meic.cmu.locmess_client.network.p2p;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Set;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.data.KeyPair;
 import ist.meic.cmu.locmess_client.network.p2p.json.P2pMatchDataElement;
 import ist.meic.cmu.locmess_client.network.p2p.json.P2pMatchResponseElement;
@@ -259,7 +262,6 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
             // TODO: 13/05/2017 see if it also works with gps locations
             SharedPreferences preferences = getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE);
             if (messageLocation instanceof CoordinatesUtils.WifiCoordinates) {
-
                 Set<String> messageSsids = new HashSet<>(((CoordinatesUtils.WifiCoordinates)messageLocation).ssids);
                 Set<String> currentSsids = preferences.getStringSet(getString(R.string.pref_currLocationSsids), new HashSet<String>());
 //                Log.d(TAG, "messageSsids=" + TextUtils.join(",", messageSsids));
@@ -290,7 +292,9 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
                     LocMessDBContract.Location.COLUMN_SERVER_ID + " = " + LocMessDBContract.PostedMessages.COLUMN_LOCATION_SERVER_ID +
                             " AND " + LocMessDBContract.PostedMessages.COLUMN_POLICY + " = " + LocMessDBContract.PostedMessages.POLICY_P2P +
                             " AND " + "(? BETWEEN " + LocMessDBContract.PostedMessages.COLUMN_DATE_FROM +
-                            " AND " + LocMessDBContract.PostedMessages.COLUMN_DATE_TO + ")"; //fixme also add check for username hash!!
+                            " AND " + LocMessDBContract.PostedMessages.COLUMN_DATE_TO +
+                            " AND " + LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " +
+                            GenericAccountService.getActiveAccountHash(getBaseContext()) + ")";
             return database.query(true,
                     LocMessDBContract.Location.TABLE_NAME + ", " + LocMessDBContract.PostedMessages.TABLE_NAME,
                     new String[] { LocMessDBContract.Location.COLUMN_SERVER_ID, LocMessDBContract.Location.COLUMN_COORDINATES },
@@ -387,7 +391,11 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode == P2pMessageSenderService.MATCH_RESULT_CODE) {
                 String response = resultData.getString(P2pMessageSenderService.RESULT_DATA);
-                Log.i(TAG, response);
+
+                AccountManager manager = AccountManager.get(getBaseContext());
+                Account account = GenericAccountService.GetActiveAccount(manager);
+                assert account != null;
+
                 Gson gson = new GsonBuilder().setDateFormat(RequestBuilder.DATE_FORMAT).create();
                 Type type = new TypeToken<List<P2pMatchResponseElement>>(){}.getType();
                 List<P2pMatchResponseElement> jresponse = gson.fromJson(response, type);
@@ -397,7 +405,7 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
                         ContentValues values = messages.get(element.getId());
                         ist.meic.cmu.locmess_client.data.Message message = new ist.meic.cmu.locmess_client.data.Message();
                         message.setId(1234); // FIXME unique per p2p message id
-                        message.setAuthor("username"); // FIXME: 15/05/2017 get username from account
+                        message.setAuthor(account.name);
                         message.setText(values.getAsString(LocMessDBContract.PostedMessages.COLUMN_CONTENT));
                         message.setTitle(values.getAsString(LocMessDBContract.PostedMessages.COLUMN_TITLE));
                         message.setFromDate(DateUtils.parsetDateDbToLocale(values.getAsString(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM)));

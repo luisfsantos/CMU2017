@@ -3,8 +3,6 @@ package ist.meic.cmu.locmess_client;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,6 +10,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.sql.LocMessDBSQLiteHelper;
 
@@ -67,10 +66,7 @@ public class LocMessProvider extends ContentProvider {
     }
 
     private int getUsernameHash() {
-        SharedPreferences pref = getContext().getSharedPreferences(
-                getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        String username = pref.getString(getContext().getString(R.string.pref_username), "username");
-        return username.hashCode();
+        return GenericAccountService.getActiveAccountHash(getContext());
     }
 
     @Override

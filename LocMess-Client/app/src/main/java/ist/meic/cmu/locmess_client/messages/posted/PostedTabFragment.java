@@ -1,5 +1,7 @@
 package ist.meic.cmu.locmess_client.messages.posted;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -27,6 +29,7 @@ import java.net.MalformedURLException;
 import java.util.Date;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.messages.ShowMessageActivity;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
@@ -126,10 +129,13 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         final ContentValues values = new ContentValues();
         DatabaseUtils.cursorRowToContentValues(c, values);
 
+        AccountManager am = AccountManager.get(getActivity().getBaseContext());
+        Account account = GenericAccountService.GetActiveAccount(am);
+        assert account != null;
+        String author = account.name;
+
         String title = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_TITLE);
         String text = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_CONTENT);
-        String author = getContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-                .getString(getString(R.string.pref_username), getString(R.string.you));
         String dateFrom = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM);
         String dateTo = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_DATE_TO);
         String location = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_LOCATION);

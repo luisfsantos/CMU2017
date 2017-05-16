@@ -38,10 +38,17 @@ public class GenericAccountService extends Service {
         return new Account(accountName, ACCOUNT_TYPE);
     }
 
+    public static int getActiveAccountHash(Context context) {
+        AccountManager manager = AccountManager.get(context);
+        Account account = GetActiveAccount(manager);
+        assert account != null;
+        return account.name.hashCode();
+    }
+
     public static Account GetActiveAccount(AccountManager am) {
         Account[] accounts = am.getAccountsByType(ACCOUNT_TYPE);
         if (accounts.length > 1) {
-            // FIXME: 08/05/2017 prompt user for account, save account chosen if "always use this"
+            // TODO: 08/05/2017 prompt user for account, save account chosen if "always use this"
             return accounts[0];
         } else if (accounts.length == 1){
             return accounts[0];

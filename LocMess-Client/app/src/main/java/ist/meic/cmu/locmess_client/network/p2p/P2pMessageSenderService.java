@@ -68,6 +68,7 @@ public class P2pMessageSenderService extends IntentService {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(cliSocket.getInputStream()));
             String response = reader.readLine();
+            Log.i(TAG, "Received: " + response);
             cliSocket.close();
             resultData.putString(RESULT_DATA, response);
             if (receiver != null) receiver.send(MATCH_RESULT_CODE, resultData);

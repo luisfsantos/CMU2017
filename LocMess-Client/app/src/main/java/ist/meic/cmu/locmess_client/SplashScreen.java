@@ -56,7 +56,7 @@ public class SplashScreen extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 Bundle bnd = intent.getExtras();
                 if (bnd.getBoolean(LocationUpdateService.KEY_RESULT, false)) {
-                    setupLocationUpdatesAlarm(); // FIXME activate this later!!
+                    setupLocationUpdatesAlarm();
                     P2pDeliveryAlarmReceiver.scheduleAlarm(getApplicationContext());
                     SyncUtils.initialSync(getBaseContext());
                     Intent i = new Intent(SplashScreen.this, InboxActivity.class);
