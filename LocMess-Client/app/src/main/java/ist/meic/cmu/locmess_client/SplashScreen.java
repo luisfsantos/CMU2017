@@ -77,20 +77,10 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void setupLocationUpdatesAlarm() {
-        Context context = getBaseContext();
         SharedPreferences preferences = getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE);
-
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent alarmIntent = new Intent(context, UpdateLocationAlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        alarmManager.cancel(pendingIntent);
-
-        // inexact repeating to reduce battery drain
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000, //trigger in 5 seconds (forced by Android 5+)
-        UpdateLocationAlarmReceiver.REPEAT_INTERVAL, pendingIntent);
-
+        int currentAlarmInterval = UpdateLocationAlarmReceiver.scheduleAlarm(getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(context.getString(R.string.pref_currentAlarmInterval), UpdateLocationAlarmReceiver.REPEAT_INTERVAL);
+        editor.putInt(getString(R.string.pref_currentAlarmInterval), currentAlarmInterval);
         editor.apply();
     }
 

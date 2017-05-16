@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.SplashScreen;
+import ist.meic.cmu.locmess_client.authentication.AuthUtils;
 import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
@@ -91,12 +92,7 @@ public class ProfileActivity extends BaseNavigationActivity
     }
 
     public void onLogoutClicked(View view) {
-        Account account = GenericAccountService.GetActiveAccount(manager);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            manager.removeAccountExplicitly(account);
-        } else {
-            manager.removeAccount(account, null, null);
-        }
+        AuthUtils.userLogout(getBaseContext());
         Intent intent = new Intent(this, SplashScreen.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK|FLAG_ACTIVITY_CLEAR_TASK);
         getApplicationContext().startActivity(intent);

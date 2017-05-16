@@ -132,6 +132,7 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "Stopping service...");
         if (mBound) {
             unbindService(mConnection);
             mConnection = null;

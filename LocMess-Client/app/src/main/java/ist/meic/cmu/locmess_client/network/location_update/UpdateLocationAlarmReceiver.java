@@ -38,6 +38,25 @@ public class UpdateLocationAlarmReceiver extends BroadcastReceiver {
     private Context mContext;
     private SharedPreferences pref;
 
+    public static int scheduleAlarm(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(context, UpdateLocationAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        alarmManager.cancel(pendingIntent);
+
+        // inexact repeating to reduce battery drain
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000, //trigger in 5 seconds (forced by Android 5+)
+                UpdateLocationAlarmReceiver.REPEAT_INTERVAL, pendingIntent);
+        return REPEAT_INTERVAL;
+    }
+
+    public static void unscheduleAlarm(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(context, UpdateLocationAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        alarmManager.cancel(pendingIntent);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "Alarm received");

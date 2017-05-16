@@ -15,7 +15,14 @@ import android.util.Log;
 
 public class P2pDeliveryAlarmReceiver extends BroadcastReceiver {
 
-    private static final int REPEAT_INTERVAL = /*6 **/ 20 * 1000; // every 6 minutes
+    private static final int REPEAT_INTERVAL = /*6 **/ 60 * 1000; // every 6 minutes fixme
+
+    public static void unscheduleAlarm(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(context, P2pDeliveryAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        alarmManager.cancel(pendingIntent);
+    }
 
     public static void scheduleAlarm(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

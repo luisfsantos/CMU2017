@@ -1,16 +1,30 @@
 package ist.meic.cmu.locmess_client.authentication;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import ist.meic.cmu.locmess_client.SplashScreen;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
+import ist.meic.cmu.locmess_client.network.location_update.LocationUpdateService;
+import ist.meic.cmu.locmess_client.network.location_update.UpdateLocationAlarmReceiver;
+import ist.meic.cmu.locmess_client.network.p2p.P2pDeliveryAlarmReceiver;
+import ist.meic.cmu.locmess_client.network.p2p.P2pMessageReceiverService;
+import ist.meic.cmu.locmess_client.network.p2p.P2pMessageScannerService;
 import ist.meic.cmu.locmess_client.network.request_builders.GenericUserRequestBuilder;
+
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 /**
  * Created by Catarina on 08/05/2017.
@@ -54,5 +68,29 @@ public class AuthUtils {
             Log.e(TAG, "Error reading from network: " + e.toString());
             throw e;
         }
+    }
+
+    public static void userLogout(Context context) {
+        AccountManager manager = AccountManager.get(context);
+        Account account = GenericAccountService.GetActiveAccount(manager);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            manager.removeAccountExplicitly(account);
+        } else {
+            manager.removeAccount(account, null, null);
+        }
+
+        //unregister alarms
+        P2pDeliveryAlarmReceiver.unscheduleAlarm(context);
+        UpdateLocationAlarmReceiver.unscheduleAlarm(context);
+
+        //stop running services
+        Intent updateIntent = new Intent(context, LocationUpdateService.class);
+        context.stopService(updateIntent);
+
+        Intent p2pReceiverIntent = new Intent(context, P2pMessageReceiverService.class);
+        context.stopService(p2pReceiverIntent);
+
+        Intent p2pScannerIntent = new Intent(context, P2pMessageScannerService.class);
+        context.stopService(p2pScannerIntent);
     }
 }

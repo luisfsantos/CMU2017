@@ -65,6 +65,12 @@ public class P2pMessageReceiverService extends Service {
     }
 
     @Override
+    public void onDestroy() {
+        Log.i(TAG, "Stopping service...");
+        super.onDestroy();
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (!mStarted) {
             Log.d(TAG, "Service starting...");
