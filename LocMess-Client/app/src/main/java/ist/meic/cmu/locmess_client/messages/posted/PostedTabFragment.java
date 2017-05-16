@@ -1,10 +1,12 @@
 package ist.meic.cmu.locmess_client.messages.posted;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -119,15 +121,18 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
 
     private void onRecyclerCardClicked(int position) {
         Cursor c = mAdapter.getCursor();
+        int prevPosition = c.getPosition();
         c.moveToPosition(position);
+        final ContentValues values = new ContentValues();
+        DatabaseUtils.cursorRowToContentValues(c, values);
 
-        String title = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_TITLE));
-        String text = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_CONTENT));
+        String title = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_TITLE);
+        String text = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_CONTENT);
         String author = getContext().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
                 .getString(getString(R.string.pref_username), getString(R.string.you));
-        String dateFrom = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM));
-        String dateTo = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_TO));
-        String location = c.getString(c.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_LOCATION));
+        String dateFrom = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM);
+        String dateTo = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_DATE_TO);
+        String location = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_LOCATION);
 
         String timeInterval = getString(R.string.from_date_prompt) + ": " + DateUtils.formatDateTimeDbToLocale(dateFrom)
                 + "\n" + getString(R.string.to_date_prompt) + ": " + DateUtils.formatDateTimeDbToLocale(dateTo);
@@ -138,17 +143,25 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         Intent intent = new Intent(getContext(), ShowMessageActivity.class);
         intent.putExtra(ShowMessageActivity.INTENT_MESSAGE, message);
         startActivity(intent);
+
+        c.moveToPosition(prevPosition);
     }
 
-    private void removeMessage(int id, int serverID) {
+    private void removeMessage(final ContentValues values) {
+        final int id = values.getAsInteger(LocMessDBContract.PostedMessages._ID);
         Uri uri = ContentUris.withAppendedId(LocMessDBContract.PostedMessages.CONTENT_URI, id);
         int count = getContext().getContentResolver().delete(uri, null, null);
         Log.d(TAG, "Deleted " + count + " row(s)");
-        try {
-            RequestData data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_MESSAGE, RequestData.DELETE);
-            SyncUtils.push(SyncUtils.DELETE_MESSAGE, data, null);
-        } catch (MalformedURLException e) {
-            Log.wtf(TAG, "Malformed URL: ", e);
+
+        if (values.getAsInteger(LocMessDBContract.PostedMessages.COLUMN_POLICY)
+                == LocMessDBContract.PostedMessages.POLICY_CENTRALIZED) {
+            final int serverID = values.getAsInteger(LocMessDBContract.PostedMessages.COLUMN_SERVER_ID);
+            try {
+                RequestData data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_MESSAGE, RequestData.DELETE);
+                SyncUtils.push(SyncUtils.DELETE_MESSAGE, data, null);
+            } catch (MalformedURLException e) {
+                Log.wtf(TAG, "Malformed URL: ", e);
+            }
         }
     }
 
@@ -156,10 +169,11 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
     public void onAttachToViewHolder(View itemView) {
         Cursor cursor = mAdapter.getCursor();
         final int position = cursor.getPosition();
-        final int id = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages._ID));
-        final int serverID = cursor.getInt(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_SERVER_ID));
-        String dbFrom = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM));
-        String dbTo = cursor.getString(cursor.getColumnIndexOrThrow(LocMessDBContract.PostedMessages.COLUMN_DATE_TO));
+        final ContentValues values = new ContentValues();
+        DatabaseUtils.cursorRowToContentValues(cursor, values);
+
+        String dbFrom = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_DATE_FROM);
+        String dbTo = values.getAsString(LocMessDBContract.PostedMessages.COLUMN_DATE_TO);
         ((TextView)itemView.findViewById(R.id.date_from))
                 .setText(getString(R.string.from_date_prompt) + ": " + DateUtils.formatDateTimeDbToLocale(dbFrom));
         ((TextView)itemView.findViewById(R.id.date_to))
@@ -168,7 +182,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        showRemoveDialog(id, serverID);
+                        showRemoveDialog(values);
                     }
                 });
         itemView.setOnClickListener(new View.OnClickListener() {
@@ -179,14 +193,14 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         });
     }
 
-    private void showRemoveDialog(final int id, final int serverID) {
+    private void showRemoveDialog(final ContentValues values) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(R.string.remove_message)
                 .setMessage(R.string.unpost_message_info)
                 .setPositiveButton(R.string.remove_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        removeMessage(id, serverID);
+                        removeMessage(values);
                     }
                 }).setNegativeButton(R.string.cancel, null);
         builder.show();
@@ -202,7 +216,8 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
                 LocMessDBContract.PostedMessages.COLUMN_LOCATION,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_FROM,
                 LocMessDBContract.PostedMessages.COLUMN_DATE_TO,
-                LocMessDBContract.PostedMessages.COLUMN_SERVER_ID
+                LocMessDBContract.PostedMessages.COLUMN_SERVER_ID,
+                LocMessDBContract.PostedMessages.COLUMN_POLICY
         };
         String[] selectionArgs = { DateUtils.formatDateTimeLocaleToDb(new Date()) };
         return new CursorLoader(getContext(),

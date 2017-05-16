@@ -110,7 +110,7 @@ public class LocationUpdateService extends Service implements LocationListener,
             mTermiteBound = true;
             IntentFilter filter = new IntentFilter();
             filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
-            registerReceiver(mOnRefreshPeers, filter, null, mHandler); //fixme test this
+            registerReceiver(mOnRefreshPeers, filter, null, mHandler);
         }
         return super.onStartCommand(intent, flags, startId);
     }
