@@ -18,9 +18,8 @@ import android.util.Log;
 
 import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
-import ist.meic.cmu.locmess_client.network.LocMessURL;
-import ist.meic.cmu.locmess_client.network.location_update.UpdateLocationAlarmReceiver;
 import ist.meic.cmu.locmess_client.network.location_update.LocationUpdateService;
+import ist.meic.cmu.locmess_client.network.location_update.UpdateLocationAlarmReceiver;
 import ist.meic.cmu.locmess_client.network.p2p.P2pDeliveryAlarmReceiver;
 import ist.meic.cmu.locmess_client.network.sync.SyncUtils;
 
@@ -88,7 +87,7 @@ public class SplashScreen extends AppCompatActivity {
 
         // inexact repeating to reduce battery drain
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 5000, //trigger in 5 seconds (forced by Android 5+)
-                UpdateLocationAlarmReceiver.REPEAT_INTERVAL, pendingIntent);
+        UpdateLocationAlarmReceiver.REPEAT_INTERVAL, pendingIntent);
 
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(context.getString(R.string.pref_currentAlarmInterval), UpdateLocationAlarmReceiver.REPEAT_INTERVAL);
