@@ -5,12 +5,14 @@ package ist.meic.cmu.locmess_client.network.sync;
  */
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,7 +25,7 @@ import com.google.gson.JsonArray;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
@@ -49,6 +51,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
      * Content resolver, for performing database operations.
      */
     private final ContentResolver mContentResolver;
+    private final AccountManager am;
+
 
     /**
      * Constructor. Obtains handle to content resolver for later use.
@@ -56,6 +60,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContentResolver = context.getContentResolver();
+        am = AccountManager.get(context);
     }
 
     /**
@@ -64,6 +69,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     public SyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
         super(context, autoInitialize, allowParallelSyncs);
         mContentResolver = context.getContentResolver();
+        am = AccountManager.get(context);
     }
 
     /**
@@ -84,17 +90,18 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority,
                               ContentProviderClient provider, SyncResult syncResult) {
+
         Log.i(TAG, "Beginning network synchronization");
         try {
             @SyncUtils.SyncType int syncType = extras.getInt(SyncUtils.SYNC_TYPE, SyncUtils.NO_SYNC);
             switch (syncType) {
                 case SyncUtils.SYNC_PUSH:
                     Log.i(TAG, "Performing push to server...");
-                    push(extras, syncResult);
+                    push(account, extras, syncResult);
                     break;
                 case SyncUtils.SYNC_PULL:
                     Log.i(TAG, "Performing pull from server...");
-                    pull(extras, syncResult);
+                    pull(account, extras, syncResult);
                     break;
                 case SyncUtils.NO_SYNC:
                     Log.i(TAG, "No sync");
@@ -110,11 +117,14 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch (RemoteException | OperationApplicationException e) {
             Log.e(TAG, "Error updating database: " + e.getMessage());
             syncResult.databaseError = true;
+        } catch (AuthenticatorException | OperationCanceledException e) {
+            Log.e(TAG, "Error renewing JWT token: " + e.getMessage());
         }
         Log.i(TAG, "Network synchronization complete");
     }
 
-    private void push(Bundle extras, SyncResult syncResult) throws IOException {
+    private void push(Account account, Bundle extras, SyncResult syncResult)
+            throws IOException, AuthenticatorException, OperationCanceledException {
         String url = extras.getString(SyncUtils.REQUEST_URL);
         @RequestData.RequestMethod int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
         String json = extras.getString(SyncUtils.REQUEST_JSON);
@@ -122,9 +132,20 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Uri databaseEntry = Uri.parse(extras.getString(SyncUtils.DB_ENTRY_URI, Uri.EMPTY.toString()));
         @SyncUtils.PushWhat int pushWhat = extras.getInt(SyncUtils.PUSH_WHAT, SyncUtils.NO_PUSH);
 
-        SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
+        String jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
         WebRequestResult response = new WebRequest(request, jwt).execute();
+        try {
+            response.assertValidJwtToken();
+        } catch (WebRequestResult.JwtExpiredException e) {
+            Log.e(TAG, e.getMessage());
+            jwt = GenericAccountService.refreshAuthToken(getContext(), account,
+                    GenericAccountService.AUTH_TOKEN_TYPE, jwt);
+            response = new WebRequest(request, jwt).execute();
+        }
+
+        if (response.getError() != null) {
+            throw new IOException(response.getErrorMessages());
+        }
         switch (pushWhat) {
             case SyncUtils.CREATE_LOCATION:
                 MergeLocation.fillInServerId(mContentResolver,
@@ -155,7 +176,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
 
-    private void pull(Bundle extras, SyncResult syncResult) throws IOException, RemoteException, OperationApplicationException {
+    private void pull(Account account, Bundle extras, SyncResult syncResult)
+            throws IOException, RemoteException, OperationApplicationException,
+            AuthenticatorException, OperationCanceledException {
+
         String url = extras.getString(SyncUtils.REQUEST_URL);
         @RequestData.RequestMethod int requestMethod = extras.getInt(SyncUtils.REQUEST_METHOD);
         String json = extras.getString(SyncUtils.REQUEST_JSON);
@@ -167,9 +191,18 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         RequestData request = new RequestData(url, requestMethod, json);
-        SharedPreferences pref = getContext().getSharedPreferences(getContext().getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        String jwt = pref.getString(getContext().getString(R.string.pref_jwtAuthenticator), "No jwt");
+        String jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
         WebRequestResult response = new WebRequest(request, jwt).execute();
+        try {
+            response.assertValidJwtToken();
+        } catch (WebRequestResult.JwtExpiredException e) {
+            Log.e(TAG, e.getMessage());
+            jwt = GenericAccountService.refreshAuthToken(getContext(), account, GenericAccountService.AUTH_TOKEN_TYPE, jwt);
+            response = new WebRequest(request, jwt).execute();
+        }
+        if (response.getError() != null) {
+            throw new IOException(response.getErrorMessages());
+        }
         JsonObjectAPI jresult = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
         switch (pullWhat) {
             case SyncUtils.PULL_LOCATIONS:

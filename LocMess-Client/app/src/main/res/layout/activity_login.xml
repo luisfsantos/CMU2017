@@ -58,6 +58,7 @@
             android:visibility="gone"
             android:textColor="@color/color_error" />
         <TextView
+            android:id="@+id/switch_to_signup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

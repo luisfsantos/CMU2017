@@ -26,13 +26,11 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.location.create.NewWifiLocationFragment;
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
 import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
@@ -69,6 +67,7 @@ public class LocationUpdateService extends Service implements LocationListener,
             if (ContextCompat.checkSelfPermission(LocationUpdateService.this,
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Registering request for location updates...");
+                sendBroadcast(getPermissionResultIntent(true));
                 requestLocationUpdates();
             } else {
                 Log.i(TAG, "Requesting permission to access fine location");
@@ -103,6 +102,8 @@ public class LocationUpdateService extends Service implements LocationListener,
                     .addApi(LocationServices.API)
                     .build();
             googleApiClient.connect();
+        } else {
+            sendBroadcast(getPermissionResultIntent(true));
         }
         if (!mTermiteBound) {
             Intent termiteIntent = new Intent(this, SimWifiP2pService.class);
@@ -158,8 +159,10 @@ public class LocationUpdateService extends Service implements LocationListener,
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode == RESULT_OK) {
                 if (resultData.getInt(KEY_RESULT) == PackageManager.PERMISSION_GRANTED) {
+                    sendBroadcast(getPermissionResultIntent(true));
                     requestLocationUpdates();
                 } else {
+                    sendBroadcast(getPermissionResultIntent(false));
                     Log.i(TAG, "No permission to access fine location");
                     stopSelf();
                 }
@@ -167,6 +170,17 @@ public class LocationUpdateService extends Service implements LocationListener,
                 Log.wtf(TAG, "Received wrong result from LocationPermissionActivity");
             }
         }
+    }
+
+    private Intent getPermissionResultIntent(boolean granted) {
+        Bundle bundle = new Bundle();
+        if (granted) {
+            bundle.putBoolean(KEY_RESULT, true);
+        }
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+        intent.setAction(getString(R.string.PERMISSION_GRANTED_ACTION));
+        return intent;
     }
 
 

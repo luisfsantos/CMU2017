@@ -158,7 +158,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
             final int serverID = values.getAsInteger(LocMessDBContract.PostedMessages.COLUMN_SERVER_ID);
             try {
                 RequestData data = new GenericDeleteRequestBuilder(serverID).build(LocMessURL.DELETE_MESSAGE, RequestData.DELETE);
-                SyncUtils.push(SyncUtils.DELETE_MESSAGE, data, null);
+                SyncUtils.push(getActivity().getBaseContext(), SyncUtils.DELETE_MESSAGE, data, null);
             } catch (MalformedURLException e) {
                 Log.wtf(TAG, "Malformed URL: ", e);
             }

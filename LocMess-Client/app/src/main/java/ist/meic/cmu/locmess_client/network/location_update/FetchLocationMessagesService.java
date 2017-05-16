@@ -1,13 +1,15 @@
 package ist.meic.cmu.locmess_client.network.location_update;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -20,6 +22,7 @@ import com.google.gson.JsonArray;
 import java.io.IOException;
 
 import ist.meic.cmu.locmess_client.R;
+import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
 import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
@@ -53,15 +56,26 @@ public class FetchLocationMessagesService extends IntentService {
         }
         Log.d(TAG, "Fetching messages from server...");
         // TODO: 28/04/2017 check for connectivity again, abort (return) if no connectivity? is this overkill?
-        Context context = getApplicationContext();
-        SharedPreferences pref = context.getSharedPreferences(context.getString(R.string.preference_file_key), MODE_PRIVATE);
-        String jwt = pref.getString(context.getString(R.string.pref_jwtAuthenticator), "No auth");
+        String jwt;
+        AccountManager am = AccountManager.get(getBaseContext());
+        Account account = GenericAccountService.GetActiveAccount(am);
         Bundle bundle = intent.getBundleExtra(INTENT_BUNDLE);
-        RequestData request = (RequestData)bundle.getSerializable(INTENT_REQUEST);
+        RequestData request = (RequestData) bundle.getSerializable(INTENT_REQUEST);
+        assert request != null;
+
         int numNotRead = 0;
         int numNewMessages = 0;
+
         try {
+            jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
             WebRequestResult response = new WebRequest(request, jwt).execute();
+            try {
+                response.assertValidJwtToken();
+            } catch (WebRequestResult.JwtExpiredException e) {
+                Log.e(TAG, e.getMessage());
+                jwt = GenericAccountService.refreshAuthToken(getBaseContext(), account, GenericAccountService.AUTH_TOKEN_TYPE, jwt);
+                response = new WebRequest(request, jwt).execute();
+            }
             JsonObjectAPI result = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);
             JsonArray messages = result.getData().getAsJsonArray(WebRequestResult.MESSAGES);
             numNewMessages = MergeMessage.mergeAllAvailable(getContentResolver(), messages, null);
@@ -71,15 +85,18 @@ public class FetchLocationMessagesService extends IntentService {
         } catch (RemoteException | OperationApplicationException e) {
             Log.e(TAG, "Error updating database: " + e.getMessage());
             return;
+        } catch (OperationCanceledException | AuthenticatorException e) {
+            Log.e(TAG, "Error getting auth token from Account Manager: ", e);
+            stopSelf();
         }
         if (numNewMessages > 0) {
             // we only show the notification when there are new messages since the last update,
             // but the notification displays how many messages are still not read in general
             Cursor c = getContentResolver().query(
                     LocMessDBContract.AvailableMessages.CONTENT_URI,
-                    new String[] { LocMessDBContract.AvailableMessages._ID},
+                    new String[]{LocMessDBContract.AvailableMessages._ID},
                     LocMessDBContract.AvailableMessages.COLUMN_READ + " = ?",
-                    new String[] { String.valueOf(LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ) },
+                    new String[]{String.valueOf(LocMessDBContract.AvailableMessages.MESSAGE_NOT_READ)},
                     null
             );
             if (c != null) {
