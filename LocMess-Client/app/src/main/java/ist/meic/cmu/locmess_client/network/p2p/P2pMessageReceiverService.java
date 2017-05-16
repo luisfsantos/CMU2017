@@ -214,9 +214,12 @@ public class P2pMessageReceiverService extends Service {
                     ContentResolver contentResolver = getContentResolver();
                     contentResolver.applyBatch(LocMessDBContract.AUTHORITY, batch);
                     contentResolver.notifyChange(
-                            LocMessDBContract.AvailableMessages.CONTENT_URI, // HACK
+                            LocMessDBContract.AvailableP2pMessages.CONTENT_URI,
                             null,                                            // no local observer
                             false);
+                    //notify observers of aggregate view
+                    contentResolver.notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
+
                 } catch (RemoteException | OperationApplicationException e) {
                     Log.e(TAG, "Error updating database: " + e.getMessage());
                 }

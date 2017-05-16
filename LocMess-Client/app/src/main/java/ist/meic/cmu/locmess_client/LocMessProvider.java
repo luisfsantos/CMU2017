@@ -153,10 +153,7 @@ public class LocMessProvider extends ContentProvider {
             case AVAILABLE_WITH_P2P:
                 qb.appendWhere(LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " + getUsernameHash());
                 qb.setTables(LocMessDBContract.AvailableMessages.VIEW_NAME);
-                Cursor cursor = qb.query(database, projection, selection, selectionArgs, null, null, sortOrder);
-                // HACK
-                cursor.setNotificationUri(getContext().getContentResolver(), LocMessDBContract.AvailableMessages.CONTENT_URI);
-                return cursor;
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -203,7 +200,8 @@ public class LocMessProvider extends ContentProvider {
                 if (rowId > 0) {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.AvailableMessages.CONTENT_URI, rowId);
                 }
-
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case AVAILABLE_P2P_MESSAGES:
                 contentValues.put(LocMessDBContract.COLUMN_ACCOUNT_HASH, getUsernameHash());
@@ -211,8 +209,8 @@ public class LocMessProvider extends ContentProvider {
                 if (rowId > 0) {
                     rowUri = ContentUris.withAppendedId(LocMessDBContract.AvailableP2pMessages.CONTENT_URI, rowId);
                 }
-                //HACK
-                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI, null);
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case KEYS:
                 rowId = database.insert(LocMessDBContract.Keys.TABLE_NAME, null, contentValues);
@@ -335,6 +333,8 @@ public class LocMessProvider extends ContentProvider {
                         .append(" = ")
                         .append(getUsernameHash());
                 count = database.delete(LocMessDBContract.AvailableMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case AVAILABLE_MESSAGES_ID:
                 finalSelection
@@ -351,6 +351,8 @@ public class LocMessProvider extends ContentProvider {
                             .append(selection);
                 }
                 count = database.delete(LocMessDBContract.AvailableMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case AVAILABLE_P2P_MESSAGES:
                 finalSelection
@@ -358,8 +360,8 @@ public class LocMessProvider extends ContentProvider {
                         .append(" = ")
                         .append(getUsernameHash());
                 count = database.delete(LocMessDBContract.AvailableP2pMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
-                //HACK
-                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI, null);
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case AVAILABLE_P2P_MESSAGES_ID:
                 finalSelection
@@ -376,8 +378,8 @@ public class LocMessProvider extends ContentProvider {
                             .append(selection);
                 }
                 count = database.delete(LocMessDBContract.AvailableP2pMessages.TABLE_NAME, finalSelection.toString(), selectionArgs);
-                //HACK
-                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI, null);
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case KEYS:
                 count = database.delete(LocMessDBContract.Keys.TABLE_NAME, selection, selectionArgs);
@@ -516,6 +518,8 @@ public class LocMessProvider extends ContentProvider {
                             .append(selection);
                 }
                 count = database.update(LocMessDBContract.AvailableMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case AVAILABLE_MESSAGES_ID:
                 finalSelection
@@ -532,6 +536,8 @@ public class LocMessProvider extends ContentProvider {
                             .append(selection);
                 }
                 count = database.update(LocMessDBContract.AvailableMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case AVAILABLE_P2P_MESSAGES:
                 finalSelection
@@ -544,8 +550,8 @@ public class LocMessProvider extends ContentProvider {
                             .append(selection);
                 }
                 count = database.update(LocMessDBContract.AvailableP2pMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
-                //HACK
-                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI, null);
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case AVAILABLE_P2P_MESSAGES_ID:
                 finalSelection
@@ -562,8 +568,8 @@ public class LocMessProvider extends ContentProvider {
                             .append(selection);
                 }
                 count = database.update(LocMessDBContract.AvailableP2pMessages.TABLE_NAME, contentValues, finalSelection.toString(), selectionArgs);
-                //HACK
-                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI, null);
+                //notify observers of aggregate view
+                getContext().getContentResolver().notifyChange(LocMessDBContract.AvailableMessages.CONTENT_URI_WITH_P2P, null);
                 break;
             case KEYS:
                 count = database.update(LocMessDBContract.Keys.TABLE_NAME, contentValues, selection, selectionArgs);
