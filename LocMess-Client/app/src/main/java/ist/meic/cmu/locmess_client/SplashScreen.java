@@ -37,7 +37,6 @@ public class SplashScreen extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_splash_screen);
         am = AccountManager.get(getBaseContext());
         Account[] accounts = am.getAccountsByType(GenericAccountService.ACCOUNT_TYPE);
         Log.d(TAG, "Accounts.length="+accounts.length);

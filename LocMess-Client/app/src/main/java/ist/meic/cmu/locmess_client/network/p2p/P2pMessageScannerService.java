@@ -283,7 +283,7 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
                 messageGpsLocation.setLongitude(((CoordinatesUtils.GpsCoordinates) messageLocation).longitude);
 
                 double distance = messageGpsLocation.distanceTo(currentLocation);
-                return distance < ((CoordinatesUtils.GpsCoordinates) messageLocation).radius;
+                return distance <= ((CoordinatesUtils.GpsCoordinates) messageLocation).radius;
             }
             return false;
         }

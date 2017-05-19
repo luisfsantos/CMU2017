@@ -257,6 +257,7 @@ public class LocMessDBContract {
         public static final String COLUMN_AUTHOR = AvailableMessages.COLUMN_AUTHOR;
         public static final String COLUMN_DATE_POSTED = AvailableMessages.COLUMN_DATE_POSTED;
         public static final String COLUMN_READ = AvailableMessages.COLUMN_READ;
+        public static final String COLUMN_LOCATION_SERVER_ID = "location_server_id";
         public static final String COLUMN_P2P_ID = "p2p_id";
 
         public static final int MESSAGE_READ = 1;
@@ -273,7 +274,10 @@ public class LocMessDBContract {
                 COLUMN_READ + " BOOLEAN NOT NULL CHECK (" +
                 COLUMN_READ + " IN (" + MESSAGE_READ + "," + MESSAGE_NOT_READ + ")), " +
                 COLUMN_P2P_ID + " TEXT, " +
-                COLUMN_ACCOUNT_HASH + " INTEGER " + ")";
+                COLUMN_LOCATION_SERVER_ID + " INTEGER, " +
+                COLUMN_ACCOUNT_HASH + " INTEGER, " +
+                "FOREIGN KEY (" + COLUMN_LOCATION_SERVER_ID + ") REFERENCES "
+                + Location.TABLE_NAME + "(" + Location.COLUMN_SERVER_ID + ") ON DELETE CASCADE" + ")";
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 LocMessDBContract.AvailableP2pMessages._ID,
