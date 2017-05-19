@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.sql.LocMessDBSQLiteHelper;
 
@@ -66,7 +66,7 @@ public class LocMessProvider extends ContentProvider {
     }
 
     private int getUsernameHash() {
-        return GenericAccountService.getActiveAccountHash(getContext());
+        return AccountService.getActiveAccountHash(getContext());
     }
 
     @Override

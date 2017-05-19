@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.request_builders.create.NewGpsLocationRequestBuilder;
@@ -214,7 +214,7 @@ public class NewLocationActivity extends AppCompatActivity {
 
     private Uri saveToDb(String name, String date, String coordinates) {
         AccountManager manager = AccountManager.get(getBaseContext());
-        Account account = GenericAccountService.GetActiveAccount(manager);
+        Account account = AccountService.getActiveAccount(manager);
         assert account != null;
         ContentValues values = new ContentValues();
         values.put(LocMessDBContract.Location.COLUMN_NAME, name);

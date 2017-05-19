@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Set;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.data.KeyPair;
 import ist.meic.cmu.locmess_client.network.p2p.json.P2pMatchDataElement;
 import ist.meic.cmu.locmess_client.network.p2p.json.P2pMatchResponseElement;
@@ -295,7 +295,7 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
                             " AND " + "(? BETWEEN " + LocMessDBContract.PostedMessages.COLUMN_DATE_FROM +
                             " AND " + LocMessDBContract.PostedMessages.COLUMN_DATE_TO +
                             " AND " + LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " +
-                            GenericAccountService.getActiveAccountHash(getBaseContext()) + ")";
+                            AccountService.getActiveAccountHash(getBaseContext()) + ")";
             return database.query(true,
                     LocMessDBContract.Location.TABLE_NAME + ", " + LocMessDBContract.PostedMessages.TABLE_NAME,
                     new String[] { LocMessDBContract.Location.COLUMN_SERVER_ID, LocMessDBContract.Location.COLUMN_COORDINATES },
@@ -394,7 +394,7 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
                 String response = resultData.getString(P2pMessageSenderService.RESULT_DATA);
 
                 AccountManager manager = AccountManager.get(getBaseContext());
-                Account account = GenericAccountService.GetActiveAccount(manager);
+                Account account = AccountService.getActiveAccount(manager);
                 assert account != null;
                 String author = account.name;
 
@@ -446,7 +446,7 @@ public class P2pMessageScannerService extends Service implements SimWifiP2pManag
 
     private static int generateP2pId(Context context, int id) {
         AccountManager am = AccountManager.get(context);
-        Account account = GenericAccountService.GetActiveAccount(am);
+        Account account = AccountService.getActiveAccount(am);
         assert account != null;
         return generateP2pId(account.name, id);
     }

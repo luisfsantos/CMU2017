@@ -4,12 +4,15 @@ import android.support.annotation.StringDef;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 
+import ist.meic.cmu.locmess_client.network.json.Error;
 import ist.meic.cmu.locmess_client.network.json.JsonObjectAPI;
 import ist.meic.cmu.locmess_client.network.request_builders.RequestBuilder;
 
@@ -50,20 +53,17 @@ public class WebRequestResult {
     }
 
     public String getErrorMessages() {
-//        JsonObjectAPI json = gson.fromJson(mError, JsonObjectAPI.class);
-//        ArrayList<Error> errors = json.getErrors();
+        JsonObject json = gson.fromJson(mError, JsonObject.class);
         StringBuilder builder = new StringBuilder();
-        // FIXME: 03/05/2017 redo this when api changes
-        builder.append("TODO: Error message placeholder.");
-//        for (Error error : errors) {
-//            builder.append(error.getMessage());
-//            builder.append("\n");
-//        }
+        JsonArray jarray = json.getAsJsonArray("non_field_errors");
+        for (JsonElement element : jarray) {
+            builder.append(element.getAsString());
+            builder.append("\n");
+        }
         return builder.toString();
     }
 
     public void assertValidJwtToken() throws JwtExpiredException {
-        //todo check in result if jwt expired
         Log.d("WebRequestResult", "Validating jwt token");
         if (mError != null) {
             JsonObject error = gson.fromJson(mError, JsonObject.class);

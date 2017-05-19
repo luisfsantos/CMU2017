@@ -31,7 +31,7 @@
             android:exported="false"
             android:authorities="ist.meic.cmu.locmess_client.LocMessProvider" />
 
-        <service android:name=".authentication.GenericAccountService">
+        <service android:name=".authentication.AccountService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -85,7 +85,7 @@
         <activity android:name=".authentication.AuthenticatorActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".authentication.NewSignUpActivity"
+            android:name=".authentication.SignUpActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".messages.inbox.InboxActivity"

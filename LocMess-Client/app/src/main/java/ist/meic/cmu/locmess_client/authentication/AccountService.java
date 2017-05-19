@@ -22,30 +22,24 @@ import java.io.IOException;
  * Created by Catarina on 25/04/2017.
  */
 
-public class GenericAccountService extends Service {
-    private static final String TAG = "GenericAccountService";
+public class AccountService extends Service {
+    private static final String TAG = "AccountService";
     public static final String ACCOUNT_TYPE = "ist.meic.cmu.locmess_client.network.sync.basicsyncadapter";
     public static final String AUTH_TOKEN_TYPE = "JWT";
     private LocMessAuthenticator mAuthenticator;
 
-    /**
-     * Obtain a handle to the {@link android.accounts.Account} used for sync in this application.
-     *
-     * @return Handle to application's account (not guaranteed to resolve unless CreateSyncAccount()
-     * has been called)
-     */
-    public static Account GetAccount(String accountName) {
+    public static Account getAccount(String accountName) {
         return new Account(accountName, ACCOUNT_TYPE);
     }
 
     public static int getActiveAccountHash(Context context) {
         AccountManager manager = AccountManager.get(context);
-        Account account = GetActiveAccount(manager);
+        Account account = getActiveAccount(manager);
         assert account != null;
         return account.name.hashCode();
     }
 
-    public static Account GetActiveAccount(AccountManager am) {
+    public static Account getActiveAccount(AccountManager am) {
         Account[] accounts = am.getAccountsByType(ACCOUNT_TYPE);
         if (accounts.length > 1) {
             // TODO: 08/05/2017 prompt user for account, save account chosen if "always use this"
@@ -130,9 +124,10 @@ public class GenericAccountService extends Service {
                 String password = am.getPassword(account);
                 if (password != null) {
                     try {
-                        authToken = AuthUtils.userLogin(account.name, password, authTokenType);
+                        authToken = AuthUtils.userLogin(getBaseContext(), account.name, password, authTokenType);
                     } catch (IOException e) {
-                        throw new NetworkErrorException(e);
+                        Log.e(TAG, "Error reading from network: ", e);
+                        throw new NetworkErrorException("No network connection");
                     }
                 }
             }

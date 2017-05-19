@@ -15,7 +15,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
 import ist.meic.cmu.locmess_client.sql.LocMessDBSQLiteHelper;
 import ist.meic.cmu.locmess_client.utils.CoordinatesUtils;
@@ -64,7 +64,7 @@ public class P2pDatabaseCleanupService extends IntentService {
                         " = " + LocMessDBContract.AvailableP2pMessages.TABLE_NAME + "." +
                         LocMessDBContract.AvailableP2pMessages.COLUMN_LOCATION_SERVER_ID +
                         " AND " + LocMessDBContract.COLUMN_ACCOUNT_HASH + " = " +
-                        GenericAccountService.getActiveAccountHash(getBaseContext());
+                        AccountService.getActiveAccountHash(getBaseContext());
         Cursor cursor = database.query(false,
                 LocMessDBContract.Location.TABLE_NAME + ", " + LocMessDBContract.AvailableP2pMessages.TABLE_NAME,
                 new String[] { "DISTINCT " + LocMessDBContract.Location.TABLE_NAME + "." +

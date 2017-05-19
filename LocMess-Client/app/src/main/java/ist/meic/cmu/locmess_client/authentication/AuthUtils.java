@@ -9,9 +9,10 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 
-import ist.meic.cmu.locmess_client.SplashScreen;
+import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
@@ -23,9 +24,6 @@ import ist.meic.cmu.locmess_client.network.p2p.P2pMessageReceiverService;
 import ist.meic.cmu.locmess_client.network.p2p.P2pMessageScannerService;
 import ist.meic.cmu.locmess_client.network.request_builders.GenericUserRequestBuilder;
 
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-
 /**
  * Created by Catarina on 08/05/2017.
  */
@@ -34,7 +32,8 @@ public class AuthUtils {
 
     private static final String TAG = "AuthUtils";
 
-    public static String userLogin(String username, String password, @Nullable String authTokenType) throws IOException {
+    public static String userLogin(Context context, String username,
+                                   String password, @Nullable String authTokenType) throws IOException {
         try {
             RequestData data = new GenericUserRequestBuilder(username, password)
                     .build(LocMessURL.LOGIN, RequestData.POST);
@@ -46,13 +45,16 @@ public class AuthUtils {
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: ", e);
             throw e;
+        } catch (ConnectException e) {
+            throw new IOException(context.getString(R.string.no_network_connection));
         } catch (IOException e) {
             Log.e(TAG, "Error reading from network: " + e.toString());
             throw e;
         }
     }
 
-    public static String userSignUp(String username, String password, String authTokenType) throws IOException {
+    public static String userSignUp(Context context, String username,
+                                    String password, String authTokenType) throws IOException {
         try {
             RequestData data = new GenericUserRequestBuilder(username, password)
                     .build(LocMessURL.SIGNUP, RequestData.POST);
@@ -60,10 +62,12 @@ public class AuthUtils {
             if (response.getError() != null) {
                 throw new IOException(response.getErrorMessages());
             }
-            return userLogin(username, password, authTokenType);
+            return userLogin(context, username, password, authTokenType);
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Malformed URL: ", e);
             throw e;
+        } catch (ConnectException e) {
+            throw new IOException(context.getString(R.string.no_network_connection));
         } catch (IOException e) {
             Log.e(TAG, "Error reading from network: " + e.toString());
             throw e;
@@ -72,7 +76,7 @@ public class AuthUtils {
 
     public static void userLogout(Context context) {
         AccountManager manager = AccountManager.get(context);
-        Account account = GenericAccountService.GetActiveAccount(manager);
+        Account account = AccountService.getActiveAccount(manager);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             manager.removeAccountExplicitly(account);
         } else {

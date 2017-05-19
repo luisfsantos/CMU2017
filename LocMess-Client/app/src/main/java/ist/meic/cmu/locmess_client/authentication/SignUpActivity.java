@@ -22,8 +22,8 @@ import static ist.meic.cmu.locmess_client.authentication.AuthenticatorActivity.P
  * Created by Catarina on 08/05/2017.
  */
 
-public class NewSignUpActivity extends AppCompatActivity {
-    private static final String TAG = "NewSignUpActivity";
+public class SignUpActivity extends AppCompatActivity {
+    private static final String TAG = "SignUpActivity";
     private String mAccountType;
 
     EditText mUsername;
@@ -108,7 +108,7 @@ public class NewSignUpActivity extends AppCompatActivity {
                 String authToken;
                 Bundle data = new Bundle();
                 try {
-                    authToken = AuthUtils.userSignUp(username, password, mAccountType);
+                    authToken = AuthUtils.userSignUp(getBaseContext(), username, password, mAccountType);
 
                     data.putString(AccountManager.KEY_ACCOUNT_NAME, username);
                     data.putString(AccountManager.KEY_ACCOUNT_TYPE, mAccountType);

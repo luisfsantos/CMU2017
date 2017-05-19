@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -26,7 +25,7 @@ import java.net.MalformedURLException;
 import ist.meic.cmu.locmess_client.R;
 import ist.meic.cmu.locmess_client.SplashScreen;
 import ist.meic.cmu.locmess_client.authentication.AuthUtils;
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.navigation.BaseNavigationActivity;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
@@ -59,7 +58,7 @@ public class ProfileActivity extends BaseNavigationActivity
         getLayoutInflater().inflate(R.layout.activity_profile, frameLayout);
 
         manager = AccountManager.get(getBaseContext());
-        Account account = GenericAccountService.GetActiveAccount(manager);
+        Account account = AccountService.getActiveAccount(manager);
         String username;
         if (account != null) {
             username = account.name;

@@ -4,6 +4,7 @@ package ist.meic.cmu.locmess_client.network.sync;
  * Created by Catarina on 25/04/2017.
  */
 
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -15,7 +16,7 @@ import android.support.annotation.NonNull;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.sql.LocMessDBContract;
@@ -68,7 +69,7 @@ public class SyncUtils {
         // Disable sync backoff and ignore sync preferences. In other words...perform sync NOW!
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(
-                GenericAccountService.GetActiveAccount(am), // Sync account
+                AccountService.getActiveAccount(am), // Sync account
                 CONTENT_AUTHORITY,                       // Content authority
                 bundle);                                 // Extras
     }
@@ -97,6 +98,29 @@ public class SyncUtils {
         pull(context, SyncUtils.PULL_KEYS, LocMessURL.LIST_KEYS);
         pull(context, SyncUtils.PULL_KEYPAIRS, LocMessURL.LIST_KEYPAIRS);
         pull(context, SyncUtils.PULL_LOCATIONS, LocMessURL.LIST_LOCATIONS);
+    }
+
+    public static void schedulePeriodicSync(Context context) {
+        AccountManager am = AccountManager.get(context);
+        Account account = AccountService.getActiveAccount(am);
+
+        Bundle pullKeysExtra = new Bundle();
+        pullKeysExtra.putInt(PULL_WHAT, PULL_KEYS);
+        pullKeysExtra.putInt(SYNC_TYPE, SYNC_PULL);
+        pullKeysExtra.putString(REQUEST_URL, LocMessURL.LIST_KEYS);
+        pullKeysExtra.putInt(REQUEST_METHOD, RequestData.GET);
+        ContentResolver.addPeriodicSync(
+                account,
+                CONTENT_AUTHORITY, pullKeysExtra, SYNC_FREQUENCY);
+
+        Bundle pullLocationsExtra = new Bundle();
+        pullLocationsExtra.putInt(PULL_WHAT, PULL_LOCATIONS);
+        pullLocationsExtra.putInt(SYNC_TYPE, SYNC_PULL);
+        pullLocationsExtra.putString(REQUEST_URL, LocMessURL.LIST_LOCATIONS);
+        pullLocationsExtra.putInt(REQUEST_METHOD, RequestData.GET);
+        ContentResolver.addPeriodicSync(
+                account,
+                CONTENT_AUTHORITY, pullLocationsExtra, SYNC_FREQUENCY);
     }
 }
 

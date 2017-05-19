@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 import ist.meic.cmu.locmess_client.R;
 
 /**
@@ -54,7 +56,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
             Log.d(TAG, accountName);
         }
         if (mAuthTokenType == null) {
-            mAuthTokenType = GenericAccountService.AUTH_TOKEN_TYPE;
+            mAuthTokenType = AccountService.AUTH_TOKEN_TYPE;
         }
 
         mUsername = (EditText) findViewById(R.id.login_username);
@@ -66,7 +68,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     public void switchToSignUp(View view) {
         // Since there can only be one AuthenticatorActivity, we call the sign up activity, get its results,
         // and return them in setAccountAuthenticatorResult(). See finishLogin().
-        Intent signUp = new Intent(getBaseContext(), NewSignUpActivity.class);
+        Intent signUp = new Intent(getBaseContext(), SignUpActivity.class);
         signUp.putExtras(getIntent().getExtras());
         startActivityForResult(signUp, REQUEST_SIGNUP);
     }
@@ -120,14 +122,14 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
                 Bundle data = new Bundle();
 
                 try {
-                    authToken = AuthUtils.userLogin(username, password, mAuthTokenType);
+                    authToken = AuthUtils.userLogin(getBaseContext(), username, password, mAuthTokenType);
 
                     data.putString(AccountManager.KEY_ACCOUNT_NAME, username);
                     data.putString(AccountManager.KEY_ACCOUNT_TYPE, accountType);
                     data.putString(AccountManager.KEY_AUTHTOKEN, authToken);
                     data.putString(PARAM_USER_PASS, password);
-                } catch (Exception e) {
-                    Log.d(TAG, "Caught IOException");
+                } catch (IOException e) {
+                    Log.e(TAG, "Caught IOException", e);
                     data.putString(KEY_ERROR_MESSAGE, e.getMessage());
                 }
                 final Intent res = new Intent();

@@ -22,7 +22,7 @@ import com.google.gson.JsonArray;
 import java.io.IOException;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
@@ -58,7 +58,7 @@ public class FetchLocationMessagesService extends IntentService {
         // TODO: 28/04/2017 check for connectivity again, abort (return) if no connectivity? is this overkill?
         String jwt;
         AccountManager am = AccountManager.get(getBaseContext());
-        Account account = GenericAccountService.GetActiveAccount(am);
+        Account account = AccountService.getActiveAccount(am);
         Bundle bundle = intent.getBundleExtra(INTENT_BUNDLE);
         RequestData request = (RequestData) bundle.getSerializable(INTENT_REQUEST);
         assert request != null;
@@ -67,13 +67,13 @@ public class FetchLocationMessagesService extends IntentService {
         int numNewMessages = 0;
 
         try {
-            jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
+            jwt = am.blockingGetAuthToken(account, AccountService.AUTH_TOKEN_TYPE, false);
             WebRequestResult response = new WebRequest(request, jwt).execute();
             try {
                 response.assertValidJwtToken();
             } catch (WebRequestResult.JwtExpiredException e) {
                 Log.e(TAG, e.getMessage());
-                jwt = GenericAccountService.refreshAuthToken(getBaseContext(), account, GenericAccountService.AUTH_TOKEN_TYPE, jwt);
+                jwt = AccountService.refreshAuthToken(getBaseContext(), account, AccountService.AUTH_TOKEN_TYPE, jwt);
                 response = new WebRequest(request, jwt).execute();
             }
             JsonObjectAPI result = new Gson().fromJson(response.getResult(), JsonObjectAPI.class);

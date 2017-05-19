@@ -17,7 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.location.LocationsActivity;
 import ist.meic.cmu.locmess_client.location.create.NewLocationActivity;
 import ist.meic.cmu.locmess_client.messages.create.NewMessageActivity;
@@ -54,7 +54,7 @@ public class BaseNavigationActivity extends AppCompatActivity
 
         View navigationHeader = navigationView.getHeaderView(0);
         AccountManager manager = AccountManager.get(getBaseContext());
-        Account account = GenericAccountService.GetActiveAccount(manager);
+        Account account = AccountService.getActiveAccount(manager);
         String username;
         if (account != null) {
             username = account.name;

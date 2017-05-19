@@ -25,7 +25,7 @@ import com.google.gson.JsonArray;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.network.RequestData;
 import ist.meic.cmu.locmess_client.network.WebRequest;
 import ist.meic.cmu.locmess_client.network.WebRequestResult;
@@ -132,14 +132,14 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Uri databaseEntry = Uri.parse(extras.getString(SyncUtils.DB_ENTRY_URI, Uri.EMPTY.toString()));
         @SyncUtils.PushWhat int pushWhat = extras.getInt(SyncUtils.PUSH_WHAT, SyncUtils.NO_PUSH);
 
-        String jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
+        String jwt = am.blockingGetAuthToken(account, AccountService.AUTH_TOKEN_TYPE, false);
         WebRequestResult response = new WebRequest(request, jwt).execute();
         try {
             response.assertValidJwtToken();
         } catch (WebRequestResult.JwtExpiredException e) {
             Log.e(TAG, e.getMessage());
-            jwt = GenericAccountService.refreshAuthToken(getContext(), account,
-                    GenericAccountService.AUTH_TOKEN_TYPE, jwt);
+            jwt = AccountService.refreshAuthToken(getContext(), account,
+                    AccountService.AUTH_TOKEN_TYPE, jwt);
             response = new WebRequest(request, jwt).execute();
         }
 
@@ -191,13 +191,13 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         RequestData request = new RequestData(url, requestMethod, json);
-        String jwt = am.blockingGetAuthToken(account, GenericAccountService.AUTH_TOKEN_TYPE, false);
+        String jwt = am.blockingGetAuthToken(account, AccountService.AUTH_TOKEN_TYPE, false);
         WebRequestResult response = new WebRequest(request, jwt).execute();
         try {
             response.assertValidJwtToken();
         } catch (WebRequestResult.JwtExpiredException e) {
             Log.e(TAG, e.getMessage());
-            jwt = GenericAccountService.refreshAuthToken(getContext(), account, GenericAccountService.AUTH_TOKEN_TYPE, jwt);
+            jwt = AccountService.refreshAuthToken(getContext(), account, AccountService.AUTH_TOKEN_TYPE, jwt);
             response = new WebRequest(request, jwt).execute();
         }
         if (response.getError() != null) {

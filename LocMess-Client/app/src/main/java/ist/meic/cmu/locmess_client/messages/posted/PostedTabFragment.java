@@ -28,7 +28,7 @@ import java.net.MalformedURLException;
 import java.util.Date;
 
 import ist.meic.cmu.locmess_client.R;
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.messages.ShowMessageActivity;
 import ist.meic.cmu.locmess_client.network.LocMessURL;
 import ist.meic.cmu.locmess_client.network.RequestData;
@@ -129,7 +129,7 @@ public class PostedTabFragment extends Fragment implements SimpleCursorRecyclerA
         DatabaseUtils.cursorRowToContentValues(c, values);
 
         AccountManager am = AccountManager.get(getActivity().getBaseContext());
-        Account account = GenericAccountService.GetActiveAccount(am);
+        Account account = AccountService.getActiveAccount(am);
         assert account != null;
         String author = account.name;
 

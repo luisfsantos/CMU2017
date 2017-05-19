@@ -4,8 +4,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import ist.meic.cmu.locmess_client.authentication.GenericAccountService;
+import ist.meic.cmu.locmess_client.authentication.AccountService;
 import ist.meic.cmu.locmess_client.messages.inbox.InboxActivity;
 import ist.meic.cmu.locmess_client.network.location_update.LocationUpdateService;
 import ist.meic.cmu.locmess_client.network.location_update.UpdateLocationAlarmReceiver;
@@ -38,11 +36,11 @@ public class SplashScreen extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         am = AccountManager.get(getBaseContext());
-        Account[] accounts = am.getAccountsByType(GenericAccountService.ACCOUNT_TYPE);
+        Account[] accounts = am.getAccountsByType(AccountService.ACCOUNT_TYPE);
         Log.d(TAG, "Accounts.length="+accounts.length);
         if (accounts.length < 1) {
-            am.addAccount(GenericAccountService.ACCOUNT_TYPE,
-                    GenericAccountService.AUTH_TOKEN_TYPE,
+            am.addAccount(AccountService.ACCOUNT_TYPE,
+                    AccountService.AUTH_TOKEN_TYPE,
                     null, null, this, callback, null);
         } else {
             setupLocationUpdateService();
@@ -58,6 +56,7 @@ public class SplashScreen extends AppCompatActivity {
                     setupLocationUpdatesAlarm();
                     P2pDeliveryAlarmReceiver.scheduleAlarm(getApplicationContext());
                     SyncUtils.initialSync(getBaseContext());
+                    SyncUtils.schedulePeriodicSync(getBaseContext());
                     Intent i = new Intent(SplashScreen.this, InboxActivity.class);
                     startActivity(i);
                     finish();
