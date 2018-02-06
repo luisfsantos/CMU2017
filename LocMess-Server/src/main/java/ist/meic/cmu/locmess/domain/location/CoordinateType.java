@@ -5,7 +5,9 @@ package ist.meic.cmu.locmess.domain.location;
  */
 public enum CoordinateType {
         GPS("GPS"),
+        EMPTY("EMPTY"),
         WIFI("WIFI");
+
 
         private String type;
 

@@ -1,0 +1,3 @@
+2017-04-28 18:52:02 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "SSID" not found; SQL statement:
+SELECT * FROM `ssid` WHERE `coordinate_id` = ?  [42102-194]
